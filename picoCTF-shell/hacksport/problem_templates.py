@@ -10,7 +10,7 @@ from hacksport.problem import Compiled, File, ProtectedFile, Remote
 
 def CompiledBinary(makefile=None, compiler="gcc", sources=None, binary_name=None,
                         is_32_bit=True, executable_stack=True, no_stack_protector=True,
-                        aslr=False, compiler_flags=copy([]),
+                        aslr=False, compiler_flags=None,
                         flag_file=None, static_flag=None, share_source=False, remote=False):
     """
     Creates a challenge for a compiled binary. User must specify either a makefile
@@ -39,6 +39,9 @@ def CompiledBinary(makefile=None, compiler="gcc", sources=None, binary_name=None
         static_flag: A string containing the static flag. If specified, the flag generation will always return this. Defaults to None.
         remote: Specifies if the challenge should be remote or not. Defaults to False.
     """
+
+    if compiler_flags == None:
+        compiler_flags = []
 
     if is_32_bit and "-m32" not in compiler_flags:
         compiler_flags.append("-m32")
