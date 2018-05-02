@@ -16,6 +16,7 @@ class TimeoutError(Exception):
     """
     pass
 
+
 def execute(cmd, timeout=60, **kwargs):
     """
     Executes the given shell command
@@ -47,6 +48,7 @@ def execute(cmd, timeout=60, **kwargs):
             raise TimeoutError(cmd, timeout)
 
     return process.wait_for_result()
+
 
 def create_user(username):
     """

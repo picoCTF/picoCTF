@@ -6,10 +6,14 @@ from api.common import check, InternalException, safe_fail, validate
 from voluptuous import Length, Required, Schema
 
 group_settings_schema = Schema({
-    Required("email_filter"): check(
-        ("Email filter must be a list of emails.", [lambda emails: type(emails) == list])),
-    Required("hidden"): check(
-        ("Hidden property of a group is a boolean.", [lambda hidden: type(hidden) == bool]))})
+    Required("email_filter"):
+    check(("Email filter must be a list of emails.",
+           [lambda emails: type(emails) == list])),
+    Required("hidden"):
+    check(("Hidden property of a group is a boolean.",
+           [lambda hidden: type(hidden) == bool]))
+})
+
 
 def get_roles_in_group(gid, tid=None, uid=None):
     """
@@ -39,7 +43,8 @@ def get_roles_in_group(gid, tid=None, uid=None):
     elif tid is not None:
         team = api.team.get_team(tid=tid)
     else:
-        raise InternalException("Either tid or uid must be specified to determine role in group.")
+        raise InternalException(
+            "Either tid or uid must be specified to determine role in group.")
 
     roles = {}
     roles["owner"] = team["tid"] == group["owner"]
@@ -47,6 +52,7 @@ def get_roles_in_group(gid, tid=None, uid=None):
     roles["member"] = team["tid"] in group["members"]
 
     return roles
+
 
 def get_group(gid=None, name=None, owner_tid=None):
     """
@@ -69,13 +75,15 @@ def get_group(gid=None, name=None, owner_tid=None):
     elif gid is not None:
         match.update({"gid": gid})
     else:
-        raise InternalException("Group name and owner or gid must be specified to look up a group.")
+        raise InternalException(
+            "Group name and owner or gid must be specified to look up a group.")
 
     group = db.groups.find_one(match, {"_id": 0})
     if group is None:
         raise InternalException("Could not find that group!")
 
     return group
+
 
 def get_teacher_information(gid):
     """
@@ -97,6 +105,7 @@ def get_teacher_information(gid):
 
     return member_information
 
+
 def get_member_information(gid):
     """
     Retrieves the team information for all teams in a group.
@@ -113,9 +122,11 @@ def get_member_information(gid):
     for tid in group["members"]:
         team = api.team.get_team(tid=tid)
         if team["size"] > 0:
-            member_information.append(api.team.get_team_information(tid=team["tid"]))
+            member_information.append(
+                api.team.get_team_information(tid=team["tid"]))
 
     return member_information
+
 
 @log_action
 def create_group(tid, group_name):
@@ -147,6 +158,7 @@ def create_group(tid, group_name):
 
     return gid
 
+
 def get_group_settings(gid):
     """
     Get various group settings.
@@ -156,9 +168,15 @@ def get_group_settings(gid):
 
     #Ensure it exists.
     group = api.group.get_group(gid=gid)
-    group_result = db.groups.find_one({"gid": group["gid"]}, {"_id": 0, "settings": 1})
+    group_result = db.groups.find_one({
+        "gid": group["gid"]
+    }, {
+        "_id": 0,
+        "settings": 1
+    })
 
     return group_result["settings"]
+
 
 def change_group_settings(gid, settings):
     """
@@ -171,7 +189,8 @@ def change_group_settings(gid, settings):
 
     group = api.group.get_group(gid=gid)
     if group["settings"]["hidden"] and not settings["hidden"]:
-        raise InternalException("You can not change a hidden group back to a public group.")
+        raise InternalException(
+            "You can not change a hidden group back to a public group.")
 
     db.groups.update({"gid": group["gid"]}, {"$set": {"settings": settings}})
 
@@ -198,6 +217,7 @@ def join_group(gid, tid, teacher=False):
 
     db.groups.update({'gid': gid}, {'$push': {role_group: tid}})
 
+
 def sync_teacher_status(tid, uid):
     """
     Determine if the given user is still a teacher and update his status.
@@ -205,8 +225,19 @@ def sync_teacher_status(tid, uid):
 
     db = api.common.get_conn()
 
-    active_teacher_roles = db.groups.find({"$or": [{"teachers": tid}, {"owner": uid}]}).count()
-    db.users.update({"uid": uid}, {"$set": {"teacher": active_teacher_roles > 0}})
+    active_teacher_roles = db.groups.find({
+        "$or": [{
+            "teachers": tid
+        }, {
+            "owner": uid
+        }]
+    }).count()
+    db.users.update({
+        "uid": uid
+    }, {"$set": {
+        "teacher": active_teacher_roles > 0
+    }})
+
 
 @log_action
 def leave_group(gid, tid):
@@ -233,6 +264,7 @@ def leave_group(gid, tid):
     if roles["member"]:
         db.groups.update({'gid': gid}, {'$pull': {"members": tid}})
 
+
 def switch_role(gid, tid, role):
     """
     Switch a user's given role in his group.
@@ -246,13 +278,31 @@ def switch_role(gid, tid, role):
     roles = get_roles_in_group(gid, tid=team["tid"])
     if role == "member":
         if roles["teacher"] and not roles["member"]:
-            db.groups.update({"gid": gid}, {"$pull": {"teachers": tid}, "$push": {"members": tid}})
+            db.groups.update({
+                "gid": gid
+            }, {
+                "$pull": {
+                    "teachers": tid
+                },
+                "$push": {
+                    "members": tid
+                }
+            })
         else:
             raise InternalException("Team is already a member of that group.")
 
     elif role == "teacher":
         if roles["member"] and not roles["teacher"]:
-            db.groups.update({"gid": gid}, {"$push": {"teachers": tid}, "$pull": {"members": tid}})
+            db.groups.update({
+                "gid": gid
+            }, {
+                "$push": {
+                    "teachers": tid
+                },
+                "$pull": {
+                    "members": tid
+                }
+            })
         else:
             raise InternalException("Team is already a teacher of that group.")
 
@@ -261,6 +311,7 @@ def switch_role(gid, tid, role):
 
     for uid in api.team.get_team_uids(tid=team["tid"]):
         sync_teacher_status(tid, uid)
+
 
 @log_action
 def delete_group(gid):
@@ -274,6 +325,7 @@ def delete_group(gid):
     db = api.common.get_conn()
 
     db.groups.remove({'gid': gid})
+
 
 def get_all_groups():
     """

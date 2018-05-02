@@ -43,7 +43,9 @@ def get_json_objects(files):
         elif isinstance(data, dict):
             objects.append(data)
         else:
-            logging.warning("JSON file {} did not contain an object or list of objects".format(f))
+            logging.warning(
+                "JSON file {} did not contain an object or list of objects".
+                format(f))
     return objects
 
 
@@ -61,10 +63,7 @@ def migrate_problems(args):
         "relatedproblems": "related_problems"
     }
 
-    migration_overwrites = {
-        "grader": "test.py",
-        "autogen": False
-    }
+    migration_overwrites = {"grader": "test.py", "autogen": False}
 
     deletion_key = ["_id", "pid", "generator", "submissiontype", "devnotes"]
 
@@ -114,7 +113,9 @@ def list_problems(args):
     #TODO: This could be improved
     problems = api.problem.get_all_problems(show_disabled=True)
     for problem in problems:
-        print("{} ({}) - {} points".format(problem["name"], "disabled" if problem["disabled"] else "enabled", problem["score"]))
+        print("{} ({}) - {} points".format(problem["name"], "disabled"
+                                           if problem["disabled"] else
+                                           "enabled", problem["score"]))
 
 
 def clear_collections(args):
@@ -168,16 +169,19 @@ def load_problems(args):
             try:
                 data = json_util.loads(contents)
             except ValueError as e:
-                logging.warning("Invalid JSON format in file {filename} ({exception})".format(filename=json_file,
-                                                                                              exception=e))
+                logging.warning(
+                    "Invalid JSON format in file {filename} ({exception})".
+                    format(filename=json_file, exception=e))
                 continue
 
             if not isinstance(data, dict):
-                logging.warning("Invalid JSON format in file {}".format(json_file))
+                logging.warning(
+                    "Invalid JSON format in file {}".format(json_file))
                 continue
 
             if 'name' not in data:
-                logging.warning("Invalid problem format in file {}".format(json_file))
+                logging.warning(
+                    "Invalid problem format in file {}".format(json_file))
                 continue
 
             problem_name = data['name']
@@ -185,7 +189,9 @@ def load_problems(args):
             logging.info("Found problem '{}'".format(problem_name))
 
             if 'grader' not in dirnames:
-                logging.warning("Problem '{}' appears to have no grader folder. Skipping...".format(problem_name))
+                logging.warning(
+                    "Problem '{}' appears to have no grader folder. Skipping...".
+                    format(problem_name))
                 continue
 
             grader_path = path.join(grader_dir, relative_path)
@@ -198,15 +204,18 @@ def load_problems(args):
             try:
                 api.problem.insert_problem(data)
             except api.common.WebException as e:
-                logging.info("Problem '{}' was not added to the database. Reason: {}".format(problem_name, e))
+                logging.info(
+                    "Problem '{}' was not added to the database. Reason: {}".
+                    format(problem_name, e))
 
             if 'static' in dirnames:
-                logging.info("Found a static directory for '{}'. Copying...".format(problem_name))
+                logging.info(
+                    "Found a static directory for '{}'. Copying...".format(
+                        problem_name))
                 static_path = path.join(static_dir, relative_path)
                 if path.exists(static_path):
                     shutil.rmtree(static_path)
                 shutil.copytree(path.join(dirpath, 'static'), static_path)
-
 
     errors = api.problem.analyze_problems()
     for error in errors:
@@ -214,55 +223,95 @@ def load_problems(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="{} problem manager".format(api.config.competition_name))
+    parser = argparse.ArgumentParser(
+        description="{} problem manager".format(api.config.competition_name))
     debug_level = parser.add_mutually_exclusive_group()
-    debug_level.add_argument('-v', '--verbose', help="Print intermediate results", action="store_true")
-    debug_level.add_argument('-s', '--silent', help="Print out very little", action="store_true")
-    subparser = parser.add_subparsers(help='Select one of the following actions')
+    debug_level.add_argument(
+        '-v',
+        '--verbose',
+        help="Print intermediate results",
+        action="store_true")
+    debug_level.add_argument(
+        '-s', '--silent', help="Print out very little", action="store_true")
+    subparser = parser.add_subparsers(
+        help='Select one of the following actions')
 
     # Autogen
-    parser_autogen = subparser.add_parser('autogen', help='Deal with Problem Autogeneration')
-    subparser_autogen = parser_autogen.add_subparsers(help='Select one of the following actions')
+    parser_autogen = subparser.add_parser(
+        'autogen', help='Deal with Problem Autogeneration')
+    subparser_autogen = parser_autogen.add_subparsers(
+        help='Select one of the following actions')
 
-    parser_autogen_build = subparser_autogen.add_parser('build', help='Build new autogen instances')
-    parser_autogen_build.add_argument("instance_count", type=int, help="How many instances of each problem to build")
+    parser_autogen_build = subparser_autogen.add_parser(
+        'build', help='Build new autogen instances')
+    parser_autogen_build.add_argument(
+        "instance_count",
+        type=int,
+        help="How many instances of each problem to build")
     parser_autogen_build.set_defaults(func=build_autogen)
 
     # Problems
-    parser_problems = subparser.add_parser('problems', help='Deal with Problems')
-    subparser_problems = parser_problems.add_subparsers(help='Select one of the following actions')
+    parser_problems = subparser.add_parser(
+        'problems', help='Deal with Problems')
+    subparser_problems = parser_problems.add_subparsers(
+        help='Select one of the following actions')
 
-    parser_problems_import = subparser_problems.add_parser('import', help='Import problems (from JSON) into the database')
-    parser_problems_import.add_argument("files", nargs="+", help="Files containing problems to insert.")
+    parser_problems_import = subparser_problems.add_parser(
+        'import', help='Import problems (from JSON) into the database')
+    parser_problems_import.add_argument(
+        "files", nargs="+", help="Files containing problems to insert.")
     parser_problems_import.set_defaults(func=add_new_problems)
 
-    parser_problems_load = subparser_problems.add_parser('load', help='Load problems that follow the special problem format')
-    parser_problems_load.add_argument("problems_directory", nargs=1, help="Directory where problems are located")
-    parser_problems_load.add_argument("graders_directory", nargs=1, help="Directory where graders are stored")
-    parser_problems_load.add_argument("static_directory", nargs=1, help="Directory where static problem content is stored")
+    parser_problems_load = subparser_problems.add_parser(
+        'load', help='Load problems that follow the special problem format')
+    parser_problems_load.add_argument(
+        "problems_directory",
+        nargs=1,
+        help="Directory where problems are located")
+    parser_problems_load.add_argument(
+        "graders_directory", nargs=1, help="Directory where graders are stored")
+    parser_problems_load.add_argument(
+        "static_directory",
+        nargs=1,
+        help="Directory where static problem content is stored")
     parser_problems_load.set_defaults(func=load_problems)
 
-    parser_problems_list = subparser_problems.add_parser('list', help='List problems in the database')
+    parser_problems_list = subparser_problems.add_parser(
+        'list', help='List problems in the database')
     parser_problems_list.set_defaults(func=list_problems)
 
-    parser_problems_migrate = subparser_problems.add_parser('migrate', help='Migrate 2013 problems to the new format')
-    parser_problems_migrate.add_argument('-o', '--output', action="store", help="Output file.", default=sys.stdout)
+    parser_problems_migrate = subparser_problems.add_parser(
+        'migrate', help='Migrate 2013 problems to the new format')
+    parser_problems_migrate.add_argument(
+        '-o',
+        '--output',
+        action="store",
+        help="Output file.",
+        default=sys.stdout)
     parser_problems_migrate.set_defaults(func=migrate_problems)
 
     # Achievements
-    parser_achievements = subparser.add_parser('achievements', help='Deal with Achievements')
-    subparser_achievements = parser_achievements.add_subparsers(help='Select one of the following actions')
+    parser_achievements = subparser.add_parser(
+        'achievements', help='Deal with Achievements')
+    subparser_achievements = parser_achievements.add_subparsers(
+        help='Select one of the following actions')
 
-    parser_achievements_load = subparser_achievements.add_parser('load', help='Load new achievements into the database')
-    parser_achievements_load.add_argument("files", nargs="+", help="Files containing achievements to insert.")
+    parser_achievements_load = subparser_achievements.add_parser(
+        'load', help='Load new achievements into the database')
+    parser_achievements_load.add_argument(
+        "files", nargs="+", help="Files containing achievements to insert.")
     parser_achievements_load.set_defaults(func=add_new_achievements)
 
     # Database
-    parser_database = subparser.add_parser("database", help="Deal with database")
-    subparser_database = parser_database.add_subparsers(help="Select one of the following actions")
+    parser_database = subparser.add_parser(
+        "database", help="Deal with database")
+    subparser_database = parser_database.add_subparsers(
+        help="Select one of the following actions")
 
-    parser_database_clear = subparser_database.add_parser("clear", help="Clear collections")
-    parser_database_clear.add_argument("collections", nargs="+", help="Collections to clear")
+    parser_database_clear = subparser_database.add_parser(
+        "clear", help="Clear collections")
+    parser_database_clear.add_argument(
+        "collections", nargs="+", help="Collections to clear")
     parser_database_clear.set_defaults(func=clear_collections)
 
     args = parser.parse_args()

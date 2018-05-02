@@ -14,6 +14,7 @@ def get_token_path(token_name):
 
     return "tokens.{}".format(token_name)
 
+
 def set_token(key, token_name, token_value=None):
     """
     Sets a token for the user.
@@ -32,10 +33,13 @@ def set_token(key, token_name, token_value=None):
     if token_value is None:
         token_value = api.common.hash(str(key) + api.common.token())
 
-
-    db.tokens.update(key, {'$set': {get_token_path(token_name): token_value}}, upsert=True)
+    db.tokens.update(
+        key, {'$set': {
+            get_token_path(token_name): token_value
+        }}, upsert=True)
 
     return token_value
+
 
 def delete_token(key, token_name):
     """
@@ -49,6 +53,7 @@ def delete_token(key, token_name):
     db = api.common.get_conn()
 
     db.tokens.update(key, {'$unset': {get_token_path(token_name): ''}})
+
 
 def find_key(query, multi=False):
     """
@@ -67,6 +72,7 @@ def find_key(query, multi=False):
 
     return find_func(query)
 
+
 def find_key_by_token(token_name, token_value):
     """
     Searches the database for a user with a token_name token_value pair.
@@ -78,7 +84,12 @@ def find_key_by_token(token_name, token_value):
 
     db = api.common.get_conn()
 
-    key = db.tokens.find_one({get_token_path(token_name): token_value}, {"_id": 0, "tokens": 0})
+    key = db.tokens.find_one({
+        get_token_path(token_name): token_value
+    }, {
+        "_id": 0,
+        "tokens": 0
+    })
 
     if key is None:
         raise InternalException("Could not find {}.".format(token_name))

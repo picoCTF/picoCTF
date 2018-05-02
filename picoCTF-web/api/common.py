@@ -13,6 +13,7 @@ cache = SimpleCache()
 __connection = None
 __client = None
 
+
 def get_conn():
     """
     Get a database connection
@@ -28,23 +29,22 @@ def get_conn():
             conf = api.app.app.config
             if conf["MONGO_USER"] and conf["MONGO_PW"]:
                 uri = "mongodb://{}:{}@{}:{}/{}?authMechanism=SCRAM-SHA-1".format(
-                        conf["MONGO_USER"],
-                        conf["MONGO_PW"],
-                        conf["MONGO_ADDR"],
-                        conf["MONGO_PORT"],
-                        conf["MONGO_DB_NAME"])
+                    conf["MONGO_USER"], conf["MONGO_PW"], conf["MONGO_ADDR"],
+                    conf["MONGO_PORT"], conf["MONGO_DB_NAME"])
             else:
-                uri = "mongodb://{}:{}/{}".format(
-                        conf["MONGO_ADDR"],
-                        conf["MONGO_PORT"],
-                        conf["MONGO_DB_NAME"])
+                uri = "mongodb://{}:{}/{}".format(conf["MONGO_ADDR"],
+                                                  conf["MONGO_PORT"],
+                                                  conf["MONGO_DB_NAME"])
 
             __client = MongoClient(uri)
             __connection = __client[conf["MONGO_DB_NAME"]]
         except ConnectionFailure:
-            raise SevereInternalException("Could not connect to mongo database {} at {}:{}".format(mongo_db_name, mongo_addr, mongo_port))
+            raise SevereInternalException(
+                "Could not connect to mongo database {} at {}:{}".format(
+                    mongo_db_name, mongo_addr, mongo_port))
         except InvalidName as error:
-            raise SevereInternalException("Database {} is invalid! - {}".format(mongo_db_name, error))
+            raise SevereInternalException("Database {} is invalid! - {}".format(
+                mongo_db_name, error))
 
     return __connection
 
@@ -59,6 +59,7 @@ def token():
 
     return str(uuid.uuid4().hex)
 
+
 def hash(string):
     """
     Hashes a string
@@ -70,6 +71,7 @@ def hash(string):
     """
 
     return md5(string.encode("utf-8")).hexdigest()
+
 
 class APIException(Exception):
     """
@@ -83,22 +85,16 @@ def WebSuccess(message=None, data=None):
     Successful web request wrapper.
     """
 
-    return {
-        "status": 1,
-        "message": message,
-        "data": data
-    }
+    return {"status": 1, "message": message, "data": data}
+
 
 def WebError(message=None, data=None):
     """
     Unsuccessful web request wrapper.
     """
 
-    return {
-        "status": 0,
-        "message": message,
-        "data": data
-    }
+    return {"status": 0, "message": message, "data": data}
+
 
 class WebException(APIException):
     """
@@ -107,6 +103,7 @@ class WebException(APIException):
 
     pass
 
+
 class InternalException(APIException):
     """
     Exceptions thrown by the API constituting mild errors.
@@ -114,12 +111,14 @@ class InternalException(APIException):
 
     pass
 
+
 class SevereInternalException(InternalException):
     """
     Exceptions thrown by the API constituting critical errors.
     """
 
     pass
+
 
 def flat_multi(multidict):
     """
@@ -136,6 +135,7 @@ def flat_multi(multidict):
         flat[key] = values[0] if type(values) == list and len(values) == 1 \
                     else values
     return flat
+
 
 def check(*callback_tuples):
     """
@@ -168,7 +168,9 @@ def check(*callback_tuples):
                 except Exception:
                     raise WebException(msg)
         return value
+
     return v
+
 
 def validate(schema, data):
     """
@@ -186,6 +188,7 @@ def validate(schema, data):
         schema(data)
     except MultipleInvalid as error:
         raise APIException(0, None, error.msg)
+
 
 def safe_fail(f, *args, **kwargs):
     """
