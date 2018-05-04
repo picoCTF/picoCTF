@@ -72,6 +72,7 @@ for user, correct_symlinks in data.items():
 
 """
 
+
 def make_temp_dir(shell):
     path = "".join(random.choice(string.ascii_lowercase) for i in range(10))
 
@@ -82,6 +83,7 @@ def make_temp_dir(shell):
         return full_path
     except api.common.WebException as e:
         return None
+
 
 def run():
     global connections
@@ -98,11 +100,18 @@ def run():
 
             data = {}
             for team in teams:
-                unlocked_problems = api.problem.get_unlocked_problems(tid=team["tid"])
-                correct_symlinks = {p["name"]:p["deployment_directory"] for p in unlocked_problems if p["should_symlink"]
-                                                                                                and p["sid"] == server["sid"]}
+                unlocked_problems = api.problem.get_unlocked_problems(
+                    tid=team["tid"])
+                correct_symlinks = {
+                    p["name"]: p["deployment_directory"]
+                    for p in unlocked_problems
+                    if p["should_symlink"] and p["sid"] == server["sid"]
+                }
 
-                data.update({user["username"]:correct_symlinks for user in api.team.get_team_members(tid=team["tid"])})
+                data.update({
+                    user["username"]: correct_symlinks
+                    for user in api.team.get_team_members(tid=team["tid"])
+                })
 
             temp_dir = make_temp_dir(shell)
             if temp_dir == None:
@@ -119,7 +128,7 @@ def run():
 
             try:
                 process = shell.spawn(["sudo", "python", script_path])
-                process.stdin_write(json.dumps(data)+"\n")
+                process.stdin_write(json.dumps(data) + "\n")
                 result = process.wait_for_result()
                 output = result.output.decode('utf-8')
                 if output == "":

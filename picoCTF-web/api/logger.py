@@ -16,6 +16,7 @@ from flask import has_request_context, request
 critical_error_timeout = 600
 log = logging.getLogger(__name__)
 
+
 class StatsHandler(logging.StreamHandler):
     """
     Logs statistical information into the mongodb.
@@ -111,11 +112,13 @@ class StatsHandler(logging.StreamHandler):
                 action_parser = self.action_parsers[result["name"]]
 
                 result["kwargs"]["result"] = result["result"]
-                action_result = action_parser(*result["args"], **result["kwargs"])
+                action_result = action_parser(*result["args"],
+                                              **result["kwargs"])
 
                 information["action"].update(action_result)
 
             api.common.get_conn().statistics.insert(information)
+
 
 class ExceptionHandler(logging.StreamHandler):
     """
@@ -142,6 +145,7 @@ class ExceptionHandler(logging.StreamHandler):
 
         api.common.get_conn().exceptions.insert(information)
 
+
 class SevereHandler(logging.handlers.SMTPHandler):
 
     messages = {}
@@ -154,9 +158,9 @@ class SevereHandler(logging.handlers.SMTPHandler):
             fromaddr=settings["email"]["from_addr"],
             toaddrs=settings["logging"]["admin_emails"],
             subject="Critical Error in {}".format(api.config.competition_name),
-            credentials=(settings["email"]["email_username"], settings["email"]["email_password"]),
-            secure=()
-        )
+            credentials=(settings["email"]["email_username"],
+                         settings["email"]["email_password"]),
+            secure=())
 
     def emit(self, record):
         """
@@ -164,9 +168,11 @@ class SevereHandler(logging.handlers.SMTPHandler):
         """
 
         last_time = self.messages.get(record.msg, None)
-        if last_time is None or time.time() - last_time > api.config.get_settings()["critical_error_timeout"]:
+        if last_time is None or time.time(
+        ) - last_time > api.config.get_settings()["critical_error_timeout"]:
             super(SevereHandler, self).emit(record)
             self.messages[record.msg] = time.time()
+
 
 def set_level(name, level):
     """
@@ -181,6 +187,7 @@ def set_level(name, level):
     if logger:
         logger.setLevel(level)
 
+
 def use(name):
     """
     Alias for logging.getLogger(name)
@@ -192,6 +199,7 @@ def use(name):
     """
 
     return logging.getLogger(name)
+
 
 def get_request_information():
     """
@@ -211,7 +219,7 @@ def get_request_information():
             "platform": request.user_agent.platform,
             "browser": request.user_agent.browser,
             "browser_version": request.user_agent.version,
-            "user_agent":request.user_agent.string
+            "user_agent": request.user_agent.string
         }
 
         if api.auth.is_logged_in():
@@ -229,6 +237,7 @@ def get_request_information():
 
     return information
 
+
 def setup_logs(args):
     """
     Initialize the api loggers.
@@ -242,8 +251,8 @@ def setup_logs(args):
     if not args.get("debug", True):
         set_level("werkzeug", logging.ERROR)
 
-    level = [logging.WARNING, logging.INFO, logging.DEBUG][
-        min(args.get("verbose", 1), 2)]
+    level = [logging.WARNING, logging.INFO, logging.DEBUG][min(
+        args.get("verbose", 1), 2)]
 
     internal_error_log = ExceptionHandler()
     internal_error_log.setLevel(logging.ERROR)

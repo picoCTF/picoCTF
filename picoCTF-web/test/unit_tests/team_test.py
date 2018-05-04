@@ -8,15 +8,12 @@ import api.user
 import bcrypt
 import pytest
 from api.common import InternalException, WebException
-from common import (
-    base_team,
-    base_user,
-    clear_collections,
-    ensure_empty_collections
-)
+from common import (base_team, base_user, clear_collections,
+                    ensure_empty_collections)
 from conftest import setup_db, teardown_db
 
-dict_filter = lambda dict, items: {k:v for k,v in dict.items() if k in items}
+dict_filter = lambda dict, items: {k: v for k, v in dict.items() if k in items}
+
 
 class TestNewStyleTeams(object):
 
@@ -26,7 +23,10 @@ class TestNewStyleTeams(object):
         """
         Tests the newer and simplified user creation.
         """
-        user = dict_filter(base_user.copy(), ["username", "firstname", "lastname", "email","eligibility","affiliation"])
+        user = dict_filter(base_user.copy(), [
+            "username", "firstname", "lastname", "email", "eligibility",
+            "affiliation"
+        ])
         user["password"] = "test"
         uid = api.user.create_simple_user_request(user)
 
@@ -35,10 +35,10 @@ class TestNewStyleTeams(object):
 
         team = api.user.get_team(uid=uid)
 
-        assert team["team_name"] == team_data["team_name"], "User does not belong to the new team."
+        assert team["team_name"] == team_data[
+            "team_name"], "User does not belong to the new team."
         assert api.team.get_team(name=user["username"])["size"] == 0 and api.team.get_team(name=team_data["team_name"])["size"] == 1, \
             "Size calculations are incorrect for new registered team."
-
 
 
 class TestTeams(object):
@@ -73,7 +73,8 @@ class TestTeams(object):
 
         assert len(set(tids)) == len(tids), "tids are not unique."
 
-        assert len(api.team.get_all_teams()) == len(tids), "Not all teams were created."
+        assert len(api.team.get_all_teams()) == len(
+            tids), "Not all teams were created."
 
         for i, tid in enumerate(tids):
             name = base_team['team_name'] + str(i)
@@ -106,11 +107,13 @@ class TestTeams(object):
             uids.append(uid)
 
             # join a real team
-            api.team.join_team(team["team_name"],team["password"],uid) 
+            api.team.join_team(team["team_name"], team["password"], uid)
 
         team_uids = api.team.get_team_uids(tid)
-        assert len(team_uids) == api.config.get_settings()["max_team_size"], "Team does not have correct number of members"
-        assert sorted(uids) == sorted(team_uids), "Team does not have the correct members"
+        assert len(team_uids) == api.config.get_settings()[
+            "max_team_size"], "Team does not have correct number of members"
+        assert sorted(uids) == sorted(
+            team_uids), "Team does not have the correct members"
 
     @ensure_empty_collections("teams", "users")
     @clear_collections("teams", "users")
@@ -132,12 +135,12 @@ class TestTeams(object):
             test_user['username'] += str(i)
             uid = api.user.create_simple_user_request(test_user)
             # join a real team
-            api.team.join_team(team["team_name"],team["password"],uid) 
+            api.team.join_team(team["team_name"], team["password"], uid)
 
         with pytest.raises(InternalException):
-            uid_fail  = api.user.create_simple_user_request(base_user.copy())
+            uid_fail = api.user.create_simple_user_request(base_user.copy())
             # join a real team
-            api.team.join_team(team["team_name"],team["password"],uid_fail)
+            api.team.join_team(team["team_name"], team["password"], uid_fail)
             assert False, "Team has too many users"
 
         api.user.disable_account(uid)
@@ -146,4 +149,4 @@ class TestTeams(object):
         test_user = base_user.copy()
         test_user['username'] += "addition"
         uid = api.user.create_simple_user_request(test_user)
-        api.team.join_team(team["team_name"],team["password"],uid) 
+        api.team.join_team(team["team_name"], team["password"], uid)

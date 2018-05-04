@@ -2,7 +2,6 @@
 Problem deployment.
 """
 
-
 PROBLEM_FILES_DIR = "problem_files"
 STATIC_FILE_ROOT = "static"
 XINETD_SERVICE_PATH = "/etc/xinetd.d/"
@@ -14,6 +13,7 @@ port_map = {}
 inv_port_map = {}
 current_problem = None
 current_instance = None
+
 
 def get_deploy_context():
     """
@@ -34,6 +34,7 @@ def get_deploy_context():
 
 port_random = None
 
+
 def give_port():
     """
     Returns a random port and registers it.
@@ -50,7 +51,8 @@ def give_port():
     if "banned_ports_parsed" not in context["config"]:
         banned_ports_result = []
         for port_range in context["config"].banned_ports:
-            banned_ports_result.extend(list(range(port_range["start"], port_range["end"] + 1)))
+            banned_ports_result.extend(
+                list(range(port_range["start"], port_range["end"] + 1)))
 
         context["config"]["banned_ports_parsed"] = banned_ports_result
 
@@ -62,16 +64,21 @@ def give_port():
     if (context["problem"], context["instance"]) in inv_port_map:
         return inv_port_map[(context["problem"], context["instance"])]
 
-    if len(context["port_map"].items()) + len(context["config"].banned_ports_parsed) == 65536:
-        raise Exception("All usable ports are taken. Cannot deploy any more instances.")
+    if len(context["port_map"].items()) + len(
+            context["config"].banned_ports_parsed) == 65536:
+        raise Exception(
+            "All usable ports are taken. Cannot deploy any more instances.")
 
     while True:
         port = port_random.randint(0, 65535)
         if port not in context["config"].banned_ports_parsed:
             owner, instance = context["port_map"].get(port, (None, None))
-            if owner is None or (owner == context["problem"] and instance == context["instance"]):
-                context["port_map"][port] = (context["problem"], context["instance"])
+            if owner is None or (owner == context["problem"] and
+                                 instance == context["instance"]):
+                context["port_map"][port] = (context["problem"],
+                                             context["instance"])
                 return port
+
 
 import functools
 import json
@@ -92,35 +99,19 @@ from random import randint, Random
 from time import sleep
 
 from hacksport.operations import create_user, execute
-from hacksport.problem import (
-    Compiled,
-    Directory,
-    ExecutableFile,
-    File,
-    FlaskApp,
-    PHPApp,
-    WebService,
-    PreTemplatedFile,
-    ProtectedFile,
-    Remote,
-    Service
-)
+from hacksport.problem import (Compiled, Directory, ExecutableFile, File,
+                               FlaskApp, PHPApp, WebService, PreTemplatedFile,
+                               ProtectedFile, Remote, Service)
 from hacksport.status import get_all_problem_instances, get_all_problems
 from jinja2 import Environment, FileSystemLoader, Template
 from shell_manager.bundle import get_bundle, get_bundle_root
-from shell_manager.util import (
-    DEPLOYED_ROOT,
-    FatalException,
-    get_attributes,
-    get_problem,
-    get_problem_root,
-    HACKSPORTS_ROOT,
-    sanitize_name,
-    STAGING_ROOT
-)
+from shell_manager.util import (DEPLOYED_ROOT, FatalException, get_attributes,
+                                get_problem, get_problem_root, HACKSPORTS_ROOT,
+                                sanitize_name, STAGING_ROOT)
 from spur import RunProcessError
 
 logger = logging.getLogger(__name__)
+
 
 def challenge_meta(attributes):
     """
@@ -135,11 +126,14 @@ def challenge_meta(attributes):
     """
 
     class ChallengeMeta(ABCMeta):
+
         def __new__(cls, name, bases, attr):
             attrs = dict(attr)
             attrs.update(attributes)
             return super().__new__(cls, name, bases, attrs)
+
     return ChallengeMeta
+
 
 def update_problem_class(Class, problem_object, seed, user, instance_directory):
     """
@@ -163,10 +157,15 @@ def update_problem_class(Class, problem_object, seed, user, instance_directory):
     # pass configuration options in as class fields
     attributes.update(dict(deploy_config))
 
-    attributes.update({"random": random, "user": user, "directory": instance_directory,
-                       "server": deploy_config.hostname})
+    attributes.update({
+        "random": random,
+        "user": user,
+        "directory": instance_directory,
+        "server": deploy_config.hostname
+    })
 
-    return challenge_meta(attributes)(Class.__name__, Class.__bases__, Class.__dict__)
+    return challenge_meta(attributes)(Class.__name__, Class.__bases__,
+                                      Class.__dict__)
 
 
 def get_username(problem_name, instance_number):
@@ -175,6 +174,7 @@ def get_username(problem_name, instance_number):
     """
 
     return "{}_{}".format(sanitize_name(problem_name), instance_number)
+
 
 def create_service_files(problem, instance_number, path):
     """
@@ -213,19 +213,18 @@ service %s
 }
 """
 
-
     is_service = isinstance(problem, Service)
     is_web = isinstance(problem, WebService)
     if not is_service and not is_web:
-       return (None, None)
+        return (None, None)
 
     problem_service_info = problem.service()
-    service_content = xinetd_template%(problem.user, problem.port, 
-                              "no" if problem_service_info["Type"] == "oneshot" else "yes",
-                              problem.user, problem.user, 
-                              problem.user, 
-                              "100" if problem_service_info["Type"] == "oneshot" else "UNLIMITED",
-                              problem_service_info['ExecStart'])
+    service_content = xinetd_template % (
+        problem.user, problem.port, "no"
+        if problem_service_info["Type"] == "oneshot" else "yes", problem.user,
+        problem.user, problem.user, "100"
+        if problem_service_info["Type"] == "oneshot" else "UNLIMITED",
+        problem_service_info['ExecStart'])
 
     service_file_path = join(path, "{}".format(problem.user))
 
@@ -233,6 +232,7 @@ service %s
         f.write(service_content)
 
     return (service_file_path, None)
+
 
 def create_instance_user(problem_name, instance_number):
     """
@@ -259,6 +259,7 @@ def create_instance_user(problem_name, instance_number):
 
     return username, new
 
+
 def generate_instance_deployment_directory(username):
     """
     Generates the instance deployment directory for the given username
@@ -266,7 +267,8 @@ def generate_instance_deployment_directory(username):
 
     directory = username
     if deploy_config.obfuscate_problem_directories:
-        directory = md5((username + deploy_config.deploy_secret).encode()).hexdigest()
+        directory = md5(
+            (username + deploy_config.deploy_secret).encode()).hexdigest()
 
     root_dir = deploy_config.problem_directory_root
 
@@ -281,6 +283,7 @@ def generate_instance_deployment_directory(username):
 
     return path
 
+
 def generate_seed(*args):
     """
     Generates a seed using the list of string arguments
@@ -288,7 +291,10 @@ def generate_seed(*args):
 
     return md5("".join(args).encode("utf-8")).hexdigest()
 
-def generate_staging_directory(root=STAGING_ROOT, problem_name=None, instance_number=None):
+
+def generate_staging_directory(root=STAGING_ROOT,
+                               problem_name=None,
+                               instance_number=None):
     """
     Creates a random, empty staging directory
 
@@ -323,6 +329,7 @@ def generate_staging_directory(root=STAGING_ROOT, problem_name=None, instance_nu
     os.makedirs(path)
     return path
 
+
 def template_string(template, **kwargs):
     """
     Templates the given string with the keyword arguments
@@ -335,6 +342,7 @@ def template_string(template, **kwargs):
     temp = Template(template)
     return temp.render(**kwargs)
 
+
 def template_file(in_file_path, out_file_path, **kwargs):
     """
     Templates the given file with the keyword arguments.
@@ -345,12 +353,15 @@ def template_file(in_file_path, out_file_path, **kwargs):
         **kwargs: Variables to use in templating
     """
 
-    env = Environment(loader=FileSystemLoader(os.path.dirname(in_file_path)), keep_trailing_newline=True)
+    env = Environment(
+        loader=FileSystemLoader(os.path.dirname(in_file_path)),
+        keep_trailing_newline=True)
     template = env.get_template(os.path.basename(in_file_path))
     output = template.render(**kwargs)
 
     with open(out_file_path, "w") as f:
         f.write(output)
+
 
 def template_staging_directory(staging_directory, problem):
     """
@@ -363,19 +374,29 @@ def template_staging_directory(staging_directory, problem):
     """
 
     # prepend the staging directory to all
-    dont_template = copy(problem.dont_template) + ["problem.json", "challenge.py", "templates", "__pre_templated"]
+    dont_template = copy(problem.dont_template) + [
+        "problem.json", "challenge.py", "templates", "__pre_templated"
+    ]
 
     dont_template_files = list(filter(isfile, dont_template))
     dont_template_directories = list(filter(isdir, dont_template))
-    dont_template_directories = [join(staging_directory, directory) for directory in dont_template_directories]
+    dont_template_directories = [
+        join(staging_directory, directory)
+        for directory in dont_template_directories
+    ]
 
     for root, dirnames, filenames in os.walk(staging_directory):
-        if any(os.path.commonprefix([root, path]) == path for path in dont_template_directories):
-            logger.debug("....Not templating anything in the directory '{}'".format(root))
+        if any(
+                os.path.commonprefix([root, path]) == path
+                for path in dont_template_directories):
+            logger.debug(
+                "....Not templating anything in the directory '{}'".format(
+                    root))
             continue
         for filename in filenames:
             if filename in dont_template_files:
-                logger.debug("....Not templating the file '{}'".format(filename))
+                logger.debug(
+                    "....Not templating the file '{}'".format(filename))
                 continue
             fullpath = join(root, filename)
             try:
@@ -384,7 +405,9 @@ def template_staging_directory(staging_directory, problem):
                 # tried templating binary file
                 pass
 
-def deploy_files(staging_directory, instance_directory, file_list, username, problem_class):
+
+def deploy_files(staging_directory, instance_directory, file_list, username,
+                 problem_class):
     """
     Copies the list of files from the staging directory to the instance directory.
     Will properly set permissions and setgid files based on their type.
@@ -401,19 +424,20 @@ def deploy_files(staging_directory, instance_directory, file_list, username, pro
             os.makedirs(os.path.dirname(output_path))
 
         if not isinstance(f, Directory):
-          if isinstance(f, PreTemplatedFile):
-              file_source = join(staging_directory, "__pre_templated", f.path)
-          else:
-              file_source = join(staging_directory, f.path)
+            if isinstance(f, PreTemplatedFile):
+                file_source = join(staging_directory, "__pre_templated", f.path)
+            else:
+                file_source = join(staging_directory, f.path)
 
-          shutil.copy2(file_source, output_path)
+            shutil.copy2(file_source, output_path)
 
         # set the ownership based on the type of file
         if isinstance(f, ProtectedFile) or isinstance(f, ExecutableFile):
             os.chown(output_path, default.pw_uid, user.pw_gid)
         else:
             uid = default.pw_uid if f.user is None else getpwnam(f.user).pw_uid
-            gid = default.pw_gid if f.group is None else getgrnam(f.group).gr_gid
+            gid = default.pw_gid if f.group is None else getgrnam(
+                f.group).gr_gid
             os.chown(output_path, uid, gid)
 
         # set the permissions appropriately
@@ -422,6 +446,7 @@ def deploy_files(staging_directory, instance_directory, file_list, username, pro
     if issubclass(problem_class, Service):
         os.chown(instance_directory, default.pw_uid, user.pw_gid)
         os.chmod(instance_directory, 0o750)
+
 
 def install_user_service(service_file, socket_file):
     """
@@ -435,7 +460,7 @@ def install_user_service(service_file, socket_file):
     """
 
     if service_file is None:
-       return
+        return
     service_name = os.path.basename(service_file)
 
     logger.debug("...Installing user service '%s'.", service_name)
@@ -446,8 +471,12 @@ def install_user_service(service_file, socket_file):
 
     execute(["service", "xinetd", "restart"], timeout=60)
 
-def generate_instance(problem_object, problem_directory, instance_number,
-                      staging_directory, deployment_directory=None):
+
+def generate_instance(problem_object,
+                      problem_directory,
+                      instance_number,
+                      staging_directory,
+                      deployment_directory=None):
     """
     Runs the setup functions of Problem in the correct order
 
@@ -465,10 +494,12 @@ def generate_instance(problem_object, problem_directory, instance_number,
                            web_accessible_files, service_file, socket_file)
     """
 
-    logger.debug("Generating instance %d of problem '%s'.", instance_number, problem_object["name"])
+    logger.debug("Generating instance %d of problem '%s'.", instance_number,
+                 problem_object["name"])
     logger.debug("...Using staging directory %s", staging_directory)
 
-    username, new = create_instance_user(problem_object['name'], instance_number)
+    username, new = create_instance_user(problem_object['name'],
+                                         instance_number)
     if new:
         logger.debug("...Created problem user '%s'.", username)
     else:
@@ -478,7 +509,8 @@ def generate_instance(problem_object, problem_directory, instance_number,
         deployment_directory = generate_instance_deployment_directory(username)
     logger.debug("...Using deployment directory '%s'.", deployment_directory)
 
-    seed = generate_seed(problem_object['name'], deploy_config.deploy_secret, str(instance_number))
+    seed = generate_seed(problem_object['name'], deploy_config.deploy_secret,
+                         str(instance_number))
     logger.debug("...Generated random seed '%s' for deployment.", seed)
 
     copy_path = join(staging_directory, PROBLEM_FILES_DIR)
@@ -495,7 +527,8 @@ def generate_instance(problem_object, problem_directory, instance_number,
 
     challenge = load_source("challenge", join(copy_path, "challenge.py"))
 
-    Problem = update_problem_class(challenge.Problem, problem_object, seed, username, deployment_directory)
+    Problem = update_problem_class(challenge.Problem, problem_object, seed,
+                                   username, deployment_directory)
 
     # run methods in proper order
     problem = Problem()
@@ -512,25 +545,33 @@ def generate_instance(problem_object, problem_directory, instance_number,
 
     web_accessible_files = []
 
-    def url_for(web_accessible_files, source_name, display=None, raw=False, pre_templated=False):
+    def url_for(web_accessible_files,
+                source_name,
+                display=None,
+                raw=False,
+                pre_templated=False):
         if pre_templated:
             source_path = join(copy_path, "__pre_templated", source_name)
         else:
             source_path = join(copy_path, source_name)
 
-        problem_hash = problem_object["name"] + deploy_config.deploy_secret + str(instance_number)
+        problem_hash = problem_object["name"] + deploy_config.deploy_secret + str(
+            instance_number)
         problem_hash = md5(problem_hash.encode("utf-8")).hexdigest()
 
         destination_path = join(STATIC_FILE_ROOT, problem_hash, source_name)
 
         link_template = "<a href='{}'>{}</a>"
 
-        web_accessible_files.append((source_path, join(deploy_config.web_root, destination_path)))
+        web_accessible_files.append((source_path,
+                                     join(deploy_config.web_root,
+                                          destination_path)))
         uri_prefix = "//"
         uri = join(uri_prefix, deploy_config.hostname, destination_path)
 
         if not raw:
-            return link_template.format(uri, source_name if display is None else display)
+            return link_template.format(uri, source_name
+                                        if display is None else display)
 
         return uri
 
@@ -567,14 +608,18 @@ def generate_instance(problem_object, problem_directory, instance_number,
         raise FatalException
 
     for f in all_files:
-        if not isinstance(f, Directory) and not os.path.isfile(join(copy_path, f.path)):
+        if not isinstance(f, Directory) and not os.path.isfile(
+                join(copy_path, f.path)):
             logger.error("File '%s' does not exist on the file system!", f)
 
-    service_file, socket_file = create_service_files(problem, instance_number, staging_directory)
-    logger.debug("...Created service files '%s','%s'.", service_file, socket_file)
+    service_file, socket_file = create_service_files(problem, instance_number,
+                                                     staging_directory)
+    logger.debug("...Created service files '%s','%s'.", service_file,
+                 socket_file)
 
     # template the description
-    problem.description = template_string(problem.description, **get_attributes(problem))
+    problem.description = template_string(problem.description,
+                                          **get_attributes(problem))
     logger.debug("...Instance description: %s", problem.description)
 
     return {
@@ -587,7 +632,12 @@ def generate_instance(problem_object, problem_directory, instance_number,
         "socket_file": socket_file
     }
 
-def deploy_problem(problem_directory, instances=[0], test=False, deployment_directory=None, debug=False):
+
+def deploy_problem(problem_directory,
+                   instances=[0],
+                   test=False,
+                   deployment_directory=None,
+                   debug=False):
     """
     Deploys the problem specified in problem_directory.
 
@@ -610,14 +660,22 @@ def deploy_problem(problem_directory, instances=[0], test=False, deployment_dire
 
     for instance_number in instances:
         current_instance = instance_number
-        staging_directory = generate_staging_directory(problem_name=problem_object["name"], instance_number=instance_number)
+        staging_directory = generate_staging_directory(
+            problem_name=problem_object["name"],
+            instance_number=instance_number)
         if test and deployment_directory is None:
             deployment_directory = join(staging_directory, "deployed")
 
-        instance = generate_instance(problem_object, problem_directory, instance_number, staging_directory, deployment_directory=deployment_directory)
+        instance = generate_instance(
+            problem_object,
+            problem_directory,
+            instance_number,
+            staging_directory,
+            deployment_directory=deployment_directory)
         instance_list.append((instance_number, instance))
 
-    deployment_json_dir = join(DEPLOYED_ROOT, sanitize_name(problem_object["name"]))
+    deployment_json_dir = join(DEPLOYED_ROOT,
+                               sanitize_name(problem_object["name"]))
     if not os.path.isdir(deployment_json_dir):
         os.makedirs(deployment_json_dir)
 
@@ -630,8 +688,10 @@ def deploy_problem(problem_directory, instances=[0], test=False, deployment_dire
         problem = instance["problem"]
         deployment_directory = instance["deployment_directory"]
 
-        logger.debug("...Copying problem files %s to deployment directory %s.", instance["files"], deployment_directory)
-        deploy_files(problem_path, deployment_directory, instance["files"], problem.user, problem.__class__)
+        logger.debug("...Copying problem files %s to deployment directory %s.",
+                     instance["files"], deployment_directory)
+        deploy_files(problem_path, deployment_directory, instance["files"],
+                     problem.user, problem.__class__)
 
         if test:
             logger.info("Test instance %d information:", instance_number)
@@ -653,32 +713,47 @@ def deploy_problem(problem_directory, instances=[0], test=False, deployment_dire
             deployment_json_dir = instance["staging_directory"]
         else:
             # copy files to the web root
-            logger.debug("...Copying web accessible files: %s", instance["web_accessible_files"])
+            logger.debug("...Copying web accessible files: %s",
+                         instance["web_accessible_files"])
             for source, destination in instance["web_accessible_files"]:
                 if not os.path.isdir(os.path.dirname(destination)):
                     os.makedirs(os.path.dirname(destination))
                 shutil.copy2(source, destination)
 
-            install_user_service(instance["service_file"], instance["socket_file"])
+            install_user_service(instance["service_file"],
+                                 instance["socket_file"])
 
             # keep the staging directory if run with debug flag
             # this can still be cleaned up by running "shell_manager clean"
             if not debug:
                 shutil.rmtree(instance["staging_directory"])
 
-        unique = problem_object["name"] + problem_object["author"] + str(instance_number) + deploy_config.deploy_secret
+        unique = problem_object["name"] + problem_object["author"] + str(
+            instance_number) + deploy_config.deploy_secret
 
         deployment_info = {
-            "user": problem.user,
-            "deployment_directory": deployment_directory,
-            "service": None if instance["service_file"] is None else os.path.basename(instance["service_file"]),
-            "socket": None if instance["socket_file"] is None else os.path.basename(instance["socket_file"]),
-            "server": problem.server,
-            "description": problem.description,
-            "flag": problem.flag,
-            "flag_sha1": problem.flag_sha1,
-            "instance_number": instance_number,
-            "should_symlink": not isinstance(problem, Service) and len(instance["files"]) > 0,
+            "user":
+            problem.user,
+            "deployment_directory":
+            deployment_directory,
+            "service":
+            None if instance["service_file"] is None else os.path.basename(
+                instance["service_file"]),
+            "socket":
+            None if instance["socket_file"] is None else os.path.basename(
+                instance["socket_file"]),
+            "server":
+            problem.server,
+            "description":
+            problem.description,
+            "flag":
+            problem.flag,
+            "flag_sha1":
+            problem.flag_sha1,
+            "instance_number":
+            instance_number,
+            "should_symlink":
+            not isinstance(problem, Service) and len(instance["files"]) > 0,
             "files": [f.to_dict() for f in instance["files"]]
         }
 
@@ -686,13 +761,19 @@ def deploy_problem(problem_directory, instances=[0], test=False, deployment_dire
             deployment_info["port"] = problem.port
             logger.debug("...Port %d has been allocated.", problem.port)
 
-        instance_info_path = os.path.join(deployment_json_dir, "{}.json".format(instance_number))
+        instance_info_path = os.path.join(deployment_json_dir,
+                                          "{}.json".format(instance_number))
         with open(instance_info_path, "w") as f:
-            f.write(json.dumps(deployment_info, indent=4, separators=(", ", ": ")))
+            f.write(
+                json.dumps(deployment_info, indent=4, separators=(", ", ": ")))
 
-        logger.debug("The instance deployment information can be found at '%s'.", instance_info_path)
+        logger.debug(
+            "The instance deployment information can be found at '%s'.",
+            instance_info_path)
 
-    logger.info("Problem instances %s were successfully deployed for '%s'.", instances, problem_object["name"])
+    logger.info("Problem instances %s were successfully deployed for '%s'.",
+                instances, problem_object["name"])
+
 
 def deploy_problems(args, config):
     """ Main entrypoint for problem deployment """
@@ -703,16 +784,21 @@ def deploy_problems(args, config):
     try:
         user = getpwnam(deploy_config.default_user)
     except KeyError as e:
-        logger.info("default_user '%s' does not exist. Creating the user now.", deploy_config.default_user)
+        logger.info("default_user '%s' does not exist. Creating the user now.",
+                    deploy_config.default_user)
         create_user(deploy_config.default_user)
 
-    if args.deployment_directory is not None and (len(args.problem_paths) > 1 or args.num_instances > 1):
-        logger.error("Cannot specify deployment directory if deploying multiple problems or instances.")
+    if args.deployment_directory is not None and (len(args.problem_paths) > 1 or
+                                                  args.num_instances > 1):
+        logger.error(
+            "Cannot specify deployment directory if deploying multiple problems or instances."
+        )
         raise FatalException
 
     if args.secret:
         deploy_config.deploy_secret = args.secret
-        logger.warn("Overriding deploy_secret with user supplied secret '%s'.", args.secret)
+        logger.warn("Overriding deploy_secret with user supplied secret '%s'.",
+                    args.secret)
 
     problem_names = args.problem_paths
 
@@ -723,7 +809,8 @@ def deploy_problems(args, config):
                 bundle = get_bundle(bundle_path)
                 bundle_problems.extend(bundle["problems"])
             else:
-                bundle_sources_path = get_bundle_root(bundle_path, absolute=True)
+                bundle_sources_path = get_bundle_root(
+                    bundle_path, absolute=True)
                 if os.path.isdir(bundle_sources_path):
                     bundle = get_bundle(bundle_sources_path)
                     bundle_problems.extend(bundle["problems"])
@@ -739,13 +826,16 @@ def deploy_problems(args, config):
         for instance in get_all_problem_instances(path):
             already_deployed[path].append(instance["instance_number"])
             if "port" in instance:
-                port_map[instance["port"]] = (problem["name"], instance["instance_number"])
-                inv_port_map[(problem["name"], instance["instance_number"])] = instance["port"]
+                port_map[instance["port"]] = (problem["name"],
+                                              instance["instance_number"])
+                inv_port_map[(problem["name"],
+                              instance["instance_number"])] = instance["port"]
 
     lock_file = join(HACKSPORTS_ROOT, "deploy.lock")
     if os.path.isfile(lock_file):
-        logger.error("Cannot deploy while other deployment in progress. If you believe this is an error, "
-                         "run 'shell_manager clean'")
+        logger.error(
+            "Cannot deploy while other deployment in progress. If you believe this is an error, "
+            "run 'shell_manager clean'")
         raise FatalException
 
     logger.debug("Obtaining deployment lock file %s", lock_file)
@@ -763,21 +853,33 @@ def deploy_problems(args, config):
                 todo_instance_list = instance_list
             else:
                 # remove already deployed instances
-                todo_instance_list = list(set(instance_list) - set(already_deployed.get(problem_name, [])))
+                todo_instance_list = list(
+                    set(instance_list) -
+                    set(already_deployed.get(problem_name, [])))
 
             if args.dry and isdir(problem_name):
-                deploy_problem(problem_name, instances=todo_instance_list, test=args.dry,
-                                deployment_directory=args.deployment_directory, debug=args.debug)
+                deploy_problem(
+                    problem_name,
+                    instances=todo_instance_list,
+                    test=args.dry,
+                    deployment_directory=args.deployment_directory,
+                    debug=args.debug)
             elif isdir(join(get_problem_root(problem_name, absolute=True))):
-                deploy_problem(join(get_problem_root(problem_name, absolute=True)), instances=todo_instance_list,
-                                test=args.dry, deployment_directory=args.deployment_directory, debug=args.debug)
+                deploy_problem(
+                    join(get_problem_root(problem_name, absolute=True)),
+                    instances=todo_instance_list,
+                    test=args.dry,
+                    deployment_directory=args.deployment_directory,
+                    debug=args.debug)
             else:
-                logger.error("Problem '%s' doesn't appear to be installed.", problem_name)
+                logger.error("Problem '%s' doesn't appear to be installed.",
+                             problem_name)
                 raise FatalException
     finally:
         logger.debug("Releasing lock file %s", lock_file)
         if not args.dry:
             os.remove(lock_file)
+
 
 def remove_instances(path, instance_list):
     """ Remove all files under deployment directory and metdata for a given list of instances """
@@ -788,17 +890,19 @@ def remove_instances(path, instance_list):
     for instance in problem_instances:
         instance_number = instance["instance_number"]
         if instance["instance_number"] in instance_list:
-            logger.debug("Removing instance {} of '{}'.".format(instance_number, path))
+            logger.debug("Removing instance {} of '{}'.".format(
+                instance_number, path))
 
             directory = instance["deployment_directory"]
             user = instance["user"]
             service = instance["service"]
             socket = instance["socket"]
-            deployment_json_path = join(deployment_json_dir, "{}.json".format(instance_number))
+            deployment_json_path = join(deployment_json_dir,
+                                        "{}.json".format(instance_number))
 
             logger.debug("...Removing xinetd service '%s'.", service)
             os.remove(join(XINETD_SERVICE_PATH, service))
-            execute(["service","xinetd","restart"], timeout=60)
+            execute(["service", "xinetd", "restart"], timeout=60)
 
             logger.debug("...Removing deployment directory '%s'.", directory)
             shutil.rmtree(directory)
@@ -806,6 +910,7 @@ def remove_instances(path, instance_list):
 
             logger.debug("...Removing problem user '%s'.", user)
             execute(["userdel", user])
+
 
 def undeploy_problems(args, config):
     """ Main entrypoint for problem undeployment """
@@ -819,7 +924,8 @@ def undeploy_problems(args, config):
                 bundle = get_bundle(bundle_path)
                 bundle_problems.extend(bundle["problems"])
             else:
-                bundle_sources_path = get_bundle_root(bundle_path, absolute=True)
+                bundle_sources_path = get_bundle_root(
+                    bundle_path, absolute=True)
                 if isdir(bundle_sources_path):
                     bundle = get_bundle(bundle_sources_path)
                     bundle_problems.extend(bundle["problems"])
@@ -833,12 +939,14 @@ def undeploy_problems(args, config):
     for path, problem in get_all_problems().items():
         already_deployed[problem["name"]] = []
         for instance in get_all_problem_instances(path):
-            already_deployed[problem["name"]].append(instance["instance_number"])
+            already_deployed[problem["name"]].append(
+                instance["instance_number"])
 
     lock_file = join(HACKSPORTS_ROOT, "deploy.lock")
     if os.path.isfile(lock_file):
-        logger.error("Cannot undeploy while other deployment in progress. If you believe this is an error, "
-                         "run 'shell_manager clean'")
+        logger.error(
+            "Cannot undeploy while other deployment in progress. If you believe this is an error, "
+            "run 'shell_manager clean'")
         raise FatalException
 
     logger.debug("Obtaining deployment lock file %s", lock_file)
@@ -855,15 +963,22 @@ def undeploy_problems(args, config):
             problem_root = get_problem_root(problem_name, absolute=True)
             if isdir(problem_root):
                 problem = get_problem(problem_root)
-                instances = list(filter(lambda x: x in already_deployed[problem["name"]], instance_list))
+                instances = list(
+                    filter(lambda x: x in already_deployed[problem["name"]],
+                           instance_list))
                 if len(instances) == 0:
-                    logger.warn("No deployed instances %s were found for problem '%s'.", instance_list, problem["name"])
+                    logger.warn(
+                        "No deployed instances %s were found for problem '%s'.",
+                        instance_list, problem["name"])
                 else:
                     logger.debug("Undeploying problem '%s'.", problem["name"])
                     remove_instances(problem_name, instance_list)
-                    logger.info("Problem instances %s were successfully removed from '%s'.", instances, problem["name"])
+                    logger.info(
+                        "Problem instances %s were successfully removed from '%s'.",
+                        instances, problem["name"])
             else:
-                logger.error("Problem '%s' doesn't appear to be installed.", problem_name)
+                logger.error("Problem '%s' doesn't appear to be installed.",
+                             problem_name)
                 raise FatalException
     finally:
         logger.debug("Releasing lock file %s", lock_file)

@@ -5,28 +5,23 @@ from datetime import datetime
 import api
 import pymongo
 from api.annotations import log_action
-from api.common import (
-    check,
-    InternalException,
-    safe_fail,
-    SevereInternalException,
-    validate,
-    WebException
-)
+from api.common import (check, InternalException, safe_fail,
+                        SevereInternalException, validate, WebException)
 from voluptuous import Length, Required, Schema
 
 feedback_schema = Schema({
-    Required("liked"): check(
-        ("liked must be a boolean", [lambda x: type(x) == bool])
-    ),
-    "comment": check(
-        ("The comment must be no more than 500 characters", [str, Length(max=500)])
-    ),
-    "timeSpent": check(("Time spend must be a number", [int])),
-    "source": check(
-        ("The source must be no more than 500 characters", [str, Length(max=10)])
-    )
+    Required("liked"):
+    check(("liked must be a boolean", [lambda x: type(x) == bool])),
+    "comment":
+    check(("The comment must be no more than 500 characters",
+           [str, Length(max=500)])),
+    "timeSpent":
+    check(("Time spend must be a number", [int])),
+    "source":
+    check(("The source must be no more than 500 characters",
+           [str, Length(max=10)]))
 })
+
 
 def get_problem_feedback(pid=None, tid=None, uid=None):
     """
@@ -52,6 +47,7 @@ def get_problem_feedback(pid=None, tid=None, uid=None):
 
     return list(db.problem_feedback.find(match, {"_id": 0}))
 
+
 def get_reviewed_pids(uid=None):
     """
     Gets the list of pids reviewed by the user
@@ -68,6 +64,7 @@ def get_reviewed_pids(uid=None):
         uid = api.user.get_user()['uid']
 
     return [entry["pid"] for entry in get_problem_feedback(uid=uid)]
+
 
 @log_action
 def add_problem_feedback(pid, uid, feedback):
@@ -91,7 +88,13 @@ def add_problem_feedback(pid, uid, feedback):
 
     # update feedback if already present
     if get_problem_feedback(pid=pid, uid=uid) != []:
-        db.problem_feedback.update({"pid": pid, "uid":uid}, {"$set": {"timestamp": datetime.utcnow(), "feedback": feedback}})
+        db.problem_feedback.update({
+            "pid": pid,
+            "uid": uid
+        }, {"$set": {
+            "timestamp": datetime.utcnow(),
+            "feedback": feedback
+        }})
     else:
         db.problem_feedback.insert({
             "pid": pid,
@@ -102,4 +105,8 @@ def add_problem_feedback(pid, uid, feedback):
             "feedback": feedback
         })
 
-        api.achievement.process_achievements("review", {"uid": uid, "tid": team['tid'], "pid": pid})
+        api.achievement.process_achievements("review", {
+            "uid": uid,
+            "tid": team['tid'],
+            "pid": pid
+        })

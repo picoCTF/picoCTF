@@ -36,7 +36,7 @@ class TestFunctionalUserManagement(object):
         Assumes logged in
         """
 
-        self.driver.get(BASE_URI+"account")
+        self.driver.get(BASE_URI + "account")
 
         current_password = self.find_id("current-password")
         new_password = self.find_id("new-password")
@@ -75,8 +75,12 @@ class TestFunctionalUserManagement(object):
 
         # try to login with invalid credentials
         login_with(self.test_user["username"], "badpassword")
-        assert all([cookie['name'] != "flask" for cookie in self.driver.get_cookies()]), "Logged in with invalid credentials."
+        assert all([
+            cookie['name'] != "flask" for cookie in self.driver.get_cookies()
+        ]), "Logged in with invalid credentials."
 
         # try to login with correct credentials
         login_with(self.test_user["username"], self.test_user["password"])
-        assert any([cookie['name'] == "flask" for cookie in self.driver.get_cookies()]), "Could not login user."
+        assert any([
+            cookie['name'] == "flask" for cookie in self.driver.get_cookies()
+        ]), "Could not login user."

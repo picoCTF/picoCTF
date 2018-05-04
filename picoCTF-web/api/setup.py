@@ -6,6 +6,7 @@ import api
 
 log = api.logger.use(__name__)
 
+
 def index_mongo():
     """
     Ensure the mongo collections are indexed.
@@ -25,7 +26,6 @@ def index_mongo():
     db.ssh.ensure_index("tid", unique=True, name="unique ssh tid")
     db.teams.ensure_index("team_name", unique=True, name="unique team names")
 
-
     db.shell_servers.ensure_index("name", unique=True, name="unique shell name")
     db.shell_servers.ensure_index("sid", unique=True, name="unique shell sid")
 
@@ -33,4 +33,5 @@ def index_mongo():
     db.cache.ensure_index("kwargs", name="kwargs")
     db.cache.ensure_index("args", name="args")
 
-    db.shell_servers.ensure_index("sid", unique=True, name="unique shell server id")
+    db.shell_servers.ensure_index(
+        "sid", unique=True, name="unique shell server id")
