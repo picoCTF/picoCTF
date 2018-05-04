@@ -8,6 +8,7 @@ PATH = dirname(realpath(__file__))
 
 hacksport.deploy.deploy_config = default_config
 
+
 class TestProblems:
     """
     Regression tests for compiled problems.
@@ -17,7 +18,8 @@ class TestProblems:
         deploy_problem(join(PATH, "problems/compiled_sources"), test=True)
 
     def test_remote_compiled_makefile_template(self):
-        deploy_problem(join(PATH, "problems/remote_compiled_makefile_template"), test=True)
+        deploy_problem(
+            join(PATH, "problems/remote_compiled_makefile_template"), test=True)
 
     def test_remote_no_compile(self):
         deploy_problem(join(PATH, "problems/remote_no_compile"), test=True)

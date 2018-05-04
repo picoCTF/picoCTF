@@ -15,22 +15,15 @@ import api.routes.problem
 import api.routes.stats
 import api.routes.team
 import api.routes.user
-from api.annotations import (
-    api_wrapper,
-    block_after_competition,
-    block_before_competition,
-    check_csrf,
-    log_action,
-    require_admin,
-    require_login,
-    require_teacher
-)
+from api.annotations import (api_wrapper, block_after_competition,
+                             block_before_competition, check_csrf, log_action,
+                             require_admin, require_login, require_teacher)
 from api.common import WebError, WebSuccess
 from flask import Flask, render_template, request, send_from_directory, session
 from flask_mail import Mail
 from werkzeug.contrib.fixers import ProxyFix
 
-app = Flask(__name__, static_path="/")
+app = Flask(__name__, static_url_path="/")
 app.wsgi_app = ProxyFix(app.wsgi_app)
 
 # Loads default_settings
@@ -42,6 +35,7 @@ app.config.from_pyfile('default_settings.py')
 app.config.from_envvar('APP_SETTINGS_FILE', silent=True)
 
 log = api.logger.use(__name__)
+
 
 def config_app(*args, **kwargs):
     """
@@ -67,11 +61,14 @@ def config_app(*args, **kwargs):
     app.register_blueprint(api.routes.stats.blueprint, url_prefix="/api/stats")
     app.register_blueprint(api.routes.admin.blueprint, url_prefix="/api/admin")
     app.register_blueprint(api.routes.group.blueprint, url_prefix="/api/group")
-    app.register_blueprint(api.routes.problem.blueprint, url_prefix="/api/problems")
-    app.register_blueprint(api.routes.achievements.blueprint, url_prefix="/api/achievements")
+    app.register_blueprint(
+        api.routes.problem.blueprint, url_prefix="/api/problems")
+    app.register_blueprint(
+        api.routes.achievements.blueprint, url_prefix="/api/achievements")
 
     api.logger.setup_logs({"verbose": 2})
     return app
+
 
 @app.after_request
 def after_request(response):
@@ -82,16 +79,21 @@ def after_request(response):
     response.headers.add('Cache-Control', 'no-store')
     if api.auth.is_logged_in():
         if 'token' in session:
-            response.set_cookie('token', session['token'], domain=app.config['SESSION_COOKIE_DOMAIN'])
+            response.set_cookie(
+                'token',
+                session['token'],
+                domain=app.config['SESSION_COOKIE_DOMAIN'])
         else:
             csrf_token = api.common.token()
             session['token'] = csrf_token
-            response.set_cookie('token', csrf_token, domain=app.config['SESSION_COOKIE_DOMAIN'])
+            response.set_cookie(
+                'token', csrf_token, domain=app.config['SESSION_COOKIE_DOMAIN'])
 
     # JB: This is a hack. We need a better solution
     if request.path[0:19] != "/api/autogen/serve/":
         response.mimetype = 'application/json'
     return response
+
 
 @app.route('/api/time', methods=['GET'])
 @api_wrapper

@@ -45,7 +45,7 @@ class TestFunctionalProblemWorflow(object):
         Tests that at least one problem is accessible from the problems page.
         """
 
-        self.driver.get(BASE_URI+"problems")
+        self.driver.get(BASE_URI + "problems")
 
         try:
             some_problem_description = self.find_class("problem-description")
@@ -59,26 +59,30 @@ class TestFunctionalProblemWorflow(object):
         If it does not exist, this test will fail.
         """
 
-        self.driver.get(BASE_URI+"problems")
+        self.driver.get(BASE_URI + "problems")
 
         try:
-            problem_title = self.find_xpath('//h4[contains(text(), "Getting Started")]')
+            problem_title = self.find_xpath(
+                '//h4[contains(text(), "Getting Started")]')
         except TimeoutException as e:
             assert False, "Getting Started is not a loaded problem."
 
         # gets the parent of the title, and grabs the #id from it
-        target = problem_title.find_element(By.XPATH, "..").get_attribute("data-target")
+        target = problem_title.find_element(By.XPATH,
+                                            "..").get_attribute("data-target")
 
         # remove the "#"
         pid = target[1:]
 
         # open the hints tab
-        hints_link = self.find_xpath('//a[@class="hint-tab-button"][@data-pid="{}"]'.format(pid))
+        hints_link = self.find_xpath(
+            '//a[@class="hint-tab-button"][@data-pid="{}"]'.format(pid))
         hints_link.click()
 
         # ensure that the hints tab is open
         parent_li = hints_link.find_element(By.XPATH, "..")
-        assert parent_li.get_attribute("class") == "active", "Hints tab is not active after clicking"
+        assert parent_li.get_attribute(
+            "class") == "active", "Hints tab is not active after clicking"
 
         # get the flag from the second hint
         hint_pane = self.find_id("{}hint".format(pid))
@@ -86,12 +90,14 @@ class TestFunctionalProblemWorflow(object):
         flag = second_hint.get_attribute("innerHTML")
 
         # reopen the solve tab
-        solve_link = self.find_xpath('//a[@class="solve-tab-button"][@data-pid="{}"]'.format(pid))
+        solve_link = self.find_xpath(
+            '//a[@class="solve-tab-button"][@data-pid="{}"]'.format(pid))
         solve_link.click()
 
         # ensure that the solve tab is open
         parent_li = solve_link.find_element(By.XPATH, "..")
-        assert parent_li.get_attribute("class") == "active", "Solve tab is not active after clicking"
+        assert parent_li.get_attribute(
+            "class") == "active", "Solve tab is not active after clicking"
 
         # submit an invalid flag
         flag_input = self.find_xpath('//input[@data-pid="{}"]'.format(pid))
@@ -102,8 +108,10 @@ class TestFunctionalProblemWorflow(object):
         time.sleep(3)
 
         # confirm that the tab is still Unsolved
-        problem_title = self.find_xpath('//h4[contains(text(), "Getting Started")]')
-        right_text = problem_title.find_element(By.XPATH, ".//div").get_attribute("innerHTML")
+        problem_title = self.find_xpath(
+            '//h4[contains(text(), "Getting Started")]')
+        right_text = problem_title.find_element(
+            By.XPATH, ".//div").get_attribute("innerHTML")
         assert "Unsolved" in right_text, "Problem is not displayed as Unsolved"
 
         # submit the real flag
@@ -115,8 +123,10 @@ class TestFunctionalProblemWorflow(object):
         time.sleep(3)
 
         # confirm that the tab is now labeled as Solved
-        problem_title = self.find_xpath('//h4[contains(text(), "Getting Started")]')
-        right_text = problem_title.find_element(By.XPATH, ".//div").get_attribute("innerHTML")
+        problem_title = self.find_xpath(
+            '//h4[contains(text(), "Getting Started")]')
+        right_text = problem_title.find_element(
+            By.XPATH, ".//div").get_attribute("innerHTML")
         assert "Solved" in right_text, "Problem is not displayed as Solved"
 
     def test_shell_page(self):
@@ -131,7 +141,7 @@ class TestFunctionalProblemWorflow(object):
             self.driver.switch_to.default_content()
             active_shell_frame.click()
 
-        self.driver.get(BASE_URI+"shell")
+        self.driver.get(BASE_URI + "shell")
 
         # wait for shellinabox
         shell_wait_for_xpath('//span[contains(text(), "shell login")]')
@@ -143,10 +153,11 @@ class TestFunctionalProblemWorflow(object):
         actions.perform()
 
         # login time
-        shell_wait_for_xpath('//span[contains(text(), "Please press enter and reconnect.")]')
+        shell_wait_for_xpath(
+            '//span[contains(text(), "Please press enter and reconnect.")]')
 
         # reconnect
-        self.driver.get(BASE_URI+"shell")
+        self.driver.get(BASE_URI + "shell")
 
         # wait for shellinabox
         shell_wait_for_xpath('//span[contains(text(), "shell login")]')
@@ -166,7 +177,8 @@ class TestFunctionalProblemWorflow(object):
         actions.perform()
 
         # login time
-        shell_wait_for_xpath('//span[contains(text(), "{}@shell:~$")]'.format(self.test_user["username"]))
+        shell_wait_for_xpath('//span[contains(text(), "{}@shell:~$")]'.format(
+            self.test_user["username"]))
 
         # Our account has been created, time to log in
         actions = ActionChains(self.driver)

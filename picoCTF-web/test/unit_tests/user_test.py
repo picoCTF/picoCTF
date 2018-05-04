@@ -6,16 +6,12 @@ import api
 import bcrypt
 import pytest
 from api.common import InternalException, safe_fail, WebException
-from common import (
-    base_team,
-    base_user,
-    clear_collections,
-    ensure_empty_collections,
-    new_team_user
-)
+from common import (base_team, base_user, clear_collections,
+                    ensure_empty_collections, new_team_user)
 from conftest import setup_db, teardown_db
 
-dict_filter = lambda dict, items: {k:v for k,v in dict.items() if k in items}
+dict_filter = lambda dict, items: {k: v for k, v in dict.items() if k in items}
+
 
 class TestNewStyleUsers(object):
     """
@@ -39,14 +35,17 @@ class TestNewStyleUsers(object):
         Tests the newer and simplified user creation.
         """
 
-        user = dict_filter(base_user.copy(),
-                ["username", "firstname", "lastname", "email","eligibility","affiliation"])
+        user = dict_filter(base_user.copy(), [
+            "username", "firstname", "lastname", "email", "eligibility",
+            "affiliation"
+        ])
         user["password"] = "test"
         uid = api.user.create_simple_user_request(user)
 
         team = api.user.get_team(uid=uid)
 
-        assert team["team_name"] == user["username"], "Team name does not match username."
+        assert team["team_name"] == user[
+            "username"], "Team name does not match username."
         assert team["size"] == 1, "Individual team size is incorrect."
 
 
@@ -82,13 +81,14 @@ class TestUsers(object):
         uids = []
         for i in range(api.config.get_settings()["max_team_size"]):
             name = "fred" + str(i)
-            uids.append(api.user.create_user(
-                name, name, name,  name + "@gmail.com", name, tid
-            ))
+            uids.append(
+                api.user.create_user(name, name, name, name + "@gmail.com",
+                                     name, tid))
 
         with pytest.raises(InternalException):
             name = "fred" + str(api.config.get_settings()["max_team_size"])
-            api.user.create_user(name, name, name, name+"@gmail.com", name, tid)
+            api.user.create_user(name, name, name, name + "@gmail.com", name,
+                                 tid)
 
         for i, uid in enumerate(uids):
             name = "fred" + str(i)
@@ -125,7 +125,8 @@ class TestUsers(object):
             assert False, "Was able to register a user with invalid characters"
 
         valid_email_user = base_user.copy()
-        assert api.user.create_simple_user_request(valid_email_user), "Was not able to register a valid email."
+        assert api.user.create_simple_user_request(
+            valid_email_user), "Was not able to register a valid email."
 
     @ensure_empty_collections("users", "teams")
     @clear_collections("users", "teams")
@@ -145,10 +146,9 @@ class TestUsers(object):
         # user is now on an auto created individual team
         uid = api.user.create_simple_user_request(base_user.copy())
         # join a real team
-        api.team.join_team(team["team_name"],team["password"],uid) 
+        api.team.join_team(team["team_name"], team["password"], uid)
         result_team = api.user.get_team(uid=uid)
         assert tid == result_team['tid'], "Unable to pair uid and tid."
-
 
     @ensure_empty_collections("users", "teams")
     @clear_collections("users", "teams")
@@ -162,7 +162,8 @@ class TestUsers(object):
         """
 
         uid = api.user.create_simple_user_request(new_team_user)
-        assert uid == api.user.get_user(name=new_team_user["username"])["uid"], "Good user created unsuccessfully."
+        assert uid == api.user.get_user(name=new_team_user["username"])[
+            "uid"], "Good user created unsuccessfully."
 
         # user is added to a default team of their username
         team = api.team.get_team(name=new_team_user["username"])
@@ -203,12 +204,15 @@ class TestUsers(object):
 
         # create a new user and join and existing team
         uid = api.user.create_simple_user_request(base_user.copy())
-        assert uid == api.user.get_user(name=base_user["username"])["uid"], "Good user created unsuccessfully."
+        assert uid == api.user.get_user(name=base_user["username"])[
+            "uid"], "Good user created unsuccessfully."
 
-        assert api.team.join_team(team["team_name"],team["password"],uid), "User unable to joining an existing team"
+        assert api.team.join_team(
+            team["team_name"], team["password"],
+            uid), "User unable to joining an existing team"
 
         with pytest.raises(InternalException):
-            api.team.join_team(team["team_name"],team["password"],uid)
+            api.team.join_team(team["team_name"], team["password"], uid)
             assert False, "Was able to register and join the team twice."
 
         # attempt to join a non existent team
@@ -216,20 +220,21 @@ class TestUsers(object):
             invalid_team_user = base_user.copy()
             invalid_team_user["username"] = "asdf"
             invalid_uid = api.user.create_simple_user_request(invalid_team_user)
-            api.team.join_team("Totally Invalid",team["password"],uid) 
+            api.team.join_team("Totally Invalid", team["password"], uid)
             assert False, "Was able to join a team that doesn't exist."
 
         # attempt to join an existing team with an invalid password
         with pytest.raises(WebException):
             invalid_team_user = base_user.copy()
             invalid_team_user["username"] = "asdf"
-            invalid_uid  = api.user.create_simple_user_request(invalid_team_user)
-            api.team.join_team(team["team_name"],"bad-password",uid) 
+            invalid_uid = api.user.create_simple_user_request(invalid_team_user)
+            api.team.join_team(team["team_name"], "bad-password", uid)
             assert False, "Was able to join a team with an invalid password."
 
         team_uids = api.team.get_team_uids(tid)
 
-        assert len(team_uids) == 1, "Invalid teams were created though the tests passed."
+        assert len(team_uids
+                  ) == 1, "Invalid teams were created though the tests passed."
         assert uid in team_uids, "User was not successfully placed into the existing team."
 
     @ensure_empty_collections("users", "teams")
@@ -244,12 +249,16 @@ class TestUsers(object):
         """
 
         tid = api.team.create_team(base_team.copy())
-        uid = api.user.create_user("fred", "fred", "fred", "fred@gmail.com", "HASH", tid)
+        uid = api.user.create_user("fred", "fred", "fred", "fred@gmail.com",
+                                   "HASH", tid)
 
         old_hash = api.user.get_user(uid=uid)["password_hash"]
         assert old_hash == "HASH", "Was unable to confirm password was stored correctly."
 
-        api.user.update_password_request({"new-password":"HACK", "new-password-confirmation":"HACK"}, uid)
+        api.user.update_password_request({
+            "new-password": "HACK",
+            "new-password-confirmation": "HACK"
+        }, uid)
 
         new_hash = api.user.get_user(uid=uid)["password_hash"]
 
@@ -257,5 +266,8 @@ class TestUsers(object):
             "Password does not match hashed plaintext after changing it."
 
         with pytest.raises(WebException):
-            api.user.update_password_request({"new-password": "", "new-password-confirmation":""}, uid)
+            api.user.update_password_request({
+                "new-password": "",
+                "new-password-confirmation": ""
+            }, uid)
             assert False, "Should not be able to update password to nothing."

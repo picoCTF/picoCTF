@@ -13,8 +13,9 @@ from pymongo import MongoClient
 def setup_db():
     """ Creates a mongodb instance and shuts it down after testing has concluded. """
 
-    client = MongoClient(api.config.testing_mongo_addr,
-                         api.config.testing_mongo_port)[api.config.testing_mongo_db_name]
+    client = MongoClient(
+        api.config.testing_mongo_addr,
+        api.config.testing_mongo_port)[api.config.testing_mongo_db_name]
 
     if len(client.collection_names()) != 0:
         client.connection.drop_database(api.config.testing_mongo_db_name)
@@ -25,9 +26,11 @@ def setup_db():
 
     return client
 
+
 def teardown_db():
     """ Drops the db and shuts down the mongodb instance. """
-    client = MongoClient(api.config.testing_mongo_addr,
-                         api.config.testing_mongo_port)[api.config.testing_mongo_db_name]
+    client = MongoClient(
+        api.config.testing_mongo_addr,
+        api.config.testing_mongo_port)[api.config.testing_mongo_db_name]
     client.connection.drop_database(api.config.testing_mongo_db_name)
     client.connection.disconnect()

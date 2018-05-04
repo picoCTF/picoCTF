@@ -31,7 +31,6 @@ setup(
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
     version='1.2.1',
-
     description="CTF Web Infrastructure",
     long_description=long_description,
 
@@ -75,12 +74,11 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=["Flask", "flask-bcrypt", "pymongo==3.2.1", "pyzmq", "py",
-                      "pytest", "voluptuous", "gunicorn", "spur", "line_profiler",
-                      "Flask-Mail"],
-
-    tests_require = ["selenium"],
-
+    install_requires=[
+        "Flask", "flask-bcrypt", "pymongo==3.2.1", "pyzmq", "py", "pytest",
+        "voluptuous", "gunicorn", "spur", "line_profiler", "Flask-Mail"
+    ],
+    tests_require=["selenium"],
     entry_points={
         'console_scripts': [
             'api_manager=api.api_manager:main',

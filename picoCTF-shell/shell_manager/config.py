@@ -6,23 +6,22 @@ import json
 import logging
 import os
 
-from shell_manager.util import (
-    FatalException,
-    get_config,
-    place_default_config,
-    write_configuration_file,
-    write_global_configuration
-)
+from shell_manager.util import (FatalException, get_config,
+                                place_default_config, write_configuration_file,
+                                write_global_configuration)
 
 logger = logging.getLogger(__name__)
+
 
 def port_range_to_str(port_range):
     if port_range["start"] == port_range["end"]:
         return str(port_range["start"])
     return "%d-%d" % (port_range["start"], port_range["end"])
 
+
 def banned_ports_to_str(banned_ports):
     return "[" + ", ".join(map(port_range_to_str, banned_ports)) + "]"
+
 
 def print_configuration(args, global_config):
     """
@@ -54,6 +53,7 @@ def print_configuration(args, global_config):
 
         print("  %s = %s" % (option.ljust(50), value_string))
 
+
 def set_configuration_option(args, global_config):
     """
     Entry point for config set subcommand
@@ -77,20 +77,25 @@ def set_configuration_option(args, global_config):
             logger.fatal("Couldn't parse value as JSON")
             raise FatalException
 
-    if field in config and type(config[field]) != type(value) and not args.allow_type_change:
-        logger.fatal("Tried to change type of '%s' from '%s' to '%s'", field, type(config[field]), type(value))
+    if field in config and type(
+            config[field]) != type(value) and not args.allow_type_change:
+        logger.fatal("Tried to change type of '%s' from '%s' to '%s'", field,
+                     type(config[field]), type(value))
         logger.fatal("Try adding --json and supplying the value as json.")
-        logger.fatal("If changing the type is desired, add the --allow-type-change option")
+        logger.fatal(
+            "If changing the type is desired, add the --allow-type-change option"
+        )
         raise FatalException
 
     config[field] = value
 
     if args.file:
-      write_configuration_file(args.file, config)
+        write_configuration_file(args.file, config)
     else:
-      write_global_configuration(config)
+        write_global_configuration(config)
 
     logger.info("Set {} = {}".format(field, value))
+
 
 def new_configuration_file(args, global_config):
     """
@@ -99,7 +104,8 @@ def new_configuration_file(args, global_config):
 
     for path in args.files:
         if not args.overwrite and os.path.exists(path):
-            logger.warning("'%s' already exists. Not placing new configuration.", path)
+            logger.warning(
+                "'%s' already exists. Not placing new configuration.", path)
             continue
 
         place_default_config(path)

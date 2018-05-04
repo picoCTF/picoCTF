@@ -30,7 +30,6 @@ setup(
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
     version='1.2.1',
-
     description='deploy and package hacksport problems',
     long_description=long_description,
 
@@ -74,7 +73,10 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['spur', 'openssh-wrapper', "werkzeug", "jinja2", "pytest", "psutil", "flask", "coloredlogs", "voluptuous"],
+    install_requires=[
+        'spur', 'openssh-wrapper', "werkzeug", "jinja2", "pytest", "psutil",
+        "flask", "coloredlogs", "voluptuous"
+    ],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,

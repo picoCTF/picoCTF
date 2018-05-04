@@ -13,13 +13,14 @@ log = api.logger.use(__name__)
 debug_disable_general_login = False
 
 user_login_schema = Schema({
-    Required('username'): check(
-        ("Usernames must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
-    ),
-    Required('password'): check(
-        ("Passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)])
-    )
+    Required('username'):
+    check(("Usernames must be between 3 and 50 characters.",
+           [str, Length(min=3, max=50)]),),
+    Required('password'):
+    check(("Passwords must be between 3 and 50 characters.",
+           [str, Length(min=3, max=50)]))
 })
+
 
 def confirm_password(attempt, password_hash):
     """
@@ -29,7 +30,9 @@ def confirm_password(attempt, password_hash):
         attempt: the password attempt
         password_hash: the real password pash
     """
-    return bcrypt.hashpw(attempt.encode('utf-8'), password_hash) == password_hash
+    return bcrypt.hashpw(attempt.encode('utf-8'),
+                         password_hash) == password_hash
+
 
 @log_action
 def login(username, password):
@@ -38,10 +41,7 @@ def login(username, password):
     """
 
     # Read in submitted username and password
-    validate(user_login_schema, {
-        "username": username,
-        "password": password
-    })
+    validate(user_login_schema, {"username": username, "password": password})
 
     user = safe_fail(api.user.get_user, name=username)
     if user is None:
@@ -57,13 +57,18 @@ def login(username, password):
         if not user["verified"]:
             try:
                 api.email.send_user_verification_email(username)
-                raise WebException("This account is not verified. An additional email has been sent to {}.".format(user["email"]))
+                raise WebException(
+                    "This account is not verified. An additional email has been sent to {}.".
+                    format(user["email"]))
             except InternalException as e:
-                raise WebException("You have hit the maximum number of verification emails. Please contact support.")
+                raise WebException(
+                    "You have hit the maximum number of verification emails. Please contact support."
+                )
 
         if debug_disable_general_login:
             if session.get('debugaccount', False):
-                raise WebException("Correct credentials! But the game has not started yet...")
+                raise WebException(
+                    "Correct credentials! But the game has not started yet...")
         if user['uid'] is not None:
             session['uid'] = user['uid']
             session.permanent = True
@@ -72,6 +77,7 @@ def login(username, password):
     else:
         raise WebException("Incorrect password")
 
+
 @log_action
 def logout():
     """
@@ -79,6 +85,7 @@ def logout():
     """
 
     session.clear()
+
 
 def is_logged_in():
     """
@@ -93,6 +100,7 @@ def is_logged_in():
         logout()
         return False
     return logged_in
+
 
 def get_uid():
     """
