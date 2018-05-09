@@ -1,3 +1,4 @@
-.vagrant
-.terraform
-terraform.tfstate*
+/.terraform
+/.vagrant
+/game
+/terraform.tfstate*
