@@ -81,12 +81,19 @@ def after_request(response):
     response.headers.add('Cache-Control', 'no-cache')
     response.headers.add('Cache-Control', 'no-store')
     if api.auth.is_logged_in():
+        # If SESSION_COOKIE_DOMAIN is set to None, then for some reason this
+        # comes back False, which screws up later processing that wants it
+        # to be None.  It didn't do this previously.  Flask update?
+        domain=app.config['SESSION_COOKIE_DOMAIN']
+        if not domain:
+            domain = None
+
         if 'token' in session:
-            response.set_cookie('token', session['token'], domain=app.config['SESSION_COOKIE_DOMAIN'])
+            response.set_cookie('token', session['token'], domain=domain)
         else:
             csrf_token = api.common.token()
             session['token'] = csrf_token
-            response.set_cookie('token', csrf_token, domain=app.config['SESSION_COOKIE_DOMAIN'])
+            response.set_cookie('token', csrf_token, domain=domain)
 
     # JB: This is a hack. We need a better solution
     if request.path[0:19] != "/api/autogen/serve/":
