@@ -12,6 +12,7 @@ from api.common import InternalException
 _get_problem_names = lambda problems: [problem['name'] for problem in problems]
 top_teams = 5
 
+
 @api.cache.memoize()
 def get_score(tid=None, uid=None):
     """
@@ -23,7 +24,10 @@ def get_score(tid=None, uid=None):
     Returns:
         The users's or team's score
     """
-    score = sum([problem['score'] for problem in api.problem.get_solved_problems(tid=tid, uid=uid)])
+    score = sum([
+        problem['score']
+        for problem in api.problem.get_solved_problems(tid=tid, uid=uid)
+    ])
     return score
 
 
@@ -33,7 +37,8 @@ def get_team_review_count(tid=None, uid=None):
     elif tid is not None:
         count = 0
         for member in api.team.get_team_members(tid=tid):
-            count += len(api.problem_feedback.get_reviewed_pids(uid=member['uid']))
+            count += len(
+                api.problem_feedback.get_reviewed_pids(uid=member['uid']))
         return count
 
 
@@ -48,7 +53,10 @@ def get_group_scores(gid=None, name=None):
         A dictionary containing name, tid, and score
     """
 
-    members = [api.team.get_team(tid=tid) for tid in api.group.get_group(gid=gid, name=name)['members']]
+    members = [
+        api.team.get_team(tid=tid)
+        for tid in api.group.get_group(gid=gid, name=name)['members']
+    ]
 
     result = []
     for team in members:
@@ -61,6 +69,7 @@ def get_group_scores(gid=None, name=None):
         })
 
     return sorted(result, key=lambda entry: entry['score'], reverse=True)
+
 
 def get_group_average_score(gid=None, name=None):
     """
@@ -76,6 +85,7 @@ def get_group_average_score(gid=None, name=None):
     group_scores = get_group_scores(gid=gid, name=name)
     total_score = sum([entry['score'] for entry in group_scores])
     return int(total_score / len(group_scores)) if len(group_scores) > 0 else 0
+
 
 # Stored by the cache_stats daemon
 @api.cache.memoize()
@@ -103,14 +113,23 @@ def get_all_team_scores(eligible=None):
     result = []
     for team in teams:
         # Get the full version of the group.
-        groups = [api.group.get_group(group["gid"]) for group in api.team.get_groups(tid=team["tid"])]
+        groups = [
+            api.group.get_group(group["gid"])
+            for group in api.team.get_groups(tid=team["tid"])
+        ]
 
         # Determine if the user is exclusively a member of hidden groups.
         # If they are, they won't be processed.
-        if len(groups) == 0 or any([not(group["settings"]["hidden"]) for group in groups]):
-            team_query = db.submissions.find({'tid': team['tid'], 'eligible': eligible, 'correct': True})
+        if len(groups) == 0 or any(
+            [not (group["settings"]["hidden"]) for group in groups]):
+            team_query = db.submissions.find({
+                'tid': team['tid'],
+                'eligible': eligible,
+                'correct': True
+            })
             if team_query.count() > 0:
-                lastsubmit = team_query.sort('timestamp', direction=pymongo.DESCENDING)[0]['timestamp']
+                lastsubmit = team_query.sort(
+                    'timestamp', direction=pymongo.DESCENDING)[0]['timestamp']
             else:
                 lastsubmit = datetime.datetime.now()
             score = get_score(tid=team['tid'])
@@ -124,8 +143,17 @@ def get_all_team_scores(eligible=None):
                     "lastsubmit": lastsubmit
                 })
     time_ordered = sorted(result, key=lambda entry: entry['lastsubmit'])
-    time_ordered_time_removed = [{'name': x['name'], 'eligible': x['eligible'], 'tid': x['tid'], 'score': x['score'], 'affiliation': x['affiliation']} for x in time_ordered]
-    return sorted(time_ordered_time_removed, key=lambda entry: entry['score'], reverse=True)
+    time_ordered_time_removed = [{
+        'name': x['name'],
+        'eligible': x['eligible'],
+        'tid': x['tid'],
+        'score': x['score'],
+        'affiliation': x['affiliation']
+    } for x in time_ordered]
+    return sorted(
+        time_ordered_time_removed,
+        key=lambda entry: entry['score'],
+        reverse=True)
 
 
 def get_all_user_scores():
@@ -147,6 +175,7 @@ def get_all_user_scores():
 
     return sorted(result, key=lambda entry: entry['score'], reverse=True)
 
+
 @api.cache.memoize(timeout=120, fast=True)
 def get_problems_by_category():
     """
@@ -156,16 +185,20 @@ def get_problems_by_category():
         A dictionary of category:[problem list]
     """
 
-    result = {cat: _get_problem_names(api.problem.get_all_problems(category=cat))
-                            for cat in api.problem.get_all_categories()}
+    result = {
+        cat: _get_problem_names(api.problem.get_all_problems(category=cat))
+        for cat in api.problem.get_all_categories()
+    }
 
     return result
 
 
 @api.cache.memoize(timeout=120, fast=True)
 def get_pids_by_category():
-    result = {cat: [x['pid'] for x in api.problem.get_all_problems(category=cat)]
-              for cat in api.problem.get_all_categories()}
+    result = {
+        cat: [x['pid'] for x in api.problem.get_all_problems(category=cat)
+             ] for cat in api.problem.get_all_categories()
+    }
     return result
 
 
@@ -191,7 +224,12 @@ def get_team_member_stats(tid):
 
     members = api.team.get_team_members(tid=tid)
 
-    return {member['username']: _get_problem_names(api.problem.get_solved_problems(uid=member['uid'])) for member in members}
+    return {
+        member['username']: _get_problem_names(
+            api.problem.get_solved_problems(uid=member['uid']))
+        for member in members
+    }
+
 
 def get_problem_submission_stats(pid=None, name=None):
     """
@@ -207,9 +245,12 @@ def get_problem_submission_stats(pid=None, name=None):
     problem = api.problem.get_problem(pid=pid, name=name)
 
     return {
-        "valid": len(api.problem.get_submissions(pid=problem["pid"], correctness=True)),
-        "invalid": len(api.problem.get_submissions(pid=problem["pid"], correctness=False)),
+        "valid":
+        len(api.problem.get_submissions(pid=problem["pid"], correctness=True)),
+        "invalid":
+        len(api.problem.get_submissions(pid=problem["pid"], correctness=False)),
     }
+
 
 @api.cache.memoize()
 def get_score_progression(tid=None, uid=None, category=None):
@@ -225,7 +266,8 @@ def get_score_progression(tid=None, uid=None, category=None):
         A list of dictionaries containing score and time
     """
 
-    solved = api.problem.get_solved_problems(tid=tid, uid=uid, category=category)
+    solved = api.problem.get_solved_problems(
+        tid=tid, uid=uid, category=category)
 
     result = []
     score = 0
@@ -243,6 +285,7 @@ def get_score_progression(tid=None, uid=None, category=None):
 
     return result
 
+
 def get_top_teams(gid=None, eligible=None):
     """
     Finds the top teams
@@ -257,11 +300,13 @@ def get_top_teams(gid=None, eligible=None):
 
     if gid is None:
         if eligible is None:
-            raise InternalException("Eligible must be set to either true or false")
+            raise InternalException(
+                "Eligible must be set to either true or false")
         all_teams = api.stats.get_all_team_scores(eligible=eligible)
     else:
         all_teams = api.stats.get_group_scores(gid=gid)
     return all_teams if len(all_teams) < top_teams else all_teams[:top_teams]
+
 
 # Stored by the cache_stats daemon
 @api.cache.memoize()
@@ -276,13 +321,15 @@ def get_problem_solves(name=None, pid=None):
     """
 
     if not name and not pid:
-        raise InternalException("You must supply either a pid or name of the problem.")
+        raise InternalException(
+            "You must supply either a pid or name of the problem.")
 
     db = api.common.get_conn()
 
     problem = api.problem.get_problem(name=name, pid=pid)
 
     return db.submissions.find({'pid': problem["pid"], 'correct': True}).count()
+
 
 @api.cache.memoize()
 def get_top_teams_score_progressions(gid=None, eligible=True):
@@ -306,46 +353,68 @@ def get_top_teams_score_progressions(gid=None, eligible=True):
 
 # Custom statistics not necessarily to be served publicly
 
+
 def bar():
     print("------------------")
 
 
 def get_stats():
     bar()
-    print("Average Eligible, Scoring Team Score: {0:.3f} +/- {1:.3f}".format(*get_average_eligible_score()))
-    print("Median Eligible, Scoring Team Score: {0:.3f}".format(get_median_eligible_score()))
+    print("Average Eligible, Scoring Team Score: {0:.3f} +/- {1:.3f}".format(
+        *get_average_eligible_score()))
+    print("Median Eligible, Scoring Team Score: {0:.3f}".format(
+        get_median_eligible_score()))
     bar()
-    print("Average Number of Problems Solved per Team (eligible, scoring): {0:.3f} +/- {1:.3f}".format(*get_average_problems_solved()))
-    print("Median Number of Problems Solved per Team (eligible, scoring): {:.3f}".format(get_median_problems_solved()))
+    print(
+        "Average Number of Problems Solved per Team (eligible, scoring): {0:.3f} +/- {1:.3f}".
+        format(*get_average_problems_solved()))
+    print(
+        "Median Number of Problems Solved per Team (eligible, scoring): {:.3f}".
+        format(get_median_problems_solved()))
     bar()
     user_breakdown = get_team_member_solve_stats()
-    print("Average Number of Problems Solved per User (eligible, user scoring): {0:.3f} +/- {1:.3f}".format(*get_average_problems_solved_per_user(user_breakdown=user_breakdown)))
-    print("Median Number of Problems Solved per User (eligible, user scoring): {:.3f}".format(get_median_problems_solved_per_user(user_breakdown=user_breakdown)))
+    print(
+        "Average Number of Problems Solved per User (eligible, user scoring): {0:.3f} +/- {1:.3f}".
+        format(*get_average_problems_solved_per_user(
+            user_breakdown=user_breakdown)))
+    print(
+        "Median Number of Problems Solved per User (eligible, user scoring): {:.3f}".
+        format(
+            get_median_problems_solved_per_user(user_breakdown=user_breakdown)))
     bar()
     print("Team participation averages:")
-    correct_percent, any_percent = get_team_participation_percentage(user_breakdown=user_breakdown)
+    correct_percent, any_percent = get_team_participation_percentage(
+        user_breakdown=user_breakdown)
     for size in sorted(correct_percent.keys()):
-        print("\tTeam size: {0}\t{1:.3f} submitted a correct answer\t{2:.3f} submitted some answer".
-              format(size, correct_percent[size], any_percent[size]))
+        print(
+            "\tTeam size: {0}\t{1:.3f} submitted a correct answer\t{2:.3f} submitted some answer".
+            format(size, correct_percent[size], any_percent[size]))
 
     bar()
     print("User background breakdown:")
-    for background, count in sorted(get_user_backgrounds().items(), key=lambda x: x[1], reverse=True):
+    for background, count in sorted(
+            get_user_backgrounds().items(), key=lambda x: x[1], reverse=True):
         print("{0:30} {1}".format(background, count))
     bar()
     print("User country breakdown:")
-    for country, count in sorted(get_user_countries().items(), key=lambda x: x[1], reverse=True)[0:15]:
+    for country, count in sorted(
+            get_user_countries().items(), key=lambda x: x[1],
+            reverse=True)[0:15]:
         print("%s: %s" % (country, count))
     print("...")
     bar()
     print("Event ID breakdown:")
-    for eventid, count in sorted(get_user_game_progress().items(), key=lambda x: x[0]):
+    for eventid, count in sorted(
+            get_user_game_progress().items(), key=lambda x: x[0]):
         print("{0:60} {1}".format(eventid, count))
     bar()
     print("Average Achievement Number:")
-    print("Average Number of Achievements per Team (all teams): %s +/- %s" % get_average_achievement_number())
+    print("Average Number of Achievements per Team (all teams): %s +/- %s" %
+          get_average_achievement_number())
     print("Achievement breakdown:")
-    for achievement, count in sorted(get_achievement_frequency().items(), key=lambda x: x[1], reverse=True):
+    for achievement, count in sorted(
+            get_achievement_frequency().items(), key=lambda x: x[1],
+            reverse=True):
         print("{0:30} {1}".format(achievement, count))
     bar()
     print("Average # per category per eligible team")
@@ -353,7 +422,8 @@ def get_stats():
         print("{0:30} {1:.3f}".format(cat, count))
     bar()
     print("Number of days worked by teams")
-    for number, count in get_days_active_breakdown(user_breakdown=user_breakdown).items():
+    for number, count in get_days_active_breakdown(
+            user_breakdown=user_breakdown).items():
         print("%s Days: %s Teams" % (number, count))
     bar()
     print("REVIEWS:")
@@ -362,17 +432,20 @@ def get_stats():
     print("Problems by Reviewed Educational Value (10+ Reviews)")
     for problem in sorted(review_data, key=lambda x: x['education']):
         if problem['votes'] > 10:
-            print("{name:30} {education:.3f} ({votes} reviews)".format(**problem))
+            print(
+                "{name:30} {education:.3f} ({votes} reviews)".format(**problem))
     bar()
     print("Problems by Reviewed Enjoyment (10+ Reviews)")
     for problem in sorted(review_data, key=lambda x: x['enjoyment']):
         if problem['votes'] > 10:
-            print("{name:30} {enjoyment:.3f} ({votes} reviews)".format(**problem))
+            print(
+                "{name:30} {enjoyment:.3f} ({votes} reviews)".format(**problem))
     bar()
     print("Problems by Reviewed Difficulty (10+ Reviews)")
     for problem in sorted(review_data, key=lambda x: x['difficulty']):
         if problem['votes'] > 10:
-            print("{name:30} {difficulty:.3f} ({votes} reviews)".format(**problem))
+            print("{name:30} {difficulty:.3f} ({votes} reviews)".format(
+                **problem))
     bar()
 
 
@@ -387,18 +460,26 @@ def get_median_eligible_score():
 
 def get_average_problems_solved(eligible=True, scoring=True):
     teams = api.team.get_all_teams(show_ineligible=(not eligible))
-    values = [len(api.problem.get_solved_pids(tid=t['tid'])) for t in teams
-              if not scoring or len(api.problem.get_solved_pids(tid=t['tid'])) > 0]
+    values = [
+        len(api.problem.get_solved_pids(tid=t['tid']))
+        for t in teams
+        if not scoring or len(api.problem.get_solved_pids(tid=t['tid'])) > 0
+    ]
     return statistics.mean(values), statistics.stdev(values)
 
 
 def get_median_problems_solved(eligible=True, scoring=True):
     teams = api.team.get_all_teams(show_ineligible=(not eligible))
-    return statistics.median([len(api.problem.get_solved_pids(tid=t['tid'])) for t in teams
-                             if not scoring or len(api.problem.get_solved_pids(tid=t['tid'])) > 0])
+    return statistics.median([
+        len(api.problem.get_solved_pids(tid=t['tid']))
+        for t in teams
+        if not scoring or len(api.problem.get_solved_pids(tid=t['tid'])) > 0
+    ])
 
 
-def get_average_problems_solved_per_user(eligible=True, scoring=True, user_breakdown=None):
+def get_average_problems_solved_per_user(eligible=True,
+                                         scoring=True,
+                                         user_breakdown=None):
     if user_breakdown is None:
         user_breakdown = get_team_member_solve_stats(eligible)
     solves = []
@@ -413,11 +494,12 @@ def get_average_problems_solved_per_user(eligible=True, scoring=True, user_break
                     solved = 0
             if solved > 0 or not scoring:
                 solves += [solved]
-    return (statistics.mean(solves),
-            statistics.stdev(solves))
+    return (statistics.mean(solves), statistics.stdev(solves))
 
 
-def get_median_problems_solved_per_user(eligible=True, scoring=True, user_breakdown=None):
+def get_median_problems_solved_per_user(eligible=True,
+                                        scoring=True,
+                                        user_breakdown=None):
     if user_breakdown is None:
         user_breakdown = get_team_member_solve_stats(eligible)
     solves = []
@@ -454,6 +536,7 @@ def get_user_countries():
     for user in all_users:
         countries[user['country']] += 1
     return countries
+
 
 def get_team_size_distribution(eligible=True):
     teams = api.team.get_all_teams(show_ineligible=(not eligible))
@@ -524,7 +607,8 @@ def get_average_achievement_number():
     frequency = defaultdict(int)
     for achievement in earned_achievements:
         frequency[achievement['uid']] += 1
-    extra = len(api.team.get_all_teams(show_ineligible=False)) - len(frequency.keys())
+    extra = len(api.team.get_all_teams(show_ineligible=False)) - len(
+        frequency.keys())
     values = [0] * extra
     for val in frequency.values():
         values.append(val)
@@ -556,6 +640,7 @@ def get_days_active_breakdown(eligible=True, user_breakdown=None):
         day_breakdown[len(days_active)] += 1
     return day_breakdown
 
+
 @api.cache.memoize(timeout=300)
 def check_invalid_instance_submissions(gid=None):
     db = api.api.common.get_conn()
@@ -568,17 +653,24 @@ def check_invalid_instance_submissions(gid=None):
 
     for problem in api.problem.get_all_problems(show_disabled=True):
         valid_keys = [instance['flag'] for instance in problem['instances']]
-        incorrect_submissions = db.submissions.find({'pid': problem['pid'], 'correct': False}, {"_id": 0})
+        incorrect_submissions = db.submissions.find({
+            'pid': problem['pid'],
+            'correct': False
+        }, {"_id": 0})
         for submission in incorrect_submissions:
             if submission['key'] in valid_keys:
                 # make sure that the key is still invalid
-                if not api.problem.grade_problem(submission['pid'], submission['key'], tid=submission['tid'])['correct']:
+                if not api.problem.grade_problem(
+                        submission['pid'], submission['key'],
+                        tid=submission['tid'])['correct']:
                     if group is None or submission['tid'] in group['members']:
-                        submission['username'] = api.user.get_user(uid=submission['uid'])['username']
+                        submission['username'] = api.user.get_user(
+                            uid=submission['uid'])['username']
                         submission["problem_name"] = problem["name"]
                         shared_key_submisssions.append(submission)
 
     return shared_key_submisssions
+
 
 def get_review_stats():
     results = []
@@ -597,8 +689,14 @@ def get_review_stats():
             enjoyment += metrics['enjoyment']
             timespent += item['feedback']['timeSpent']
         if counter > 0:
-            results.append({'name': p['name'], 'education': edval/counter, 'difficulty': difficulty/counter,
-                            'enjoyment': enjoyment/counter, 'time': timespent/counter, 'votes': counter})
+            results.append({
+                'name': p['name'],
+                'education': edval / counter,
+                'difficulty': difficulty / counter,
+                'enjoyment': enjoyment / counter,
+                'time': timespent / counter,
+                'votes': counter
+            })
     return results
 
 

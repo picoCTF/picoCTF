@@ -7,17 +7,12 @@ from os.path import join
 
 from hacksport.operations import execute
 from shell_manager.bundle import get_bundle, get_bundle_root
-from shell_manager.util import (
-    BUNDLE_ROOT,
-    DEPLOYED_ROOT,
-    get_problem,
-    get_problem_root,
-    HACKSPORTS_ROOT,
-    PROBLEM_ROOT,
-    STAGING_ROOT
-)
+from shell_manager.util import (BUNDLE_ROOT, DEPLOYED_ROOT, get_problem,
+                                get_problem_root, HACKSPORTS_ROOT, PROBLEM_ROOT,
+                                STAGING_ROOT)
 
 logger = logging.getLogger(__name__)
+
 
 def get_all_problems():
     """ Returns a dictionary of name:object mappings """
@@ -32,6 +27,7 @@ def get_all_problems():
                 pass
     return problems
 
+
 def get_all_bundles():
     """ Returns a dictionary of name:object mappings """
 
@@ -45,6 +41,7 @@ def get_all_bundles():
                 pass
     return bundles
 
+
 def get_all_problem_instances(problem_path):
     """ Returns a list of instances for a given problem """
 
@@ -54,7 +51,8 @@ def get_all_problem_instances(problem_path):
         for name in os.listdir(instances_dir):
             if name.endswith(".json"):
                 try:
-                    instance = json.loads(open(join(instances_dir, name)).read())
+                    instance = json.loads(
+                        open(join(instances_dir, name)).read())
                 except Exception as e:
                     continue
 
@@ -62,16 +60,14 @@ def get_all_problem_instances(problem_path):
 
     return instances
 
+
 def publish(args, config):
     """ Main entrypoint for publish """
 
     problems = get_all_problems()
     bundles = get_all_bundles()
 
-    output = {
-        "problems": [],
-        "bundles": []
-    }
+    output = {"problems": [], "bundles": []}
 
     for path, problem in problems.items():
         problem["instances"] = get_all_problem_instances(path)
@@ -82,6 +78,7 @@ def publish(args, config):
         output["bundles"].append(bundle)
 
     print(json.dumps(output, indent=2))
+
 
 def clean(args, config):
     """ Main entrypoint for clean """
@@ -99,6 +96,7 @@ def clean(args, config):
         os.remove(lock_file)
 
     #TODO: potentially perform more cleaning
+
 
 def status(args, config):
     """ Main entrypoint for status """
@@ -122,7 +120,8 @@ def status(args, config):
                 status["connection"] = True
             except ConnectionRefusedError as e:
                 pass
-        result = execute(["systemctl", "is-failed", instance["service"]], allow_error=True)
+        result = execute(
+            ["systemctl", "is-failed", instance["service"]], allow_error=True)
         status["service"] = result.return_code == 1
 
         if status["port"] is not None and not status["connection"]:
@@ -142,20 +141,25 @@ def status(args, config):
         return problem_status
 
     def print_problem_status(problem, path, prefix=""):
+
         def pprint(string):
             print("{}{}".format(prefix, string))
 
-        pprint("* [{}] {} ({})".format(len(problem["instances"]), problem['name'], path))
+        pprint("* [{}] {} ({})".format(
+            len(problem["instances"]), problem['name'], path))
 
         if args.all:
             for instance in problem["instances"]:
                 pprint("   - Instance {}".format(instance["instance_number"]))
                 pprint("       flag: {}".format(instance["flag"]))
                 pprint("       port: {}".format(instance["port"]))
-                pprint("       service: {}".format("active" if instance["service"] else "failed"))
-                pprint("       connection: {}".format("online" if instance["connection"] else "offline"))
+                pprint("       service: {}".format("active" if instance[
+                    "service"] else "failed"))
+                pprint("       connection: {}".format("online" if instance[
+                    "connection"] else "offline"))
 
     def print_bundle(bundle, path, prefix=""):
+
         def pprint(string):
             print("{}{}".format(prefix, string))
 
@@ -202,8 +206,11 @@ def status(args, config):
         return_code = 0
         if args.json:
             result = {
-                "bundles": bundles,
-                "problems": list(map(lambda tup: get_problem_status(*tup), problems.items()))
+                "bundles":
+                bundles,
+                "problems":
+                list(
+                    map(lambda tup: get_problem_status(*tup), problems.items()))
             }
             print(json.dumps(result, indent=4))
         elif args.errors_only:

@@ -13,6 +13,7 @@ from shell_manager.util import FatalException
 
 logger = logging.getLogger(__name__)
 
+
 def update_repo(args, config):
     """
     Main entrypoint for repo update operations.
@@ -22,6 +23,7 @@ def update_repo(args, config):
         local_update(args.repository, args.package_paths)
     else:
         remote_update(args.repository, args.package_paths)
+
 
 def remote_update(repo_ui, deb_paths=[]):
     """
@@ -34,6 +36,7 @@ def remote_update(repo_ui, deb_paths=[]):
 
     logger.error("Currently not implemented -- sorry!")
     raise FatalException
+
 
 def local_update(repo_path, deb_paths=[]):
     """
@@ -60,4 +63,5 @@ def local_update(repo_path, deb_paths=[]):
     with gzip.open(packages_path, "wb") as packages:
         packages.write(result.output)
 
-    logger.info("Repository '%s' updated successfully. Copied %d packages.", repo_path, len(deb_paths))
+    logger.info("Repository '%s' updated successfully. Copied %d packages.",
+                repo_path, len(deb_paths))

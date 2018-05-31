@@ -7,20 +7,16 @@ from functools import wraps
 
 import api
 import bson
-from api.common import (
-    InternalException,
-    SevereInternalException,
-    WebError,
-    WebException,
-    WebSuccess
-)
+from api.common import (InternalException, SevereInternalException, WebError,
+                        WebException, WebSuccess)
 from flask import abort, request, session
 
-write_logs_to_db = False # Default value, can be overwritten by api.py
+write_logs_to_db = False  # Default value, can be overwritten by api.py
 
 log = api.logger.use(__name__)
 
 _get_message = lambda exception: exception.args[0]
+
 
 def log_action(f):
     """
@@ -52,6 +48,7 @@ def log_action(f):
 
     return wrapper
 
+
 def api_wrapper(f):
     """
     Wraps api routing and handles potential exceptions
@@ -69,17 +66,21 @@ def api_wrapper(f):
             message = _get_message(error)
             if type(error) == SevereInternalException:
                 wrapper_log.critical(traceback.format_exc())
-                web_result = WebError("There was a critical internal error. Contact an administrator.")
+                web_result = WebError(
+                    "There was a critical internal error. Contact an administrator."
+                )
             else:
                 wrapper_log.error(traceback.format_exc())
                 web_result = WebError(message)
         except Exception as error:
             wrapper_log.error(traceback.format_exc())
-            web_result = WebError("An error occured. Please contact an administrator.")
+            web_result = WebError(
+                "An error occured. Please contact an administrator.")
 
         return bson.json_util.dumps(web_result)
 
     return wrapper
+
 
 def require_login(f):
     """
@@ -91,7 +92,9 @@ def require_login(f):
         if not api.auth.is_logged_in():
             raise WebException("You must be logged in")
         return f(*args, **kwds)
+
     return wrapper
+
 
 def require_teacher(f):
     """
@@ -101,12 +104,16 @@ def require_teacher(f):
     @require_login
     @wraps(f)
     def wrapper(*args, **kwds):
-        if not api.user.is_teacher() or not api.config.get_settings()["enable_teachers"]:
+        if not api.user.is_teacher() or not api.config.get_settings(
+        )["enable_teachers"]:
             raise WebException("You must be a teacher!")
         return f(*args, **kwds)
+
     return wrapper
 
+
 def check_csrf(f):
+
     @wraps(f)
     @require_login
     def wrapper(*args, **kwds):
@@ -117,16 +124,21 @@ def check_csrf(f):
         if session['token'] != request.form['token']:
             raise InternalException("CSRF token is not correct")
         return f(*args, **kwds)
+
     return wrapper
 
+
 def deny_blacklisted(f):
+
     @wraps(f)
     @require_login
     def wrapper(*args, **kwds):
         #if auth.is_blacklisted(session['tid']):
-         #   abort(403)
+        #   abort(403)
         return f(*args, **kwds)
+
     return wrapper
+
 
 def require_admin(f):
     """
@@ -138,7 +150,9 @@ def require_admin(f):
         if not api.user.is_admin():
             raise WebException("You do not have permission to view this page.")
         return f(*args, **kwds)
+
     return wrapper
+
 
 def block_before_competition(return_result):
     """
@@ -152,12 +166,16 @@ def block_before_competition(return_result):
 
         @wraps(f)
         def wrapper(*args, **kwds):
-            if datetime.utcnow().timestamp() > api.config.get_settings()["start_time"].timestamp():
+            if datetime.utcnow().timestamp() > api.config.get_settings(
+            )["start_time"].timestamp():
                 return f(*args, **kwds)
             else:
                 return return_result
+
         return wrapper
+
     return decorator
+
 
 def block_after_competition(return_result):
     """
@@ -171,9 +189,12 @@ def block_after_competition(return_result):
 
         @wraps(f)
         def wrapper(*args, **kwds):
-            if datetime.utcnow().timestamp() < api.config.get_settings()["end_time"].timestamp():
+            if datetime.utcnow().timestamp() < api.config.get_settings(
+            )["end_time"].timestamp():
                 return f(*args, **kwds)
             else:
                 return return_result
+
         return wrapper
+
     return decorator

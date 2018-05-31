@@ -17,14 +17,11 @@ class TestGroups(object):
     API Tests for group.py
     """
 
-    base_teams = [
-        {
-            "team_name": "team" + str(i),
-            "school": "Test HS",
-            "password": "much_protected"
-        }
-        for i in range(5)
-    ]
+    base_teams = [{
+        "team_name": "team" + str(i),
+        "school": "Test HS",
+        "password": "much_protected"
+    } for i in range(5)]
 
     base_group = {
         "group-owner": new_team_user["username"],
@@ -62,8 +59,9 @@ class TestGroups(object):
         for i in range(groups):
             group = self.base_group.copy()
             group["group-name"] += str(i)
-            
-            gids.append(api.group.create_group(self.owner_tid, group["group-name"]))
+
+            gids.append(
+                api.group.create_group(self.owner_tid, group["group-name"]))
 
         assert len(api.team.get_groups(uid=self.owner_uid, tid=self.owner_tid)) \
             == len(gids), "Not all groups were created."

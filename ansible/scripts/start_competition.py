@@ -20,5 +20,6 @@ def main():
     settings["end_time"] = settings["start_time"] + timedelta(weeks=52)
     api.config.change_settings(settings)
 
+
 if __name__ == "__main__":
     main()
