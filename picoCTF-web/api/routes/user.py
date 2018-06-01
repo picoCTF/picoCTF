@@ -176,3 +176,26 @@ def shell_servers_hook():
         "protocol": server['protocol']
     } for server in api.shell_servers.get_servers()]
     return WebSuccess(data=servers)
+
+
+@blueprint.route('/extdata', methods=['GET'])
+@api_wrapper
+@require_login
+def get_extdata_hook():
+    """
+    Return user extdata, or empty JSON object if unset.
+    """
+    user = api.user.get_user(uid=None)
+    return WebSuccess(data=user['extdata'])
+
+
+@blueprint.route('/extdata', methods=['PUT'])
+@api_wrapper
+@check_csrf
+@require_login
+def update_extdata_hook():
+    """
+    Sets user extdata via HTTP form. Takes in any key-value pairs.
+    """
+    api.user.update_extdata(api.common.flat_multi(request.form))
+    return WebSuccess("Your Extdata has been successfully updated.")

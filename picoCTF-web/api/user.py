@@ -238,6 +238,7 @@ def create_user(username,
         'disabled': False,
         'country': country,
         'verified': not settings["email"]["email_verification"] or verified,
+        'extdata': {},
     }
 
     db.users.insert(user)
@@ -550,3 +551,18 @@ def disable_account_request(params, uid=None, check_current=False):
     disable_account(user['uid'])
 
     api.auth.logout()
+
+
+def update_extdata(params):
+    """
+    Update user extdata.
+    Assumes args are keys in params.
+
+    Args:
+        params:
+            (any)
+    """
+    user = get_user(uid=None)
+    db = api.common.get_conn()
+    params.pop('token', None)
+    db.users.update_one({'uid': user['uid']}, {'$set': {'extdata': params}})
