@@ -542,8 +542,12 @@ def clear_all_submissions():
     Removes all submissions from the database.
     """
 
-    db = api.common.get_conn()
-    db.submissions.remove()
+    if DEBUG_KEY is not None:
+        db = api.common.get_conn()
+        db.submissions.remove()
+        api.cache.clear_all()
+    else:
+        raise InternalException("DEBUG Mode must be enabled")
 
 
 def clear_submissions(uid=None, tid=None, pid=None):
@@ -868,6 +872,30 @@ def locked_filter(problem):
                               "solved": False,
                               "unlocked": False
                           })
+
+
+def count_all_problems(category=None):
+    """
+    Returns all (enabled) category names and the number of (enabled) problems
+    in each, both visible and non-visible.
+
+    Args:
+        category: Optional parameter to restrict to only one category
+    Returns:
+        A dict.
+        category: category name
+        count: number of problems in that category
+    """
+    if category is None:
+        categories = get_all_categories(show_disabled=False)
+    else:
+        categories = [category]
+    result = {}
+
+    for cat in categories:
+        result[cat] = len(get_all_problems(cat))
+
+    return result
 
 
 def get_visible_problems(tid, category=None):
