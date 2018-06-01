@@ -801,12 +801,12 @@ def get_unlocked_pids(tid, category=None):
     Returns:
         List of unlocked problem ids
     """
-
-    solved = get_solved_problems(tid=tid, category=category)
+    # Note: Do NOT limit solved problems to category for proper weight count
+    solved = get_solved_problems(tid=tid, category=None)
     team = api.team.get_team(tid=tid)
 
     unlocked = []
-    for problem in get_all_problems():
+    for problem in get_all_problems(category=category):
         if is_problem_unlocked(problem, solved):
             unlocked.append(problem["pid"])
 

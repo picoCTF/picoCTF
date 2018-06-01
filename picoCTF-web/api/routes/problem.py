@@ -11,13 +11,15 @@ from flask import (Blueprint, Flask, render_template, request,
 blueprint = Blueprint("problem_api", __name__)
 
 
-@blueprint.route('', methods=['GET'])
+@blueprint.route('', defaults={'category': None}, methods=['GET'])
+@blueprint.route('/category/<category>', methods=['GET'])
 @api_wrapper
 @require_login
 @block_before_competition(WebError("The competition has not begun yet!"))
-def get_visible_problems_hook():
+def get_visible_problems_hook(category):
     return WebSuccess(
-        data=api.problem.get_visible_problems(api.user.get_user()['tid']))
+        data=api.problem.get_visible_problems(
+            api.user.get_user()['tid'], category=category))
 
 
 @blueprint.route('/unlocked', methods=['GET'])
