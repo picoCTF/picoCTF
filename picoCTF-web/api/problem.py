@@ -9,98 +9,97 @@ from random import randint
 import api
 import pymongo
 from api.annotations import log_action
-from api.common import (
-    check,
-    InternalException,
-    safe_fail,
-    SevereInternalException,
-    validate,
-    WebException
-)
+from api.common import (check, InternalException, safe_fail,
+                        SevereInternalException, validate, WebException)
 from bson import json_util
 from voluptuous import Length, Range, Required, Schema
 
 submission_schema = Schema({
-    Required("tid"): check(
-        ("This does not look like a valid tid.", [str, Length(max=100)])),
-    Required("pid"): check(
-        ("This does not look like a valid pid.", [str, Length(max=100)])),
-    Required("key"): check(
-        ("This does not look like a valid key.", [str, Length(max=100)]))
+    Required("tid"):
+    check(("This does not look like a valid tid.", [str, Length(max=100)])),
+    Required("pid"):
+    check(("This does not look like a valid pid.", [str, Length(max=100)])),
+    Required("key"):
+    check(("This does not look like a valid key.", [str, Length(max=100)]))
 })
 
 problem_schema = Schema({
-    Required("name"): check(
-        ("The problem's display name must be a string.", [str])),
-    Required("sanitized_name"): check(
-        ("The problems's sanitized name must be a string.", [str])),
-    Required("score"): check(
-        ("Score must be a positive integer.", [int, Range(min=0)])),
-    Required("author"): check(
-        ("Author must be a string.", [str])),
-    Required("category"): check(
-        ("Category must be a string.", [str])),
-    Required("instances"): check(
-        ("The instances must be a list.", [list])),
-    Required("hints"): check(
-        ("Hints must be a list.", [list])),
-    "description": check(
-        ("The problem description must be a string.", [str])),
-    "version": check(
-        ("A version must be a string.", [str])),
-    "tags": check(
-        ("Tags must be described as a list.", [list])),
-    "organization": check(
-        ("Organization must be string.", [str])),
-    "pkg_architecture": check(
-        ("Package architecture must be string.", [str])),
-    "pkg_description": check(
-        ("Package description must be string.", [str])),
-    "pkg_name": check(
-        ("Package name must be string.", [str])),
-    "pkg_dependencies": check(
-        ("Package dependencies must be list.", [list])),
-    "pip_requirements": check(
-        ("pip requirements must be list.", [list])),
-    "pid": check(
-        ("You should not specify a pid for a problem.", [lambda _: False])),
-    "_id": check(
-        ("Your problems should not already have _ids.", [lambda id: False]))
+    Required("name"):
+    check(("The problem's display name must be a string.", [str])),
+    Required("sanitized_name"):
+    check(("The problems's sanitized name must be a string.", [str])),
+    Required("score"):
+    check(("Score must be a positive integer.", [int, Range(min=0)])),
+    Required("author"):
+    check(("Author must be a string.", [str])),
+    Required("category"):
+    check(("Category must be a string.", [str])),
+    Required("instances"):
+    check(("The instances must be a list.", [list])),
+    Required("hints"):
+    check(("Hints must be a list.", [list])),
+    "description":
+    check(("The problem description must be a string.", [str])),
+    "version":
+    check(("A version must be a string.", [str])),
+    "tags":
+    check(("Tags must be described as a list.", [list])),
+    "organization":
+    check(("Organization must be string.", [str])),
+    "pkg_architecture":
+    check(("Package architecture must be string.", [str])),
+    "pkg_description":
+    check(("Package description must be string.", [str])),
+    "pkg_name":
+    check(("Package name must be string.", [str])),
+    "pkg_dependencies":
+    check(("Package dependencies must be list.", [list])),
+    "pip_requirements":
+    check(("pip requirements must be list.", [list])),
+    "pid":
+    check(("You should not specify a pid for a problem.", [lambda _: False])),
+    "_id":
+    check(("Your problems should not already have _ids.", [lambda id: False]))
 })
 
-instance_schema = Schema({
-    Required("description"): check(
-        ("The description must be a string.", [str])),
-    Required("flag"): check(
-        ("The flag must be a string.", [str])),
-    "port": check(
-        ("The port must be an int", [int])),
-    "server": check(
-        ("The server must be a string.", [str]))
-}, extra=True)
+instance_schema = Schema(
+    {
+        Required("description"):
+        check(("The description must be a string.", [str])),
+        Required("flag"):
+        check(("The flag must be a string.", [str])),
+        "port":
+        check(("The port must be an int", [int])),
+        "server":
+        check(("The server must be a string.", [str]))
+    },
+    extra=True)
 
 bundle_schema = Schema({
-    Required("name"): check(
-        ("The bundle name must be a string.", [str])),
-    Required("author"): check(
-        ("The bundle author must be a string.", [str])),
-    Required("categories"): check(
-        ("The bundle categories must be a list.", [list])),
-    Required("problems"): check(
-        ("The bundle problems must be a list.", [list])),
-    Required("description"): check(
-        ("The bundle description must be a string.", [str])),
-    "organization": check(
-        ("The bundle organization must be a string.", [str])),
-    "dependencies": check(
-        ("The bundle dependencies must be a dict.", [dict])),
-    "dependencies_enabled": check(
-        ("The dependencies enabled state must be a bool.", [lambda x: type(x) == bool])),
-    "pkg_dependencies": check(
-        ("The package dependencies must be a list.", [lambda x: type(x) == list]))
+    Required("name"):
+    check(("The bundle name must be a string.", [str])),
+    Required("author"):
+    check(("The bundle author must be a string.", [str])),
+    Required("categories"):
+    check(("The bundle categories must be a list.", [list])),
+    Required("problems"):
+    check(("The bundle problems must be a list.", [list])),
+    Required("description"):
+    check(("The bundle description must be a string.", [str])),
+    "organization":
+    check(("The bundle organization must be a string.", [str])),
+    "dependencies":
+    check(("The bundle dependencies must be a dict.", [dict])),
+    "dependencies_enabled":
+    check(("The dependencies enabled state must be a bool.",
+           [lambda x: type(x) == bool])),
+    "pkg_dependencies":
+    check(("The package dependencies must be a list.",
+           [lambda x: type(x) == list]))
 })
 
 DEBUG_KEY = None
+
 
 def get_all_categories(show_disabled=False):
     """
@@ -127,8 +126,10 @@ def set_instance_ids(problem, sid):
     """
 
     for instance in problem["instances"]:
-        instance["iid"] = api.common.hash(str(instance["instance_number"]) + sid + problem["pid"])
+        instance["iid"] = api.common.hash(
+            str(instance["instance_number"]) + sid + problem["pid"])
         instance["sid"] = sid
+
 
 def insert_problem(problem, sid=None):
     """
@@ -158,7 +159,8 @@ def insert_problem(problem, sid=None):
 
     # initially disable problems
     problem["disabled"] = True
-    problem["pid"] = api.common.hash("{}-{}".format(problem["name"], problem["author"]))
+    problem["pid"] = api.common.hash("{}-{}".format(problem["name"],
+                                                    problem["author"]))
 
     for instance in problem["instances"]:
         validate(instance_schema, instance)
@@ -170,26 +172,31 @@ def insert_problem(problem, sid=None):
         old_problem = copy(get_problem(pid=problem["pid"]))
 
         # leave all instances from different shell server
-        instances = list(filter(lambda i: i["sid"] != sid, old_problem["instances"]))
+        instances = list(
+            filter(lambda i: i["sid"] != sid, old_problem["instances"]))
 
         # add instances from this shell server
         instances.extend(problem["instances"])
         problem["instances"] = instances
 
         # disable problems with zero instances
-        problem["disabled"] = old_problem["disabled"] or len(problem["instances"]) == 0
+        problem["disabled"] = old_problem["disabled"] or len(
+            problem["instances"]) == 0
 
         # run the update
         update_problem(problem["pid"], problem)
         return
 
     if safe_fail(get_problem, name=problem["name"]) is not None:
-        raise WebException("Problem with identical name \"{}\" already exists.".format(problem["name"]))
+        raise WebException(
+            "Problem with identical name \"{}\" already exists.".format(
+                problem["name"]))
 
     db.problems.insert(problem)
     api.cache.fast_cache.clear()
 
     return problem["pid"]
+
 
 def remove_problem(pid):
     """
@@ -208,6 +215,7 @@ def remove_problem(pid):
     api.cache.fast_cache.clear()
 
     return problem
+
 
 def update_problem(pid, updated_problem):
     """
@@ -239,6 +247,7 @@ def update_problem(pid, updated_problem):
 
     return problem
 
+
 def search_problems(*conditions):
     """
     Aggregates all problems that contain all of the given properties from the list specified.
@@ -251,7 +260,8 @@ def search_problems(*conditions):
 
     db = api.common.get_conn()
 
-    return list(db.problems.find({"$or": list(conditions)}, {"_id":0}))
+    return list(db.problems.find({"$or": list(conditions)}, {"_id": 0}))
+
 
 def assign_instance_to_team(pid, tid=None, reassign=False):
     """
@@ -270,10 +280,13 @@ def assign_instance_to_team(pid, tid=None, reassign=False):
     problem = get_problem(pid=pid)
 
     if pid in team["instances"] and not reassign:
-        raise InternalException("Team with tid {} already has an instance of pid {}.".format(tid, pid))
+        raise InternalException(
+            "Team with tid {} already has an instance of pid {}.".format(
+                tid, pid))
 
     if len(problem["instances"]) == 0:
-        raise InternalException("Problem {} has no instances to assign.".format(pid))
+        raise InternalException(
+            "Problem {} has no instances to assign.".format(pid))
 
     instance_number = randint(0, len(problem["instances"]) - 1)
     iid = problem["instances"][instance_number]["iid"]
@@ -284,6 +297,7 @@ def assign_instance_to_team(pid, tid=None, reassign=False):
     db.teams.update({"tid": tid}, {"$set": team})
 
     return instance_number
+
 
 def get_instance_data(pid, tid):
     """
@@ -313,6 +327,7 @@ def get_instance_data(pid, tid):
     assign_instance_to_team(pid, tid, reassign=True)
     return get_instance_data(pid, tid)
 
+
 def get_problem_instance(pid, tid):
     """
     Returns the problem instance dictionary that can be displayed to the user.
@@ -333,6 +348,7 @@ def get_problem_instance(pid, tid):
     problem.pop("instances")
     problem.update(instance)
     return problem
+
 
 def grade_problem(pid, key, tid=None):
     """
@@ -355,7 +371,7 @@ def grade_problem(pid, key, tid=None):
     problem = get_problem(pid=pid)
     instance = get_instance_data(pid, tid)
 
-    correct_key =  instance['flag'] if DEBUG_KEY is None else DEBUG_KEY
+    correct_key = instance['flag'] if DEBUG_KEY is None else DEBUG_KEY
 
     correct = correct_key in key
 
@@ -364,6 +380,7 @@ def grade_problem(pid, key, tid=None):
         "points": problem["score"],
         "message": "That is correct!" if correct else "That is incorrect!"
     }
+
 
 @log_action
 def submit_key(tid, pid, key, uid=None, ip=None):
@@ -386,7 +403,8 @@ def submit_key(tid, pid, key, uid=None, ip=None):
     validate(submission_schema, {"tid": tid, "pid": pid, "key": key})
 
     if pid not in get_unlocked_pids(tid):
-        raise InternalException("You can't submit flags to problems you haven't unlocked.")
+        raise InternalException(
+            "You can't submit flags to problems you haven't unlocked.")
 
     if pid in get_solved_pids(tid=tid):
         exp = WebException("You have already solved this problem.")
@@ -417,26 +435,41 @@ def submit_key(tid, pid, key, uid=None, ip=None):
         'correct': result['correct']
     }
 
-    if (key, pid) in [(submission["key"], submission["pid"]) for submission in  get_submissions(tid=tid)]:
-        exp = WebException("You or one of your teammates has already tried this solution.")
+    if (key, pid) in [(submission["key"], submission["pid"])
+                      for submission in get_submissions(tid=tid)]:
+        exp = WebException(
+            "You or one of your teammates has already tried this solution.")
         exp.data = {'code': 'repeat'}
         raise exp
 
     db.submissions.insert(submission)
 
     if submission["correct"]:
-        api.cache.invalidate_memoization(api.stats.get_score, {"kwargs.tid":tid}, {"kwargs.uid":uid})
-        api.cache.invalidate_memoization(get_unlocked_pids, {"args":tid})
-        api.cache.invalidate_memoization(get_solved_problems, {"kwargs.tid":tid}, {"kwargs.uid":uid})
+        api.cache.invalidate_memoization(
+            api.stats.get_score, {"kwargs.tid": tid}, {"kwargs.uid": uid})
+        api.cache.invalidate_memoization(get_unlocked_pids, {"args": tid})
+        api.cache.invalidate_memoization(
+            get_solved_problems, {"kwargs.tid": tid}, {"kwargs.uid": uid})
 
-        api.cache.invalidate_memoization(api.stats.get_score_progression, {"kwargs.tid":tid}, {"kwargs.uid":uid})
+        api.cache.invalidate_memoization(api.stats.get_score_progression,
+                                         {"kwargs.tid": tid},
+                                         {"kwargs.uid": uid})
 
-        api.achievement.process_achievements("submit", {"uid": uid, "tid": tid, "pid": pid})
+        api.achievement.process_achievements("submit", {
+            "uid": uid,
+            "tid": tid,
+            "pid": pid
+        })
 
     return result
 
 
-def count_submissions(pid=None, uid=None, tid=None, category=None, correctness=None, eligibility=None):
+def count_submissions(pid=None,
+                      uid=None,
+                      tid=None,
+                      category=None,
+                      correctness=None,
+                      eligibility=None):
     db = api.common.get_conn()
     match = {}
     if uid is not None:
@@ -459,7 +492,12 @@ def count_submissions(pid=None, uid=None, tid=None, category=None, correctness=N
     return db.submissions.find(match, {"_id": 0}).count()
 
 
-def get_submissions(pid=None, uid=None, tid=None, category=None, correctness=None, eligibility=None):
+def get_submissions(pid=None,
+                    uid=None,
+                    tid=None,
+                    category=None,
+                    correctness=None,
+                    eligibility=None):
     """
     Gets the submissions from a team or user.
     Optional filters of pid or category.
@@ -496,15 +534,21 @@ def get_submissions(pid=None, uid=None, tid=None, category=None, correctness=Non
     if eligibility is not None:
         match.update({"eligible": eligibility})
 
-    return list(db.submissions.find(match, {"_id":0}))
+    return list(db.submissions.find(match, {"_id": 0}))
+
 
 def clear_all_submissions():
     """
     Removes all submissions from the database.
     """
 
-    db = api.common.get_conn()
-    db.submissions.remove()
+    if DEBUG_KEY is not None:
+        db = api.common.get_conn()
+        db.submissions.remove()
+        api.cache.clear_all()
+    else:
+        raise InternalException("DEBUG Mode must be enabled")
+
 
 def clear_submissions(uid=None, tid=None, pid=None):
     """
@@ -520,7 +564,6 @@ def clear_submissions(uid=None, tid=None, pid=None):
 
     match = {}
 
-
     if pid is not None:
         match.update({"pid", pid})
     elif uid is not None:
@@ -531,6 +574,7 @@ def clear_submissions(uid=None, tid=None, pid=None):
         raise InternalException("You must supply either a tid, uid, or pid")
 
     return db.submissions.remove(match)
+
 
 def invalidate_submissions(pid=None, uid=None, tid=None):
     """
@@ -557,6 +601,7 @@ def invalidate_submissions(pid=None, uid=None, tid=None):
 
     db.submissions.update(match, {"correct": False})
 
+
 def reevaluate_submissions_for_problem(pid):
     """
     In the case of the problem being updated, this will reevaluate submissions for a problem.
@@ -581,7 +626,13 @@ def reevaluate_submissions_for_problem(pid):
 
     for key, change in keys.items():
         if change is not None:
-            db.submissions.update({"key": key}, {"$set": {"correct": change}}, multi=True)
+            db.submissions.update(
+                {
+                    "key": key
+                }, {"$set": {
+                    "correct": change
+                }}, multi=True)
+
 
 def reevaluate_all_submissions():
     """
@@ -591,6 +642,7 @@ def reevaluate_all_submissions():
     api.cache.clear_all()
     for problem in get_all_problems(show_disabled=True):
         reevaluate_submissions_for_problem(problem["pid"])
+
 
 @api.cache.memoize(timeout=60, fast=True)
 def get_problem(pid=None, name=None, tid=None, show_disabled=True):
@@ -623,12 +675,14 @@ def get_problem(pid=None, name=None, tid=None, show_disabled=True):
         match.update({"disabled": False})
 
     db = api.common.get_conn()
-    problem = db.problems.find_one(match, {"_id":0})
+    problem = db.problems.find_one(match, {"_id": 0})
 
     if problem is None:
-        raise SevereInternalException("Could not find problem! You gave " + str(match))
+        raise SevereInternalException("Could not find problem! You gave " +
+                                      str(match))
 
     return problem
+
 
 def get_all_problems(category=None, show_disabled=False):
     """
@@ -650,7 +704,10 @@ def get_all_problems(category=None, show_disabled=False):
     if not show_disabled:
         match.update({'disabled': False})
 
-    return list(db.problems.find(match, {"_id":0}).sort([('score', pymongo.ASCENDING),('name',pymongo.ASCENDING)]))
+    return list(
+        db.problems.find(match, {
+            "_id": 0
+        }).sort([('score', pymongo.ASCENDING), ('name', pymongo.ASCENDING)]))
 
 
 @api.cache.memoize()
@@ -672,10 +729,12 @@ def get_solved_problems(tid=None, uid=None, category=None, show_disabled=False):
 
     members = api.team.get_team_uids(tid=team["tid"])
 
-    submissions = get_submissions(tid=tid, uid=uid, category=category, correctness=True)
+    submissions = get_submissions(
+        tid=tid, uid=uid, category=category, correctness=True)
 
     for uid in members:
-        submissions += get_submissions(uid=uid, category=category, correctness=True)
+        submissions += get_submissions(
+            uid=uid, category=category, correctness=True)
 
     pids = []
     result = []
@@ -691,6 +750,7 @@ def get_solved_problems(tid=None, uid=None, category=None, show_disabled=False):
 
     return result
 
+
 def get_solved_pids(*args, **kwargs):
     """
     Gets the solved pids for a given team or user.
@@ -703,6 +763,7 @@ def get_solved_pids(*args, **kwargs):
     """
 
     return [problem["pid"] for problem in get_solved_problems(*args, **kwargs)]
+
 
 def is_problem_unlocked(problem, solved):
     """
@@ -722,12 +783,16 @@ def is_problem_unlocked(problem, solved):
         if problem["sanitized_name"] in bundle["problems"]:
             if "dependencies" in bundle and bundle["dependencies_enabled"]:
                 if problem["sanitized_name"] in bundle["dependencies"]:
-                    dependency = bundle["dependencies"][problem["sanitized_name"]]
-                    weightsum = sum(dependency['weightmap'].get(p['sanitized_name'], 0) for p in solved)
+                    dependency = bundle["dependencies"][problem[
+                        "sanitized_name"]]
+                    weightsum = sum(
+                        dependency['weightmap'].get(p['sanitized_name'], 0)
+                        for p in solved)
                     if weightsum < dependency['threshold']:
                         unlocked = False
 
     return unlocked
+
 
 @api.cache.memoize()
 def get_unlocked_pids(tid, category=None):
@@ -740,12 +805,12 @@ def get_unlocked_pids(tid, category=None):
     Returns:
         List of unlocked problem ids
     """
-
-    solved = get_solved_problems(tid=tid, category=category)
+    # Note: Do NOT limit solved problems to category for proper weight count
+    solved = get_solved_problems(tid=tid, category=None)
     team = api.team.get_team(tid=tid)
 
     unlocked = []
-    for problem in get_all_problems():
+    for problem in get_all_problems(category=category):
         if is_problem_unlocked(problem, solved):
             unlocked.append(problem["pid"])
 
@@ -754,6 +819,7 @@ def get_unlocked_pids(tid, category=None):
             assign_instance_to_team(pid, tid)
 
     return unlocked
+
 
 def filter_problem(problem, remove_list, set_dict):
     """
@@ -771,6 +837,7 @@ def filter_problem(problem, remove_list, set_dict):
 
     return problem
 
+
 def unlocked_filter(problem, solved):
     """
     Returns a filtered version of the problem for when it is in an unlocked state
@@ -783,7 +850,11 @@ def unlocked_filter(problem, solved):
         A filtered problem object
     """
 
-    return filter_problem(problem, ["flag", "tags", "files"], {"solved": solved, "unlocked":True})
+    return filter_problem(problem, ["flag", "tags", "files"], {
+        "solved": solved,
+        "unlocked": True
+    })
+
 
 def locked_filter(problem):
     """
@@ -796,7 +867,36 @@ def locked_filter(problem):
         A filtered problem object
     """
 
-    return filter_problem(problem, ["description", "instances", "hints", "tags"], {"solved": False, "unlocked":False})
+    return filter_problem(problem,
+                          ["description", "instances", "hints", "tags"], {
+                              "solved": False,
+                              "unlocked": False
+                          })
+
+
+def count_all_problems(category=None):
+    """
+    Returns all (enabled) category names and the number of (enabled) problems
+    in each, both visible and non-visible.
+
+    Args:
+        category: Optional parameter to restrict to only one category
+    Returns:
+        A dict.
+        category: category name
+        count: number of problems in that category
+    """
+    if category is None:
+        categories = get_all_categories(show_disabled=False)
+    else:
+        categories = [category]
+    result = {}
+
+    for cat in categories:
+        result[cat] = len(get_all_problems(cat))
+
+    return result
+
 
 def get_visible_problems(tid, category=None):
     """
@@ -819,18 +919,22 @@ def get_visible_problems(tid, category=None):
     result = []
     #locked = []
 
-    for problem  in all_problems:
+    for problem in all_problems:
         if problem["pid"] in unlocked_pids:
-            result.append(unlocked_filter(get_problem_instance(problem["pid"], tid), problem["pid"] in solved_pids))
+            result.append(
+                unlocked_filter(
+                    get_problem_instance(problem["pid"], tid),
+                    problem["pid"] in solved_pids))
 
         # Disable locked problem display.
         #else:
-            #locked.append(locked_filter(problem))
+        #locked.append(locked_filter(problem))
 
     # place locked problems at the end of the list
     #result.extend(locked)
 
     return result
+
 
 def get_unlocked_problems(tid, category=None):
     """
@@ -843,7 +947,11 @@ def get_unlocked_problems(tid, category=None):
         List of unlocked problem dictionaries
     """
 
-    return [problem for problem in get_visible_problems(tid, category=category) if problem['unlocked']]
+    return [
+        problem for problem in get_visible_problems(tid, category=category)
+        if problem['unlocked']
+    ]
+
 
 def insert_bundle(bundle):
     """
@@ -866,6 +974,7 @@ def insert_bundle(bundle):
 
     db.bundles.insert(bundle)
 
+
 def load_published(data):
     """
     Load in the problems from the shell_manager publish blob.
@@ -887,6 +996,7 @@ def load_published(data):
 
     api.cache.clear_all()
 
+
 def get_bundle(bid):
     """
     Returns the bundle object corresponding to the given bid
@@ -894,12 +1004,13 @@ def get_bundle(bid):
 
     db = api.common.get_conn()
 
-    bundle = db.bundles.find_one({"bid" : bid})
+    bundle = db.bundles.find_one({"bid": bid})
 
     if bundle is None:
         raise WebException("Bundle with bid {} does not exist".format(bid))
 
     return bundle
+
 
 def update_bundle(bid, updates):
     """
@@ -908,7 +1019,7 @@ def update_bundle(bid, updates):
 
     db = api.common.get_conn()
 
-    bundle = db.bundles.find_one({"bid" : bid}, {"_id": 0})
+    bundle = db.bundles.find_one({"bid": bid}, {"_id": 0})
     if bundle is None:
         raise WebException("Bundle with bid {} does not exist".format(bid))
 
@@ -920,6 +1031,7 @@ def update_bundle(bid, updates):
 
     db.bundles.update({"bid": bid}, {"$set": bundle})
 
+
 def get_all_bundles():
     """
     Returns all bundles from the database
@@ -928,6 +1040,7 @@ def get_all_bundles():
     db = api.common.get_conn()
 
     return list(db.bundles.find({}, {"_id": 0}))
+
 
 def set_bundle_dependencies_enabled(bid, enabled):
     """

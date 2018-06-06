@@ -18,15 +18,17 @@ def main(name, host, user, password, port, protocol):
     except:
         try:
             sid = api.shell_servers.add_server({
-                "name":name,
+                "name": name,
                 "host": host,
                 "port": port,
                 "username": user,
                 "password": password,
-                "protocol": proto})
+                "protocol": proto
+            })
         except Exception as e:
             print(e)
             sys.exit("Failed to connect to shell server.")
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 7:

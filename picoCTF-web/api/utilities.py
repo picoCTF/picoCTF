@@ -12,4 +12,5 @@ def check_competition_active():
 
     settings = api.config.get_settings()
 
-    return settings["start_time"].timestamp() < datetime.utcnow().timestamp() < settings["end_time"].timestamp()
+    return settings["start_time"].timestamp() < datetime.utcnow().timestamp(
+    ) < settings["end_time"].timestamp()

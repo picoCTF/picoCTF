@@ -4,11 +4,29 @@
 
 root = true
 
+#### 2+space is more trendy these days #########################################
 
 [*]
-indent_style = space
-end_of_line = lf
 charset = utf-8
-trim_trailing_whitespace = true
+end_of_line = lf
+indent_size = 2
+indent_style = space
 insert_final_newline = true
+tab_width = 8
+trim_trailing_whitespace = true
+
+#### 4 spaces ##################################################################
+
+[*.py]
 indent_size = 4
+
+#### Windows ###################################################################
+
+[*.{bat,ps1}]
+end_of_line = crlf
+
+#### special treatments ########################################################
+
+# Markdown uses trailing whitespace to mean mandatory line-break
+[*.md]
+trim_trailing_whitespace = false

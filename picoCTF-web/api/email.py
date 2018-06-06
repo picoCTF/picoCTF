@@ -3,33 +3,27 @@
 from datetime import datetime
 
 import api
-from api.common import (
-    check,
-    InternalException,
-    safe_fail,
-    validate,
-    WebException
-)
+from api.common import (check, InternalException, safe_fail, validate,
+                        WebException)
 from flask_mail import Message
 from voluptuous import Length, Required, Schema
 
 mail = None
 
-
 password_reset_request_schema = Schema({
-    Required('username'): check(
-        ("Usernames must be between 3 and 20 characters.", [str, Length(min=3, max=20)]),
-    )
+    Required('username'):
+    check(("Usernames must be between 3 and 20 characters.",
+           [str, Length(min=3, max=20)]),)
 })
 
 password_reset_schema = Schema({
-    Required("token"): check(
-        ("This does not look like a valid token.", [str, Length(max=100)])
-    ),
-    Required('password'): check(
-        ("Passwords must be between 3 and 20 characters.", [str, Length(min=3, max=20)])
-    )
+    Required("token"):
+    check(("This does not look like a valid token.", [str, Length(max=100)])),
+    Required('password'):
+    check(("Passwords must be between 3 and 20 characters.",
+           [str, Length(min=3, max=20)]))
 })
+
 
 def reset_password(token_value, password, confirm_password):
     """
@@ -44,14 +38,20 @@ def reset_password(token_value, password, confirm_password):
         confirm_password: the same password again
     """
 
-    validate(password_reset_schema, {"token": token_value, "password": password})
+    validate(password_reset_schema, {
+        "token": token_value,
+        "password": password
+    })
     uid = api.token.find_key_by_token("password_reset", token_value)["uid"]
-    api.user.update_password_request({
+    api.user.update_password_request(
+        {
             "new-password": password,
             "new-password-confirmation": confirm_password
-    }, uid=uid)
+        },
+        uid=uid)
 
     api.token.delete_token({"uid": uid}, "password_reset")
+
 
 def request_password_reset(username):
     """
@@ -66,19 +66,22 @@ def request_password_reset(username):
     Args:
         username: the username of the account
     """
-    validate(password_reset_request_schema, {"username":username})
+    validate(password_reset_request_schema, {"username": username})
     user = safe_fail(api.user.get_user, name=username)
     if user is None:
         raise WebException("No registration found for '{}'.".format(username))
 
     token_value = api.token.set_token({"uid": user['uid']}, "password_reset")
 
-    body = """We recently received a request to reset the password for the following {0} account:\n\n\t{2}\n\nOur records show that this is the email address used to register the above account.  If you did not request to reset the password for the above account then you need not take any further steps.  If you did request the password reset please follow the link below to set your new password. \n\n {1}/reset#{3} \n\n Best of luck! \n The {0} Team""".format(api.config.competition_name, api.config.competition_urls[0], username, token_value)
+    body = """We recently received a request to reset the password for the following {0} account:\n\n\t{2}\n\nOur records show that this is the email address used to register the above account.  If you did not request to reset the password for the above account then you need not take any further steps.  If you did request the password reset please follow the link below to set your new password. \n\n {1}/reset#{3} \n\n Best of luck! \n The {0} Team""".format(
+        api.config.competition_name, api.config.competition_urls[0], username,
+        token_value)
 
     subject = "{} Password Reset".format(api.config.competition_name)
 
     message = Message(body=body, recipients=[user['email']], subject=subject)
     mail.send(message)
+
 
 def send_user_verification_email(username):
     """
@@ -91,17 +94,32 @@ def send_user_verification_email(username):
 
     user = api.user.get_user(name=username)
 
-    key_query  = {"$and": [{"uid": user["uid"]}, {"email_verification_count": {"$exists": True}}]}
+    key_query = {
+        "$and": [{
+            "uid": user["uid"]
+        }, {
+            "email_verification_count": {
+                "$exists": True
+            }
+        }]
+    }
     previous_key = api.token.find_key(key_query)
 
     if previous_key is None:
-        token_value = api.token.set_token({"uid": user["uid"], "email_verification_count": 1}, "email_verification")
+        token_value = api.token.set_token({
+            "uid": user["uid"],
+            "email_verification_count": 1
+        }, "email_verification")
     else:
         if previous_key["email_verification_count"] < settings["email"]["max_verification_emails"]:
             token_value = previous_key["tokens"]["email_verification"]
-            db.tokens.find_and_modify(key_query, {"$inc": {"email_verification_count": 1}})
+            db.tokens.find_and_modify(key_query,
+                                      {"$inc": {
+                                          "email_verification_count": 1
+                                      }})
         else:
-            raise InternalException("User has been sent the maximum number of verification emails.")
+            raise InternalException(
+                "User has been sent the maximum number of verification emails.")
 
     #Is there a better way to do this without dragging url_for + app_context into it?
     verification_link = "{}/api/user/verify?uid={}&token={}".\
@@ -123,6 +141,7 @@ The {0} Team.
     message = Message(body=body, recipients=[user['email']], subject=subject)
     mail.send(message)
 
+
 def send_email_invite(gid, email, teacher=False):
     """
     Sends an email registration link that will automatically join into a group. This link will bypass the email filter.
@@ -130,7 +149,11 @@ def send_email_invite(gid, email, teacher=False):
 
     group = api.group.get_group(gid=gid)
 
-    token_value = api.token.set_token({"gid": group["gid"], "email": email, "teacher": teacher}, "registration_token")
+    token_value = api.token.set_token({
+        "gid": group["gid"],
+        "email": email,
+        "teacher": teacher
+    }, "registration_token")
 
     registration_link = "{}/#g={}&r={}".\
         format(api.config.competition_urls[0], group["gid"], token_value)

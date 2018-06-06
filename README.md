@@ -40,6 +40,13 @@ Vagrantfile:        vb.name = "picoCTF-shell-dev2"
 
 Vagrantfile:        vb.name = "picoCTF-web-dev2"
 
+Vagrantfile: also update IP addresses to match
+
+If you want to add more memory or CPUs, you can do (directly underneath vb.name):
+
+Vagrantfile:         vb.customize ["modifyvm", :id, "--memory", "4096"]
+
+Vagrantfile:         vb.customize ["modifyvm", :id, "--cpus", "4"]
 
 ## Project Overview
 

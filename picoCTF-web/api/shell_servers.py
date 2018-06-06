@@ -3,30 +3,36 @@ import json
 import api
 import pymongo
 import spur
-from api.common import (
-    check,
-    InternalException,
-    safe_fail,
-    validate,
-    WebException
-)
+from api.common import (check, InternalException, safe_fail, validate,
+                        WebException)
 from voluptuous import Length, Required, Schema
 
-server_schema = Schema({
-    Required("name"): check(
-        ("Name must be a reasonable string.", [str, Length(min=1, max=128)])),
-    Required("host"): check(
-        ("Host must be a reasonable string", [str, Length(min=1, max=128)])),
-    Required("port"): check(
-        ("You have to supply a valid integer for your port.", [int]),
-        ("Your port number must be in the valid range 1-65535.", [lambda x: 1 <= int(x) and int(x) <= 65535])),
-    Required("username"): check(
-        ("Username must be a reasonable string", [str, Length(min=1, max=128)])),
-    Required("password"): check(
-        ("Username must be a reasonable string", [str, Length(min=1, max=128)])),
-    Required("protocol"): check(
-        ("Protocol must be either HTTP or HTTPS", [lambda x: x in ['HTTP', 'HTTPS']]))
-}, extra=True)
+server_schema = Schema(
+    {
+        Required("name"):
+        check(
+            ("Name must be a reasonable string.", [str,
+                                                   Length(min=1, max=128)])),
+        Required("host"):
+        check(
+            ("Host must be a reasonable string", [str,
+                                                  Length(min=1, max=128)])),
+        Required("port"):
+        check(("You have to supply a valid integer for your port.", [int]),
+              ("Your port number must be in the valid range 1-65535.",
+               [lambda x: 1 <= int(x) and int(x) <= 65535])),
+        Required("username"):
+        check(("Username must be a reasonable string",
+               [str, Length(min=1, max=128)])),
+        Required("password"):
+        check(("Username must be a reasonable string",
+               [str, Length(min=1, max=128)])),
+        Required("protocol"):
+        check(("Protocol must be either HTTP or HTTPS",
+               [lambda x: x in ['HTTP', 'HTTPS']]))
+    },
+    extra=True)
+
 
 def get_server(sid=None, name=None):
     """
@@ -49,16 +55,17 @@ def get_server(sid=None, name=None):
 
     server = db.shell_servers.find_one({"sid": sid})
     if server is None:
-        raise InternalException("Server with sid '{}' does not exist".format(sid))
+        raise InternalException(
+            "Server with sid '{}' does not exist".format(sid))
 
     return server
+
 
 def get_connection(sid):
     """
     Attempts to connect to the given server and
     returns a connection.
     """
-
 
     server = get_server(sid)
 
@@ -69,14 +76,15 @@ def get_connection(sid):
             password=server["password"],
             port=server["port"],
             missing_host_key=spur.ssh.MissingHostKey.accept,
-            connect_timeout=10
-        )
+            connect_timeout=10)
         shell.run(["echo", "connected"])
     except spur.ssh.ConnectionError as e:
-        raise WebException("Cannot connect to {}@{}:{} with the specified password".format(
-            server["username"], server["host"], server["port"]))
+        raise WebException(
+            "Cannot connect to {}@{}:{} with the specified password".format(
+                server["username"], server["host"], server["port"]))
 
     return shell
+
 
 def ensure_setup(shell):
     """
@@ -85,8 +93,10 @@ def ensure_setup(shell):
     """
 
     result = shell.run(["sudo", "shell_manager", "status"], allow_error=True)
-    if result.return_code == 1 and "command not found" in result.stderr_output.decode("utf-8"):
+    if result.return_code == 1 and "command not found" in result.stderr_output.decode(
+            "utf-8"):
         raise WebException("shell_manager not installed on server.")
+
 
 def add_server(params):
     """
@@ -117,6 +127,7 @@ def add_server(params):
 
     return params["sid"]
 
+
 #Probably do not need/want the sid here anymore.
 def update_server(sid, params):
     """
@@ -136,7 +147,8 @@ def update_server(sid, params):
 
     server = safe_fail(get_server, sid=sid)
     if server is None:
-        raise WebException("Shell server with sid '{}' does not exist.".format(sid))
+        raise WebException(
+            "Shell server with sid '{}' does not exist.".format(sid))
 
     params["name"] = server["name"]
 
@@ -146,6 +158,7 @@ def update_server(sid, params):
         params["port"] = int(params["port"])
 
     db.shell_servers.update({"sid": server["sid"]}, {"$set": params})
+
 
 def remove_server(sid):
     """
@@ -158,9 +171,11 @@ def remove_server(sid):
     db = api.common.get_conn()
 
     if db.shell_servers.find_one({"sid": sid}) is None:
-        raise WebException("Shell server with sid '{}' does not exist.".format(sid))
+        raise WebException(
+            "Shell server with sid '{}' does not exist.".format(sid))
 
     db.shell_servers.remove({"sid": sid})
+
 
 def get_servers():
     """
@@ -169,6 +184,7 @@ def get_servers():
 
     db = api.common.get_conn()
     return list(db.shell_servers.find({}, {"_id": 0}))
+
 
 def get_problem_status_from_server(sid):
     """
@@ -187,7 +203,8 @@ def get_problem_status_from_server(sid):
     shell = get_connection(sid)
     ensure_setup(shell)
 
-    output = shell.run(["sudo", "shell_manager", "status", "--json"]).output.decode("utf-8")
+    output = shell.run(["sudo", "shell_manager", "status",
+                        "--json"]).output.decode("utf-8")
     data = json.loads(output)
 
     all_online = True
@@ -203,6 +220,7 @@ def get_problem_status_from_server(sid):
                 all_online = False
 
     return (all_online, data)
+
 
 def load_problems_from_server(sid):
     """
@@ -226,5 +244,5 @@ def load_problems_from_server(sid):
 
     api.problem.load_published(data)
 
-    has_instances = lambda p : len(p["instances"]) > 0
+    has_instances = lambda p: len(p["instances"]) > 0
     return len(list(filter(has_instances, data["problems"])))

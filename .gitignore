@@ -1,3 +1,4 @@
-.vagrant
+# Vagrant, Terraform, Deployment
 .terraform
+.vagrant
 terraform.tfstate*

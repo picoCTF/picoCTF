@@ -14,6 +14,7 @@ no_cache = False
 fast_cache = {}
 _mongo_index = None
 
+
 def clear_all():
     """
     Clears the cache.
@@ -22,6 +23,7 @@ def clear_all():
     db = api.common.get_conn()
     db.cache.remove()
     fast_cache.clear()
+
 
 def get_mongo_key(f, *args, **kwargs):
     """
@@ -44,6 +46,7 @@ def get_mongo_key(f, *args, **kwargs):
         "kwargs": dict(min_kwargs)
     }
 
+
 def get_key(f, *args, **kwargs):
     """
     Returns a unique key for a memoized function.
@@ -60,11 +63,13 @@ def get_key(f, *args, **kwargs):
         kwargs["#args"] = ",".join(map(str, args))
 
     sorted_keys = sorted(kwargs)
-    arg_key = "&".join(["{}:{}".format(key, kwargs[key]) for key in sorted_keys])
+    arg_key = "&".join(
+        ["{}:{}".format(key, kwargs[key]) for key in sorted_keys])
 
     key = "{}.{}${}".format(f.__module__, f.__name__, arg_key).replace(" ", "~")
 
     return key
+
 
 def get(key, fast=False):
     """
@@ -91,6 +96,7 @@ def get(key, fast=False):
     if cached_result:
         return cached_result["value"]
 
+
 def set(key, value, timeout=None, fast=False):
     """
     Set a key in the cache.
@@ -109,11 +115,10 @@ def set(key, value, timeout=None, fast=False):
         }
         return
 
-
     db = api.common.get_conn()
 
     update = key.copy()
-    update.update({"value":value})
+    update.update({"value": value})
 
     if timeout is not None:
         expireAt = datetime.datetime.now() + datetime.timedelta(seconds=timeout)
@@ -121,12 +126,14 @@ def set(key, value, timeout=None, fast=False):
 
     db.cache.update(key, update, upsert=True)
 
+
 def timed_out(info):
     """
     Determines if a fast_cache entry has been timed out
     """
 
     return int(time.time()) - info['set_time'] > info['timeout']
+
 
 def memoize(timeout=None, fast=False):
     """
@@ -138,7 +145,8 @@ def memoize(timeout=None, fast=False):
         The functions result.
     """
 
-    assert(not fast or (fast and timeout is not None)), "You cannot set fast cache without a timeout!"
+    assert (not fast or (fast and timeout is not None)
+           ), "You cannot set fast cache without a timeout!"
 
     def decorator(f):
         """
@@ -155,10 +163,12 @@ def memoize(timeout=None, fast=False):
                 kwargs.pop("cache", None)
                 return f(*args, **kwargs)
 
-            key = get_key(f, *args, **kwargs) if fast else get_mongo_key(f, *args, **kwargs)
+            key = get_key(f, *args, **kwargs) if fast else get_mongo_key(
+                f, *args, **kwargs)
             cached_result = get(key, fast=fast)
 
-            if cached_result is None or no_cache or (fast and timed_out(cached_result)):
+            if cached_result is None or no_cache or (fast and
+                                                     timed_out(cached_result)):
                 function_result = f(*args, **kwargs)
                 set(key, function_result, timeout=timeout, fast=fast)
 
@@ -169,6 +179,7 @@ def memoize(timeout=None, fast=False):
         return wrapper
 
     return decorator
+
 
 def invalidate_memoization(f, *keys):
     """

@@ -26,35 +26,38 @@ base_test_user = {
 
 xvfb_process = None
 
+
 def start_xvfb():
     global xvfb_process
     # run an x virtual frame buffer so firefox can run headlessly
     xvfb_process = Popen(["Xvfb", ":40", "-ac"])
     os.environ["DISPLAY"] = ":40"
 
+
 def stop_xvfb():
     global xvfb_process
     xvfb_process.kill()
 
+
 def find_id_with_timeout(driver, ID, timeout=TIMEOUT):
     return WebDriverWait(driver, timeout).until(
-        EC.presence_of_element_located((By.ID, ID))
-    )
+        EC.presence_of_element_located((By.ID, ID)))
+
 
 def find_class_with_timeout(driver, CLASS, timeout=TIMEOUT):
     return WebDriverWait(driver, timeout).until(
-        EC.presence_of_element_located((By.CLASS_NAME, CLASS))
-    )
+        EC.presence_of_element_located((By.CLASS_NAME, CLASS)))
+
 
 def find_xpath_with_timeout(driver, XPATH, timeout=TIMEOUT):
     return WebDriverWait(driver, timeout).until(
-        EC.presence_of_element_located((By.XPATH, XPATH))
-    )
+        EC.presence_of_element_located((By.XPATH, XPATH)))
+
 
 def find_visible_id_with_timeout(driver, ID, timeout=TIMEOUT):
     return WebDriverWait(driver, timeout).until(
-            EC.visibility_of_element_located((By.ID, ID))
-    )
+        EC.visibility_of_element_located((By.ID, ID)))
+
 
 def register_test_user(driver):
     """
@@ -93,16 +96,18 @@ def register_test_user(driver):
     # wait for processing
     time.sleep(1)
 
-    assert any([cookie['name'] == "flask" for cookie in driver.get_cookies()]), "Could not register user."
+    assert any([cookie['name'] == "flask" for cookie in driver.get_cookies()
+               ]), "Could not register user."
 
     return new_user
+
 
 def deactivate_test_user(driver, test_user):
     """
     Deactivates the test_user account using the driver provided.
     """
 
-    driver.get(BASE_URI+"account")
+    driver.get(BASE_URI + "account")
 
     current_password = find_id_with_timeout(driver, "current-password-disable")
     current_password.send_keys(test_user["password"])

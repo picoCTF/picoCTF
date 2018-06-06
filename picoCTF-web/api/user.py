@@ -12,19 +12,17 @@ import api
 import bcrypt
 import flask
 from api.annotations import log_action
-from api.common import (
-    check,
-    InternalException,
-    safe_fail,
-    validate,
-    WebException
-)
+from api.common import (check, InternalException, safe_fail, validate,
+                        WebException)
 from voluptuous import Length, Required, Schema
 
 _check_email_format = lambda email: re.match(r".+@.+\..{2,}", email) is not None
 
+
 def _check_username(username):
-    return all([c in string.digits + string.ascii_lowercase for c in username.lower()])
+    return all(
+        [c in string.digits + string.ascii_lowercase for c in username.lower()])
+
 
 def verify_email_in_whitelist(email, whitelist=None):
     """
@@ -48,50 +46,56 @@ def verify_email_in_whitelist(email, whitelist=None):
 
     return False
 
-user_schema = Schema({
-    Required('email'): check(
-        ("Email must be between 5 and 50 characters.", [str, Length(min=5, max=50)]),
-        ("Your email does not look like an email address.", [_check_email_format]),
-    ),
-    Required('firstname'): check(
-        ("First Name must be between 1 and 50 characters.", [str, Length(min=1, max=50)])
-    ),
-    Required('lastname'): check(
-        ("Last Name must be between 1 and 50 characters.", [str, Length(min=1, max=50)])
-    ),
-    Required('country'): check(
-        ("Please select a country", [str, Length(min=2, max=2)])
-    ),
-    Required('username'): check(
-        ("Usernames must be between 3 and 20 characters.", [str, Length(min=3, max=20)]),
-        ("Usernames must be alphanumeric.", [_check_username]),
-        ("This username already exists.", [
-            lambda name: safe_fail(get_user, name=name) is None]),
-        ("This username conflicts with an existing team.", [
-            lambda name: safe_fail(api.team.get_team, name=name) is None])
-    ),
-    Required('password'):
-        check(("Passwords must be between 3 and 20 characters.", [str, Length(min=3, max=20)])
-    ),
-    Required('affiliation'):
-        check(("You must specify an affiliation.", [str, Length(min=3, max=50)])
-    ),
-    Required('eligibility'):
-        check(("You must specify whether or not your account is eligibile.", [str,
-            lambda status: status in ["eligible", "ineligible"]])
-    ),
-}, extra=True)
 
-new_team_schema = Schema({
-    Required('team-name-new'): check(
-        ("The team name must be between 3 and 40 characters.", [str, Length(min=3, max=40)]),
-        ("A team with that name already exists.", [
-            lambda name: safe_fail(api.team.get_team, name=name) is None])
-    ),
-    Required('team-password-new'):
-        check(("Team passphrase must be between 3 and 20 characters.", [str, Length(min=3, max=20)])),
+user_schema = Schema(
+    {
+        Required('email'):
+        check(
+            ("Email must be between 5 and 50 characters.",
+             [str, Length(min=5, max=50)]),
+            ("Your email does not look like an email address.",
+             [_check_email_format]),
+        ),
+        Required('firstname'):
+        check(("First Name must be between 1 and 50 characters.",
+               [str, Length(min=1, max=50)])),
+        Required('lastname'):
+        check(("Last Name must be between 1 and 50 characters.",
+               [str, Length(min=1, max=50)])),
+        Required('country'):
+        check(("Please select a country", [str, Length(min=2, max=2)])),
+        Required('username'):
+        check(("Usernames must be between 3 and 20 characters.",
+               [str, Length(min=3, max=20)]),
+              ("Usernames must be alphanumeric.", [_check_username]),
+              ("This username already exists.",
+               [lambda name: safe_fail(get_user, name=name) is None]),
+              ("This username conflicts with an existing team.",
+               [lambda name: safe_fail(api.team.get_team, name=name) is None])),
+        Required('password'):
+        check(("Passwords must be between 3 and 20 characters.",
+               [str, Length(min=3, max=20)])),
+        Required('affiliation'):
+        check(("You must specify an affiliation.", [str,
+                                                    Length(min=3, max=50)])),
+        Required('eligibility'):
+        check(("You must specify whether or not your account is eligibile.",
+               [str, lambda status: status in ["eligible", "ineligible"]])),
+    },
+    extra=True)
 
-}, extra=True)
+new_team_schema = Schema(
+    {
+        Required('team-name-new'):
+        check(("The team name must be between 3 and 40 characters.",
+               [str, Length(min=3, max=40)]),
+              ("A team with that name already exists.",
+               [lambda name: safe_fail(api.team.get_team, name=name) is None])),
+        Required('team-password-new'):
+        check(("Team passphrase must be between 3 and 20 characters.",
+               [str, Length(min=3, max=20)])),
+    },
+    extra=True)
 
 existing_team_schema = Schema({
     Required('team-name-existing'): check(
@@ -106,6 +110,7 @@ existing_team_schema = Schema({
         check(("Team passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)]))
 }, extra=True)
 
+
 def hash_password(password):
     """
     Hash plaintext password.
@@ -117,6 +122,7 @@ def hash_password(password):
     """
 
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(8))
+
 
 def get_team(uid=None):
     """
@@ -130,6 +136,7 @@ def get_team(uid=None):
 
     user = get_user(uid=uid)
     return api.team.get_team(tid=user["tid"])
+
 
 def get_user(name=None, uid=None):
     """
@@ -163,8 +170,17 @@ def get_user(name=None, uid=None):
 
     return user
 
-def create_user(username, firstname, lastname, email, password_hash, tid,
-                teacher=False, country="US", admin=False, verified=False):
+
+def create_user(username,
+                firstname,
+                lastname,
+                email,
+                password_hash,
+                tid,
+                teacher=False,
+                country="US",
+                admin=False,
+                verified=False):
     """
     This inserts a user directly into the database. It assumes all data is valid.
 
@@ -190,8 +206,15 @@ def create_user(username, firstname, lastname, email, password_hash, tid,
     max_team_size = api.config.get_settings()["max_team_size"]
 
     updated_team = db.teams.find_and_modify(
-        query={"tid": tid, "size": {"$lt": max_team_size}},
-        update={"$inc": {"size": 1}},
+        query={
+            "tid": tid,
+            "size": {
+                "$lt": max_team_size
+            }
+        },
+        update={"$inc": {
+            "size": 1
+        }},
         new=True)
 
     if not updated_team:
@@ -215,6 +238,7 @@ def create_user(username, firstname, lastname, email, password_hash, tid,
         'disabled': False,
         'country': country,
         'verified': not settings["email"]["email_verification"] or verified,
+        'extdata': {},
     }
 
     db.users.insert(user)
@@ -223,6 +247,7 @@ def create_user(username, firstname, lastname, email, password_hash, tid,
         api.email.send_user_verification_email(username)
 
     return uid
+
 
 def get_all_users(show_teachers=False):
     """
@@ -245,6 +270,7 @@ def get_all_users(show_teachers=False):
 
     return list(db.users.find(match, projection))
 
+
 def _validate_captcha(data):
     """
     Validates a captcha with google's reCAPTCHA.
@@ -256,15 +282,20 @@ def _validate_captcha(data):
     settings = api.config.get_settings()["captcha"]
 
     post_data = urllib.parse.urlencode({
-        "secret": api.config.reCAPTCHA_private_key,
-        "response": data["g-recaptcha-response"],
-        "remoteip": flask.request.remote_addr
+        "secret":
+        api.config.reCAPTCHA_private_key,
+        "response":
+        data["g-recaptcha-response"],
+        "remoteip":
+        flask.request.remote_addr
     }).encode("utf-8")
 
-    request = urllib.request.Request(api.config.captcha_url, post_data, method='POST')
+    request = urllib.request.Request(
+        api.config.captcha_url, post_data, method='POST')
     response = urllib.request.urlopen(request).read().decode("utf-8")
     parsed_response = json.loads(response)
     return parsed_response['success'] == True
+
 
 @log_action
 def create_simple_user_request(params):
@@ -305,10 +336,12 @@ def create_simple_user_request(params):
         key = api.token.find_key_by_token("registration_token", params["rid"])
 
         if params.get("gid") != key["gid"]:
-            raise WebException("Registration token group and supplied gid do not match.")
+            raise WebException(
+                "Registration token group and supplied gid do not match.")
 
         if params["email"] != key["email"]:
-            raise WebException("Registration token email does not match the supplied one.")
+            raise WebException(
+                "Registration token email does not match the supplied one.")
 
         user_is_teacher = key["teacher"]
         user_was_invited = True
@@ -316,9 +349,12 @@ def create_simple_user_request(params):
         api.token.delete_token(key, "registration_token")
     else:
         if not verify_email_in_whitelist(params["email"], whitelist):
-            raise WebException("Your email does not belong to the whitelist. Please see the registration form for details.")
+            raise WebException(
+                "Your email does not belong to the whitelist. Please see the registration form for details."
+            )
 
-    if api.config.get_settings()["captcha"]["enable_captcha"] and not _validate_captcha(params):
+    if api.config.get_settings(
+    )["captcha"]["enable_captcha"] and not _validate_captcha(params):
         raise WebException("Incorrect captcha!")
 
     team_params = {
@@ -345,17 +381,18 @@ def create_simple_user_request(params):
         team["tid"],
         country=params["country"],
         teacher=user_is_teacher,
-        verified=user_was_invited
-    )
+        verified=user_was_invited)
 
     if uid is None:
         raise InternalException("There was an error during registration.")
 
     # Join group after everything else has succeeded
     if params.get("gid", None):
-        api.group.join_group(params["gid"], team["tid"], teacher=user_is_teacher)
+        api.group.join_group(
+            params["gid"], team["tid"], teacher=user_is_teacher)
 
     return uid
+
 
 def is_teacher(uid=None):
     """
@@ -369,6 +406,7 @@ def is_teacher(uid=None):
 
     user = get_user(uid=uid)
     return user.get('teacher', False)
+
 
 def is_admin(uid=None):
     """
@@ -409,6 +447,7 @@ def verify_user(uid, token_value):
     else:
         raise InternalException("This is not a valid token for your user.")
 
+
 @log_action
 def update_password_request(params, uid=None, check_current=False):
     """
@@ -426,7 +465,8 @@ def update_password_request(params, uid=None, check_current=False):
 
     user = get_user(uid=uid)
 
-    if check_current and not api.auth.confirm_password(params["current-password"], user['password_hash']):
+    if check_current and not api.auth.confirm_password(
+            params["current-password"], user['password_hash']):
         raise WebException("Your current password is incorrect.")
 
     if params["new-password"] != params["new-password-confirmation"]:
@@ -448,7 +488,12 @@ def update_password(uid, password):
     """
 
     db = api.common.get_conn()
-    db.users.update({'uid': uid}, {'$set': {'password_hash': hash_password(password)}})
+    db.users.update({
+        'uid': uid
+    }, {'$set': {
+        'password_hash': hash_password(password)
+    }})
+
 
 def disable_account(uid):
     """
@@ -460,9 +505,12 @@ def disable_account(uid):
     """
 
     db = api.common.get_conn()
-    result = db.users.update(
-        {"uid": uid, "disabled": False},
-        {"$set": {"disabled": True}})
+    result = db.users.update({
+        "uid": uid,
+        "disabled": False
+    }, {"$set": {
+        "disabled": True
+    }})
 
     tid = api.user.get_team(uid=uid)["tid"]
 
@@ -470,9 +518,17 @@ def disable_account(uid):
     # result["n"] refers to how many documents have been updated.
     if result["n"] == 1:
         db.teams.find_and_modify(
-            query={"tid": tid, "size": {"$gt": 0}},
-            update={"$inc": {"size": -1}},
+            query={
+                "tid": tid,
+                "size": {
+                    "$gt": 0
+                }
+            },
+            update={"$inc": {
+                "size": -1
+            }},
             new=True)
+
 
 @log_action
 def disable_account_request(params, uid=None, check_current=False):
@@ -489,8 +545,24 @@ def disable_account_request(params, uid=None, check_current=False):
 
     user = get_user(uid=uid)
 
-    if check_current and not api.auth.confirm_password(params["current-password"], user['password_hash']):
+    if check_current and not api.auth.confirm_password(
+            params["current-password"], user['password_hash']):
         raise WebException("Your current password is incorrect.")
     disable_account(user['uid'])
 
     api.auth.logout()
+
+
+def update_extdata(params):
+    """
+    Update user extdata.
+    Assumes args are keys in params.
+
+    Args:
+        params:
+            (any)
+    """
+    user = get_user(uid=None)
+    db = api.common.get_conn()
+    params.pop('token', None)
+    db.users.update_one({'uid': user['uid']}, {'$set': {'extdata': params}})

@@ -11,9 +11,11 @@ welcome = """
 {{welcome_message}}
 """
 
+
 def encrypt():
-  cipher = AES.new(key.decode('hex'), AES.MODE_ECB)
-  return cipher.encrypt(flag).encode("hex")
+    cipher = AES.new(key.decode('hex'), AES.MODE_ECB)
+    return cipher.encrypt(flag).encode("hex")
+
 
 # flush output immediately
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)

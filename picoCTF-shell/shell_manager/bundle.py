@@ -12,17 +12,12 @@ from shutil import copyfile, rmtree
 
 import spur
 from shell_manager.package import DEB_DEFAULTS
-from shell_manager.util import (
-    BUNDLE_ROOT,
-    FatalException,
-    get_bundle,
-    get_bundle_root,
-    get_problem,
-    get_problem_root,
-    sanitize_name
-)
+from shell_manager.util import (BUNDLE_ROOT, FatalException, get_bundle,
+                                get_bundle_root, get_problem, get_problem_root,
+                                sanitize_name)
 
 logger = logging.getLogger(__name__)
+
 
 def bundle_to_control(bundle, debian_path):
     """
@@ -34,13 +29,14 @@ def bundle_to_control(bundle, debian_path):
     """
 
     control = object_copy.deepcopy(DEB_DEFAULTS)
-    control.update(**{
-        "Package": sanitize_name(bundle["name"]),
-        "Version": bundle.get("version", "1.0-0"),
-        "Architecture": bundle.get("architecture", "all"),
-        "Maintainer": bundle["author"],
-        "Description": bundle["description"]
-    })
+    control.update(
+        **{
+            "Package": sanitize_name(bundle["name"]),
+            "Version": bundle.get("version", "1.0-0"),
+            "Architecture": bundle.get("architecture", "all"),
+            "Maintainer": bundle["author"],
+            "Description": bundle["description"]
+        })
 
     # Need to install problems and bundle dependencies.
     pkg_dependencies = bundle["problems"] + bundle.get("pkg_dependencies", [])
@@ -55,6 +51,7 @@ def bundle_to_control(bundle, debian_path):
     control_file.close()
 
     logger.debug("Control file contents:\n%s", contents)
+
 
 def bundle_problems(args, config):
     """
@@ -87,9 +84,14 @@ def bundle_problems(args, config):
         paths["staging"] = join(paths["working"], "__staging")
 
     paths["debian"] = join(paths["staging"], "DEBIAN")
-    paths["bundle_root"] = join(paths["staging"], get_bundle_root(bundle["name"]))
+    paths["bundle_root"] = join(paths["staging"],
+                                get_bundle_root(bundle["name"]))
 
-    [makedirs(staging_path) for _, staging_path in paths.items() if not isdir(staging_path)]
+    [
+        makedirs(staging_path)
+        for _, staging_path in paths.items()
+        if not isdir(staging_path)
+    ]
 
     # note that this chmod does not work correct if on a vagrant shared folder,
     # so we need to package the problems elsewhere
@@ -114,15 +116,15 @@ def bundle_problems(args, config):
         raw_package_name = "{}-{}-bundle-{}.deb".format(
             sanitize_name(bundle.get("organization", "ctf")),
             sanitize_name(bundle["name"]),
-            sanitize_name(bundle.get("version", "1.0-0"))
-        )
+            sanitize_name(bundle.get("version", "1.0-0")))
 
         return raw_package_name
 
     deb_path = join(paths["working"], format_deb_file_name(bundle))
 
     shell = spur.LocalShell()
-    result = shell.run(["fakeroot", "dpkg-deb", "--build", paths["staging"], deb_path])
+    result = shell.run(
+        ["fakeroot", "dpkg-deb", "--build", paths["staging"], deb_path])
 
     if result.return_code != 0:
         logger.error("Error building bundle deb for '%s'.", bundle["name"])
@@ -130,6 +132,7 @@ def bundle_problems(args, config):
     else:
         logger.info("Bundle '%s' packaged successfully.", bundle["name"])
 
-    logger.debug("Clearning up '%s' staging directory '%s'.", bundle["name"], paths["staging"])
+    logger.debug("Clearning up '%s' staging directory '%s'.", bundle["name"],
+                 paths["staging"])
 
     rmtree(paths["staging"])
