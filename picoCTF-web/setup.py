@@ -58,9 +58,9 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
 
     # What does your project relate to?
@@ -75,9 +75,16 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        "Flask==0.12.2", "flask-bcrypt", "pymongo==3.2.1", "pyzmq", "py",
-        "pytest", "voluptuous", "gunicorn", "spur", "line_profiler",
-        "Flask-Mail"
+        'Flask==1.0.2',
+        'Flask-Bcrypt==0.7.1',
+        'Flask-Mail==0.9.1',
+        'gunicorn==19.8.1',
+        'line_profiler==2.1.2',
+        'py==1.5.3',
+        'pymongo==3.2.1',
+        'pytest==3.6.1',
+        'spur==0.3.20',
+        'voluptuous==0.11.1',
     ],
     tests_require=["selenium"],
     entry_points={

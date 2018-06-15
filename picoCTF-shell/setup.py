@@ -57,9 +57,9 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
 
     # What does your project relate to?
@@ -74,8 +74,15 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'spur', 'openssh-wrapper', "werkzeug", "jinja2", "pytest", "psutil",
-        "flask", "coloredlogs", "voluptuous"
+        'coloredlogs==10.0',
+        'Flask==1.0.2',
+        'Jinja2==2.10',
+        'openssh-wrapper==0.4',
+        'psutil==5.4.6',
+        'pytest==3.6.1',
+        'spur==0.3.20',
+        'voluptuous==0.11.1',
+        'Werkzeug==0.14.1',
     ],
 
     # List additional groups of dependencies here (e.g. development
