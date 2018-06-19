@@ -77,7 +77,7 @@ def change_problem_availability_hook():
     pid = request.form.get("pid", None)
     desired_state = request.form.get("state", None)
 
-    if desired_state == None:
+    if desired_state is None:
         return WebError("Problems are either enabled or disabled.")
     else:
         state = bson.json_util.loads(desired_state)

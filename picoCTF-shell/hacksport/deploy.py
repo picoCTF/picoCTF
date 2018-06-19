@@ -315,9 +315,9 @@ def generate_staging_directory(root=STAGING_ROOT,
 
     def get_new_path():
         prefix = ""
-        if problem_name != None:
+        if problem_name is not None:
             prefix += problem_name + "_"
-        if instance_number != None:
+        if instance_number is not None:
             prefix += str(instance_number) + "_"
 
         path = join(root, prefix + str(randint(0, 1e16)))

@@ -101,7 +101,7 @@ existing_team_schema = Schema({
     Required('team-name-existing'): check(
         ("Existing team names must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
         ("There is no existing team named that.", [
-            lambda name: api.team.get_team(name=name) != None]),
+            lambda name: api.team.get_team(name=name) is not None]),
         ("There are too many members on that team for you to join.", [
             lambda name: len(api.team.get_team_uids(name=name, show_disabled=False)) < api.config.get_settings()["max_team_size"]
         ])

@@ -28,7 +28,7 @@ def print_configuration(args, global_config):
     Entry point for config subcommand
     """
 
-    if args.file == None:
+    if args.file is None:
         config = global_config
     else:
         try:
@@ -59,7 +59,7 @@ def set_configuration_option(args, global_config):
     Entry point for config set subcommand
     """
 
-    if args.file == None:
+    if args.file is None:
         config = global_config
     else:
         try:

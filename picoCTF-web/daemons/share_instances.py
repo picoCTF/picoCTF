@@ -114,7 +114,7 @@ def run():
                 })
 
             temp_dir = make_temp_dir(shell)
-            if temp_dir == None:
+            if temp_dir is None:
                 print("Couldn't make temporary directory on shell server")
                 continue
 

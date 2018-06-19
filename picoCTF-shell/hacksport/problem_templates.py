@@ -49,7 +49,7 @@ def CompiledBinary(makefile=None,
         remote: Specifies if the challenge should be remote or not. Defaults to False.
     """
 
-    if compiler_flags == None:
+    if compiler_flags is None:
         compiler_flags = []
 
     if is_32_bit and "-m32" not in compiler_flags:
