@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import argparse
 import glob
-import imp
+from importlib.machinery import SourceFileLoader
 import time
 from os.path import basename, splitext
 
@@ -11,7 +11,7 @@ import api
 def load_modules(directory):
     files = glob.glob("{}/*.py".format(directory))
     return [
-        imp.load_source(splitext(basename(module))[0], module)
+        SourceFileLoader(splitext(basename(module))[0], module).load_module()
         for module in files
     ]
 

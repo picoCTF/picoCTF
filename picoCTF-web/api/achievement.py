@@ -1,6 +1,6 @@
 """ Module for interacting with the achievements """
 
-import imp
+from importlib.machinery import SourceFileLoader
 from datetime import datetime
 from os.path import join
 
@@ -269,7 +269,7 @@ def get_processor(aid):
         path = get_achievement(aid=aid, show_disabled=True)["processor"]
         base_path = api.config.get_settings()["achievements"][
             "processor_base_path"]
-        return imp.load_source(path[:-3], join(base_path, path))
+        return SourceFileLoader(path[:-3], join(base_path, path)).load_module()
     except FileNotFoundError:
         raise InternalException("Achievement processor is offline.")
 

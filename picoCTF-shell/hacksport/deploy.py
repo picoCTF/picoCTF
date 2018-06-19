@@ -90,7 +90,7 @@ from abc import ABCMeta
 from copy import copy, deepcopy
 from grp import getgrnam
 from hashlib import md5, sha1
-from imp import load_source
+from importlib.machinery import SourceFileLoader
 # These are below because of a cirucular import issue with problem.py and give_port
 # [TODO] cleanup
 from os.path import commonprefix, isdir, isfile, join
@@ -525,7 +525,8 @@ def generate_instance(problem_object,
     cwd = os.getcwd()
     os.chdir(copy_path)
 
-    challenge = load_source("challenge", join(copy_path, "challenge.py"))
+    challenge = SourceFileLoader("challenge",
+                                 join(copy_path, "challenge.py")).load_module()
 
     Problem = update_problem_class(challenge.Problem, problem_object, seed,
                                    username, deployment_directory)
@@ -797,8 +798,9 @@ def deploy_problems(args, config):
 
     if args.secret:
         deploy_config.deploy_secret = args.secret
-        logger.warn("Overriding deploy_secret with user supplied secret '%s'.",
-                    args.secret)
+        logger.warning(
+            "Overriding deploy_secret with user supplied secret '%s'.",
+            args.secret)
 
     problem_names = args.problem_paths
 
@@ -967,7 +969,7 @@ def undeploy_problems(args, config):
                     filter(lambda x: x in already_deployed[problem["name"]],
                            instance_list))
                 if len(instances) == 0:
-                    logger.warn(
+                    logger.warning(
                         "No deployed instances %s were found for problem '%s'.",
                         instance_list, problem["name"])
                 else:
