@@ -276,7 +276,7 @@ def main():
             )
             raise FatalException
 
-        #Call the default function
+        # Call the default function
         if "func" in args:
             args.func(args, config)
         else:

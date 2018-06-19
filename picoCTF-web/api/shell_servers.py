@@ -128,7 +128,7 @@ def add_server(params):
     return params["sid"]
 
 
-#Probably do not need/want the sid here anymore.
+# Probably do not need/want the sid here anymore.
 def update_server(sid, params):
     """
     Update a shell server from the pool of servers.
@@ -239,7 +239,7 @@ def load_problems_from_server(sid):
     result = shell.run(["sudo", "shell_manager", "publish"])
     data = json.loads(result.output.decode("utf-8"))
 
-    #Pass along the server
+    # Pass along the server
     data["sid"] = sid
 
     api.problem.load_published(data)

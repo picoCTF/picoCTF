@@ -110,7 +110,7 @@ def build_autogen(args):
 
 
 def list_problems(args):
-    #TODO: This could be improved
+    # TODO: This could be improved
     problems = api.problem.get_all_problems(show_disabled=True)
     for problem in problems:
         print("{} ({}) - {} points".format(

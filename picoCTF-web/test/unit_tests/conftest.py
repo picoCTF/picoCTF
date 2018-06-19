@@ -20,7 +20,7 @@ def setup_db():
     if len(client.collection_names()) != 0:
         client.connection.drop_database(api.config.testing_mongo_db_name)
 
-    #Set debug client for mongo
+    # Set debug client for mongo
     if api.common.external_client is None:
         api.common.external_client = client
 

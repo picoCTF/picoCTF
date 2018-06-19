@@ -102,10 +102,10 @@ def clear_collections(*collections):
             try:
                 result = f(*args, **kwargs)
             finally:
-                #Clear the collections.
+                # Clear the collections.
                 for collection in collections:
                     db[collection].remove()
-                #Ensure they are then empty.
+                # Ensure they are then empty.
                 for collection in collections:
                     collection_size = lambda collection: len(list(db[collection].find()))
                     assert collection_size(

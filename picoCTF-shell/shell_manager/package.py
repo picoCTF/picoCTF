@@ -33,7 +33,7 @@ def problem_to_control(problem, debian_path):
         debian_path: path to the DEBIAN directory
     """
 
-    #a-z, digits 0-9, plus + and minus - signs, and periods
+    # a-z, digits 0-9, plus + and minus - signs, and periods
     package_name = problem.get("pkg_name", problem["name"])
     sanitized_name = sanitize_name(package_name)
     control = deepcopy(DEB_DEFAULTS)
@@ -87,7 +87,7 @@ def postinst_dependencies(problem, problem_path, debian_path, install_path):
 
     listed_requirements = problem.get("pip_requirements", [])
 
-    #Write or copy the requirements to the staging directory.
+    # Write or copy the requirements to the staging directory.
     if len(listed_requirements) > 0:
         if isfile(requirements_path):
             logger.error(
@@ -113,7 +113,7 @@ def postinst_dependencies(problem, problem_path, debian_path, install_path):
     if isfile(dependencies_path):
         copy(dependencies_path, join(install_path, "install_dependencies"))
 
-        #Ensure it is executable
+        # Ensure it is executable
         chmod(join(install_path, "install_dependencies"), 0o500)
 
         postinst_template.append("bash -c '{}'".format(deployed_setup_path))
@@ -126,7 +126,7 @@ def postinst_dependencies(problem, problem_path, debian_path, install_path):
         contents = "\n".join(postinst_template)
         f.write(contents)
 
-        #post_template always has a she-bang.
+        # post_template always has a she-bang.
         if len(postinst_template) > 1:
             logger.debug("post install:\n%s", contents)
 
@@ -156,7 +156,7 @@ def problem_builder(args, config):
     Main entrypoint for package building operations.
     """
 
-    #Grab a problem_path
+    # Grab a problem_path
     problem_base_path = args.problem_paths.pop()
 
     problem_paths = find_problems(problem_base_path)
@@ -181,7 +181,7 @@ def problem_builder(args, config):
                              get_problem_root(problem["name"]))
         paths["install_data"] = join(paths["data"], "__files")
 
-        #Make all of the directories, order does not matter with makedirs
+        # Make all of the directories, order does not matter with makedirs
         [
             makedirs(staging_path)
             for _, staging_path in paths.items()

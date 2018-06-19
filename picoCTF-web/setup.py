@@ -14,7 +14,7 @@ from os import path
 # Always prefer setuptools over distutils
 from setuptools import find_packages, setup
 
-#Necessary to drop bins
+# Necessary to drop bins
 if 'bdist_wheel' in sys.argv:
     raise RuntimeError("This setup.py does not support wheels")
 

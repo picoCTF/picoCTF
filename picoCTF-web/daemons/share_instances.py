@@ -24,7 +24,7 @@ for user, correct_symlinks in data.items():
     try:
         home_dir = pwd.getpwnam(user).pw_dir
     except KeyError as e:
-        #print "%s does not have a shell account"
+        # print "%s does not have a shell account"
         continue
 
     problems_path = join(home_dir, "problems")
@@ -40,7 +40,7 @@ for user, correct_symlinks in data.items():
 
     # if only os.chattr() existed... but I guess the following hacks work
 
-    #if not dirstat.st_mode & stat.UF_NOUNLINK:
+    # if not dirstat.st_mode & stat.UF_NOUNLINK:
     #    os.lchflags(problems_path, dirstat.st_flags | os.SF_NOUNLINK)
 
     if b"-u-" not in subprocess.check_output(["lsattr", "-d", problems_path]):

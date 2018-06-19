@@ -33,8 +33,8 @@ def execute(cmd, timeout=60, **kwargs):
 
     shell = LocalShell()
 
-    #It is unlikely that someone actually intends to supply
-    #a string based on how spur works.
+    # It is unlikely that someone actually intends to supply
+    # a string based on how spur works.
     if type(cmd) == str:
         cmd = ["bash", "-c"] + [cmd]
 

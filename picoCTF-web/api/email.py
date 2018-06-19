@@ -121,7 +121,7 @@ def send_user_verification_email(username):
             raise InternalException(
                 "User has been sent the maximum number of verification emails.")
 
-    #Is there a better way to do this without dragging url_for + app_context into it?
+    # Is there a better way to do this without dragging url_for + app_context into it?
     verification_link = "{}/api/user/verify?uid={}&token={}".\
         format(api.config.competition_urls[0], user["uid"], token_value)
 

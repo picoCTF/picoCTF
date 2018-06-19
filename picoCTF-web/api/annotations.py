@@ -133,8 +133,8 @@ def deny_blacklisted(f):
     @wraps(f)
     @require_login
     def wrapper(*args, **kwds):
-        #if auth.is_blacklisted(session['tid']):
-        #   abort(403)
+        # if auth.is_blacklisted(session['tid']):
+        #    abort(403)
         return f(*args, **kwds)
 
     return wrapper

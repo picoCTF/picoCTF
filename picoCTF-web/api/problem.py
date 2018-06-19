@@ -739,7 +739,7 @@ def get_solved_problems(tid=None, uid=None, category=None, show_disabled=False):
     pids = []
     result = []
 
-    #Team submissions will take precedence because they appear first in the submissions list.
+    # Team submissions will take precedence because they appear first in the submissions list.
     for submission in submissions:
         if submission["pid"] not in pids:
             pids.append(submission["pid"])
@@ -917,7 +917,7 @@ def get_visible_problems(tid, category=None):
     result = []
 
     result = []
-    #locked = []
+    # locked = []
 
     for problem in all_problems:
         if problem["pid"] in unlocked_pids:
@@ -927,11 +927,11 @@ def get_visible_problems(tid, category=None):
                     problem["pid"] in solved_pids))
 
         # Disable locked problem display.
-        #else:
-        #locked.append(locked_filter(problem))
+        # else:
+        # locked.append(locked_filter(problem))
 
     # place locked problems at the end of the list
-    #result.extend(locked)
+    # result.extend(locked)
 
     return result
 

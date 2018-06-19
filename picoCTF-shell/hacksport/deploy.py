@@ -250,7 +250,7 @@ def create_instance_user(problem_name, instance_number):
     username = get_username(converted_name, instance_number)
 
     try:
-        #Check if the user already exists.
+        # Check if the user already exists.
         user = getpwnam(username)
         new = False
     except KeyError:
@@ -700,7 +700,7 @@ def deploy_problem(problem_directory,
 
             logger.debug("Cleaning up test instance side-effects.")
             logger.debug("...Killing user processes.")
-            #This doesn't look great.
+            # This doesn't look great.
             try:
                 execute("killall -u {}".format(problem.user))
                 sleep(0.1)

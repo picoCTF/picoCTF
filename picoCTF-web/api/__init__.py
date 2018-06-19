@@ -26,4 +26,4 @@ import api.config
 
 # Should not touch DB when just initializing the api
 # this prevents programatically importing the api
-#api.setup.index_mongo()
+# api.setup.index_mongo()

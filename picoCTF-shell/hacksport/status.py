@@ -95,7 +95,7 @@ def clean(args, config):
         logger.info("Removing the stale lock file")
         os.remove(lock_file)
 
-    #TODO: potentially perform more cleaning
+    # TODO: potentially perform more cleaning
 
 
 def status(args, config):
@@ -217,7 +217,7 @@ def status(args, config):
             for path, problem in problems.items():
                 problem_status = get_problem_status(path, problem)
 
-                #Determine if any problem instance is offline
+                # Determine if any problem instance is offline
                 for instance_status in problem_status["instances"]:
                     if not instance_status["service"]:
                         print_problem_status(problem_status, path, prefix="  ")
@@ -232,7 +232,7 @@ def status(args, config):
             for path, problem in problems.items():
                 problem_status = get_problem_status(path, problem)
 
-                #Determine if any problem instance is offline
+                # Determine if any problem instance is offline
                 for instance_status in problem_status["instances"]:
                     if not instance_status["service"]:
                         return_code = 1

@@ -145,7 +145,7 @@ class TestTeams(object):
 
         api.user.disable_account(uid)
 
-        #Should be able to add another user after disabling one.
+        # Should be able to add another user after disabling one.
         test_user = base_user.copy()
         test_user['username'] += "addition"
         uid = api.user.create_simple_user_request(test_user)

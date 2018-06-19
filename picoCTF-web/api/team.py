@@ -94,7 +94,7 @@ def get_groups(tid=None, uid=None):
     else:
         tid = api.team.get_team(tid=tid)["tid"]
 
-    #Admins should be able to view all groups.
+    # Admins should be able to view all groups.
     group_query = {
         "$or": [{
             'owner': tid
@@ -132,7 +132,7 @@ def create_new_team_request(params, uid=None):
         team_name: The desired name for the team. Must be unique across users and teams.
         team_password: The team's password.
     Returns:
-        True if successful, exception thrown elsewise. 
+        True if successful, exception thrown elsewise.
     """
 
     validate(new_team_schema, params)

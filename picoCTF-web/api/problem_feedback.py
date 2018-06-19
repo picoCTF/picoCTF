@@ -79,7 +79,7 @@ def add_problem_feedback(pid, uid, feedback):
 
     db = api.common.get_conn()
 
-    #Make sure the problem actually exists.
+    # Make sure the problem actually exists.
     api.problem.get_problem(pid=pid)
     team = api.user.get_team(uid=uid)
     solved = pid in api.problem.get_solved_pids(tid=team["tid"])

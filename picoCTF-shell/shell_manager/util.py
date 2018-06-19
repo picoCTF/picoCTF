@@ -169,8 +169,7 @@ def sanitize_name(name):
     return sanitized_name
 
 
-#I will never understand why the shutil functions act
-#the way they do...
+# I will never understand why the shutil functions act the way they do...
 
 
 def full_copy(source, destination, ignore=[]):

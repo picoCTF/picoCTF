@@ -166,7 +166,7 @@ def get_group_settings(gid):
 
     db = api.common.get_conn()
 
-    #Ensure it exists.
+    # Ensure it exists.
     group = api.group.get_group(gid=gid)
     group_result = db.groups.find_one({
         "gid": group["gid"]

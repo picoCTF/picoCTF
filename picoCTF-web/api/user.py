@@ -36,7 +36,7 @@ def verify_email_in_whitelist(email, whitelist=None):
         settings = api.config.get_settings()
         whitelist = settings["email_filter"]
 
-    #Nothing to check against!
+    # Nothing to check against!
     if len(whitelist) == 0:
         return True
 
@@ -220,7 +220,7 @@ def create_user(username,
     if not updated_team:
         raise InternalException("There are too many users on this team!")
 
-    #All teachers are admins.
+    # All teachers are admins.
     if admin or db.users.count() == 0:
         admin = True
         teacher = True
@@ -324,7 +324,7 @@ def create_simple_user_request(params):
         group = api.group.get_group(gid=params["gid"])
         group_settings = api.group.get_group_settings(gid=group["gid"])
 
-        #Force affiliation
+        # Force affiliation
         params["affiliation"] = group["name"]
 
         whitelist = group_settings["email_filter"]
