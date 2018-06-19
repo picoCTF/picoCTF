@@ -634,7 +634,7 @@ def generate_instance(problem_object,
 
 
 def deploy_problem(problem_directory,
-                   instances=[0],
+                   instances=None,
                    test=False,
                    deployment_directory=None,
                    debug=False):
@@ -648,6 +648,8 @@ def deploy_problem(problem_directory,
         deployment_directory: If not None, the challenge will be deployed here instead of their home directory
     """
 
+    if instances is None:
+        instances = [0]
     global current_problem, current_instance
 
     problem_object = get_problem(problem_directory)

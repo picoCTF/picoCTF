@@ -25,7 +25,7 @@ def update_repo(args, config):
         remote_update(args.repository, args.package_paths)
 
 
-def remote_update(repo_ui, deb_paths=[]):
+def remote_update(repo_ui, deb_paths=None):
     """
     Pushes packages to a remote deb repository.
 
@@ -34,11 +34,13 @@ def remote_update(repo_ui, deb_paths=[]):
         deb_paths: list of problem deb paths to copy.
     """
 
+    if deb_paths is None:
+        deb_paths = []
     logger.error("Currently not implemented -- sorry!")
     raise FatalException
 
 
-def local_update(repo_path, deb_paths=[]):
+def local_update(repo_path, deb_paths=None):
     """
     Updates a local deb repository by copying debs and running scanpackages.
 
@@ -47,6 +49,8 @@ def local_update(repo_path, deb_paths=[]):
         dep_paths: list of problem deb paths to copy.
     """
 
+    if deb_paths is None:
+        deb_paths = []
     if not exists(repo_path):
         logger.info("Creating repository at '%s'.", repo_path)
         makedirs(repo_path)
