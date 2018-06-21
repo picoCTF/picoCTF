@@ -1,6 +1,12 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# Extract suffix if working directory starts with prefix; otherwise return "".
+def compute_auto_name_suffix(prefix = "picoCTF")
+  dirname = File.basename(Dir.getwd)
+  return dirname.start_with?(prefix) ? dirname[prefix.length..-1] : ""
+end
+
 Vagrant.configure("2") do |config|
   config.vm.define "shell", primary: true do |shell|
     shell.vm.box = "picoCTF/shell-base"
@@ -20,7 +26,7 @@ Vagrant.configure("2") do |config|
     end
 
     shell.vm.provider "virtualbox" do |vb|
-      vb.name = "picoCTF-shell-dev"
+      vb.name = "picoCTF-shell-dev" + compute_auto_name_suffix()
       vb.customize ["modifyvm", :id, "--memory", "2048"]
     end
   end
@@ -43,7 +49,7 @@ Vagrant.configure("2") do |config|
     end
 
     web.vm.provider "virtualbox" do |vb|
-      vb.name = "picoCTF-web-dev"
+      vb.name = "picoCTF-web-dev" + compute_auto_name_suffix()
       vb.customize ["modifyvm", :id, "--memory", "1024"]
     end
   end
