@@ -13,7 +13,10 @@ The following steps will use [Vagrant](https://www.vagrantup.com/) to get you
 quickly up and running with the picoCTF platform by deploying the code base to
 two local virtual machines.
 
-1. `git clone https://github.com/picoCTF/picoCTF.git`
+1. `git clone -c core.autocrlf=false https://github.com/picoCTF/picoCTF.git`  
+   (see [this
+   link](https://github.com/picoCTF/picoCTF/issues/68#issuecomment-346736808)
+   for an explanation of this command line)
 2. `cd picoCTF`
 3. `vagrant up`
 4. Navigate to http://192.168.2.2/
