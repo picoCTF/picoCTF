@@ -1,5 +1,5 @@
 ---
-# Defaults for the mongodb role. These are the loweset prioirty varaibles
+# Defaults for the mongodb role. These are the lowest priority variables
 # and can easily be overridden in group_vars, host_vars, or command line.
 # Largely these should be sensible defaults and show not require changing.
 
@@ -7,12 +7,12 @@ db_name: picoCTF
 db_data_path: "/data"
 
 # MongoDB User Variables (used in configure_auth.yml task)
-# Passwords should be stored outside version control or in an 
+# Passwords should be stored outside version control or in an
 # ansible-vault protected file.
 initial_admin_name: picoAdmin
 initial_admin_password: "{{ picoAdmin_db_password }}"
 
-# Add additional users an environement specific group_vars file
+# Add additional users an environment specific group_vars file
 mongodb_users: "{{ env_db_users }}"
 
 ###
@@ -23,7 +23,7 @@ mongodb_daemon_name: mongod
 
 mongodb_apt_keyserver: keyserver.ubuntu.com
 mongodb_apt_key_id: EA312927
-mongodb_repo: 'deb http://repo.mongodb.org/apt/debian wheezy/mongodb-org/3.2 main'
+mongodb_repo: 'deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse'
 
 mongodb_conf_auth: true                                               # Run with security
 mongodb_conf_bind_ip: "0.0.0.0"                                       # IP addresses to listen on (Static)

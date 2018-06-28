@@ -14,6 +14,9 @@
     {{ shell_proto }}
   environment:
     APP_SETTINGS_FILE: "{{ web_config_dir }}/deploy_settings.py"
+    PATH: "{{ virtualenv_dir }}/bin/"
+  args:
+    executable: "{{ virtualenv_dir }}/bin/python"
   when: auto_add_shell
   no_log: True
 
@@ -21,11 +24,17 @@
   script: scripts/load_problems.py {{ shell_name }}
   environment:
     APP_SETTINGS_FILE: "{{ web_config_dir }}/deploy_settings.py"
+    PATH: "{{ virtualenv_dir }}/bin/"
+  args:
+    executable: "{{ virtualenv_dir }}/bin/python"
   when: auto_load_problems
 
 - name: Auto Start competition
   script: scripts/start_competition.py
   environment:
     APP_SETTINGS_FILE: "{{ web_config_dir }}/deploy_settings.py"
+    PATH: "{{ virtualenv_dir }}/bin/"
+  args:
+    executable: "{{ virtualenv_dir }}/bin/python"
   when: auto_start_competition
 

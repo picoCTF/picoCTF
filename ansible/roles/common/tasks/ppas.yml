@@ -1,0 +1,7 @@
+---
+# Playbook that establishes PPAs for packages in dependencies
+
+# Python3.6
+- apt_repository:
+    repo: ppa:deadsnakes/ppa
+    state: present

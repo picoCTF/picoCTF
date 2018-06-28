@@ -10,9 +10,12 @@
 - name: Install picoCTF platform system dependencies
   apt:
     name: "{{ item }}"
-    state: installed
+    state: present
   with_items:
     - python3-pip
+    - python3.6
+    - python3.6-dev
+    - python3.6-venv
     - gunicorn
     - jekyll
     - nginx
@@ -22,9 +25,9 @@
 - name: Install python packaging
   pip:
     name: packaging
-    executable: pip3
+    virtualenv: "{{ virtualenv_dir }}"
 
 - name: Install python appdirs
   pip:
     name: appdirs
-    executable: pip3
+    virtualenv: "{{ virtualenv_dir }}"

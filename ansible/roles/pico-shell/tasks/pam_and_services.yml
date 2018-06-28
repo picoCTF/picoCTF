@@ -3,7 +3,7 @@
 
 # Extracted from picoCTF-platform/scripts/shell_setup.sh
 - name: Template shellinaboxd Service file
-  template: 
+  template:
     src: "shellinaboxd.service.j2"
     dest: "/lib/systemd/system/shellinaboxd.service"
     owner: root
@@ -75,8 +75,9 @@
 - name: Reload sysctl
   command: sysctl --system
 
+# from eth0 to Predictable Interface Name
 - name: Restart networking service to pickup new configs
-  command: bash -c "ifdown eth0 && ifup eth0"
+  command: bash -c "ifdown enp0s3 && ifup enp0s3"
 
 - name: Copy over journald.conf
   copy:
@@ -92,6 +93,6 @@
     state: restarted
 
 - name: Add competitiors group
-  group: 
+  group:
     name: competitors
     state: present

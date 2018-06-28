@@ -24,7 +24,7 @@
 - include: auto_configure.yml
 
 - name: Ensure nginx is running
-  service: 
+  service:
     name: nginx
     state: started
     enabled: yes

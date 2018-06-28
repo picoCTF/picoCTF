@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 # Simple script to programmaticly add a shell server to a running picoCTF web
 # instance.  If using a custom APP_SETTINGS_FILE, ensure the appropriate

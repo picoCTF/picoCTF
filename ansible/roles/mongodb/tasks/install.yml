@@ -1,7 +1,6 @@
 ---
-# Playbook that installs MongoDB and associted utilities
-# Debian Jessie repositiory verison is only 2.4 so we will install
-# Using mongodb provided configuration for wheezy
+# Playbook that installs MongoDB and associated utilities
+# TODO: Consolidate mongodb tasks into web
 
 - name: Add apt key by id
   apt_key:
@@ -17,25 +16,26 @@
   apt:
     update_cache: yes
 
-# Note different than the debian os package mongodb
-# comming from the repo added above
-- name: Install MongoDB meta package
+- name: Install mongo and python packages
   apt:
-    pkg: mongodb-org
+    name: "{{ item }}"
     state: present
+  with_items:
+    - python3.6       # from PPA
+    - python3.6-dev
+    - python3.6-venv
+    - python-virtualenv
+    - python-pip
+    - mongodb-org     # from PPA
 
-# Nessecary to install more recent verison of pymongo
-- name: Install pip
-  apt:
-    pkg: python-pip
-    state: present
-
-- name: Install pymongo with pip
+- name: Install pymongo in (new) virtualenv
   pip:
     name: pymongo
+    virtualenv: "{{ virtualenv_dir }}"
+    virtualenv_python: python3.6
 
 - name: Ensure mongodb is running
-  service: 
+  service:
     name: "{{ mongodb_daemon_name }}"
     state: started
     enabled: yes

@@ -5,11 +5,12 @@ After=network.target
 
 [Service]
 Environment="APP_SETTINGS_FILE={{ web_config_dir }}/deploy_settings.py"
+Environment="PATH={{ virtualenv_dir }}"
 PIDFile=/run/gunicorn/pid
 User= {{ gunicorn_user }}
 Group= {{ gunicorn_group }}
 WorkingDirectory= {{ gunicorn_working_dir }}
-ExecStart=/usr/local/bin/gunicorn --pid /run/gunicorn/pid -b {{ gunicorn_listen_on }} -w {{ num_workers }} 'api.app:config_app()'
+ExecStart={{ virtualenv_dir }}/bin/gunicorn --pid /run/gunicorn/pid -b {{ gunicorn_listen_on }} -w {{ num_workers }} 'api.app:config_app()'
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
 PrivateTmp=true

@@ -1,18 +1,18 @@
 ---
-# Playbook that installs and configures the picoCTF shell_manager from sourrce
+# Playbook that installs and configures the picoCTF shell_manager from source
 
 # Fix "Invalid environment marker: platform_python_implementation != 'PyPy'"
 - name: Upgrade setuptools
   pip:
     name: "setuptools"
-    executable: pip3
+    virtualenv: "{{ virtualenv_dir }}"
     extra_args: "--upgrade"
 
 # Source was cloned in main
 - name: Install picoCTF-shell-manager from source
   pip:
     name: "file://{{ shell_manager_dir }}"
-    executable: pip3
+    virtualenv: "{{ virtualenv_dir }}"
     extra_args: "--upgrade"
 
 - name: Ensure /opt/hacksports directory exists

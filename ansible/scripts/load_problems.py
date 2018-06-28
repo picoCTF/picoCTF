@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 # Simple script to programmaticly load problems from a shell server
 # If using a custom APP_SETTINGS_FILE, ensure the appropriate

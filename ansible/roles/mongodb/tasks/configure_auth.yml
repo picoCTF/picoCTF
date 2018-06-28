@@ -11,8 +11,8 @@
 
 # uses Client Access Control Localhost Exception for first user
 # as described: https://docs.mongodb.org/manual/tutorial/enable-authentication/
-# ignore errors so subsequent runs don't fail due to the lack of 
-# a login_user and login_password 
+# ignore errors so subsequent runs don't fail due to the lack of
+# a login_user and login_password
 - name: Create intital administrative user
   mongodb_user:
     database: admin

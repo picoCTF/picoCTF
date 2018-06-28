@@ -10,20 +10,25 @@
 - name: Install picoCTF-shell system dependencies
   apt:
     name: "{{ item }}"
-    state: installed
+    state: present
   with_items:
     - software-properties-common
     - xinetd
     - dpkg
     - dpkg-dev
     - fakeroot
+    - python-virtualenv
     - python-pip      # used for pam module dependencies
     - python3         # used by shell_manager
     - python3-pip     # used for shell_manager dependencies
+    - python3.6       # from PPA, to cover all likely interpreter directives
+    - python3.6-dev
+    - python3.6-venv
     - libffi-dev
     - libssl-dev
     - socat
-    - php5-cli
+    - php7.0-cli      # php5 package deprecated
+    - php7.0-sqlite3
     - gcc-multilib
     - nginx           # used to serve shellinabox and challenge binaries
     - shellinabox
@@ -33,7 +38,7 @@
 - name: Install uwsgi and plugins for shell server
   apt:
     name: "{{ item }}"
-    state: installed
+    state: present
   with_items:
     - uwsgi
     - uwsgi-plugin-php
@@ -44,22 +49,23 @@
 - name: Install pam dependencies
   apt:
     name: "{{ item }}"
-    state: installed
+    state: present
   with_items:
     - libpam-python
     - python-setuptools
 
-# needed for pam module
+# Needed for pam module, no virtualenv
 - name: Install requests
   pip:
     name: requests
 
-- name: Install python packaging
+- name: Install python packaging in (new) virtualenv
   pip:
     name: packaging
-    executable: pip3
+    virtualenv: "{{ virtualenv_dir }}"
+    virtualenv_python: python3.6
 
 - name: Install python appdirs
   pip:
     name: appdirs
-    executable: pip3
+    virtualenv: "{{ virtualenv_dir }}"

@@ -12,14 +12,14 @@
 - name: Upgrade setuptools
   pip:
     name: "setuptools"
-    executable: pip3
+    virtualenv: "{{ virtualenv_dir }}"
     extra_args: "--upgrade"
 
 # Source was cloned in main
 - name: Install picoCTF-web api from source
   pip:
     name: "file://{{ pico_web_api_dir }}"
-    executable: pip3
+    virtualenv: "{{ virtualenv_dir }}"
     extra_args: "--upgrade"
 
 - name: Compile CoffeeScript

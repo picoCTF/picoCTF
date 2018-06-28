@@ -10,7 +10,7 @@
     - "{{ bundle_dir }}"
 
 - name: Package problem sources
-  command: "shell_manager package -o {{ deb_dir }} {{ item }}"
+  command: "{{ virtualenv_dir }}/bin/shell_manager package -o {{ deb_dir }} {{ item }}"
   with_items: "{{ problem_source_dirs }}"
 
 - name: Get a list of deb packages
@@ -23,7 +23,7 @@
   with_items: "{{ deb_files.stdout_lines }}"
 
 - name: Package bundle sources
-  command: "shell_manager bundle -o {{ bundle_dir }} {{ item.source }}"
+  command: "{{ virtualenv_dir }}/bin/shell_manager bundle -o {{ bundle_dir }} {{ item.source }}"
   with_items: "{{ bundles }}"
 
 - name: Get a list of bundle packages
@@ -41,7 +41,7 @@
     force: yes
 
 - name: Deploy Bundles
-  command: "shell_manager deploy -n {{ item.instances }} -b {{item.name}}"
+  command: "{{ virtualenv_dir }}/bin/shell_manager deploy -n {{ item.instances }} -b {{item.name}}"
   with_items: "{{ bundles }}"
 
 - name: Change /tmp permission
@@ -51,7 +51,7 @@
 - name: Change /etc/xinetd.d permission
   become: true
   command: "chmod 750 /etc/xinetd.d"
-  
+
 - name: Change /home/vagrant permission
   command: "chmod 700 /home/vagrant"
   become: true

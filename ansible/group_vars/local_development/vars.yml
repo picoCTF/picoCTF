@@ -35,6 +35,9 @@ shell_manager_deploy_secret: "**insecure-secret**"
 # default insecure "vagrant" password (mkpasswd --method=SHA-512 vagrant)
 shell_admin_password_crypt: "$6$0GcSqMClzx$qEKEiL78VE/Xe0gzuGGuWyUqAlZMObkGnRYwHo4.vSUlvWt6aA7PBH1oGDsOQlykFNScEdEhrirD5oFLOHH011"
 
+# Python Virtualenv settings
+virtualenv_dir: "/picoCTF-env"
+
 ##
 # Database settings (env specific)
 ##

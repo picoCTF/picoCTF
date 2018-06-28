@@ -92,7 +92,7 @@ def ensure_setup(shell):
     shell_manager is set up correctly.
     """
 
-    result = shell.run(["sudo", "shell_manager", "status"], allow_error=True)
+    result = shell.run(["sudo", "/picoCTF-env/bin/shell_manager", "status"], allow_error=True)
     if result.return_code == 1 and "command not found" in result.stderr_output.decode(
             "utf-8"):
         raise WebException("shell_manager not installed on server.")
@@ -203,7 +203,7 @@ def get_problem_status_from_server(sid):
     shell = get_connection(sid)
     ensure_setup(shell)
 
-    output = shell.run(["sudo", "shell_manager", "status",
+    output = shell.run(["sudo", "/picoCTF-env/bin/shell_manager", "status",
                         "--json"]).output.decode("utf-8")
     data = json.loads(output)
 
@@ -236,7 +236,7 @@ def load_problems_from_server(sid):
 
     shell = get_connection(sid)
 
-    result = shell.run(["sudo", "shell_manager", "publish"])
+    result = shell.run(["sudo", "/picoCTF-env/bin/shell_manager", "publish"])
     data = json.loads(result.output.decode("utf-8"))
 
     # Pass along the server

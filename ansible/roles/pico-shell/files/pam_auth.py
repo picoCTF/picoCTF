@@ -88,7 +88,7 @@ def pam_sm_authenticate(pam_handle, flags, argv):
 
     try:
         user = pamh.get_user(None)
-    except pamh.exception, e:
+    except (pamh.exception, e):
         return e.pam_result
 
     try:

@@ -1,6 +1,11 @@
 ---
 # Playbook that runs tasks common across all servers
 
+- include: ppas.yml
+  tags:
+   - network
+   - dependency
+
 - include: upgrade.yml
   tags:
     - network
@@ -13,9 +18,9 @@
 
 - include: set_hostname.yml
 
-# Local development environements are the only place the platform should
-# be loaded in directly via filesystem sync without being cloned from a 
-#specific source and branch
+# Local development environments are the only place the platform should
+# be loaded in directly via filesystem sync without being cloned from a
+# specific source and branch
 - include: clone_repo.yml
   when: "'local_development' not in group_names"
   tags:

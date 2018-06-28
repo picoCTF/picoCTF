@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 # Simple script to programmaticly start a competition useful for development
 # and testing purposes. Defaults to 1 year.

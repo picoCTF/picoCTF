@@ -9,7 +9,7 @@ end
 
 Vagrant.configure("2") do |config|
   config.vm.define "shell", primary: true do |shell|
-    shell.vm.box = "picoCTF/shell-base"
+    shell.vm.box = "ubuntu/xenial64"
     shell.vm.network "private_network", ip: "192.168.2.3"
 
     shell.vm.synced_folder ".", "/vagrant", disabled: true
@@ -19,6 +19,7 @@ Vagrant.configure("2") do |config|
 
     shell.vm.provision "shell", path: "vagrant/provision_scripts/install_ansible.sh"
     shell.vm.provision :ansible_local do |ansible|
+      ansible.compatibility_mode = "2.0"
       ansible.playbook = "site.yml"
       ansible.limit = "shell"
       ansible.provisioning_path = "/picoCTF/ansible/"
@@ -32,7 +33,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define "web", primary: true do |web|
-    web.vm.box = "picoCTF/web-base"
+    web.vm.box = "ubuntu/xenial64"
     web.vm.network "private_network", ip: "192.168.2.2"
 
     web.vm.synced_folder ".", "/vagrant", disabled: true
@@ -42,6 +43,7 @@ Vagrant.configure("2") do |config|
 
     web.vm.provision "shell", path: "vagrant/provision_scripts/install_ansible.sh"
     web.vm.provision :ansible_local do |ansible|
+      ansible.compatibility_mode = "2.0"
       ansible.playbook = "site.yml"
       ansible.limit = ["db", "web"]
       ansible.provisioning_path = "/picoCTF/ansible/"
