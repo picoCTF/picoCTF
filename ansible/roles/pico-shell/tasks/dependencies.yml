@@ -54,10 +54,21 @@
     - libpam-python
     - python-setuptools
 
-# Needed for pam module, no virtualenv
+# System python packages updates needed for pam_auth module and Ansible
+- name: Update pyOpenSSL
+  pip:
+    name: pyOpenSSL
+    version: 18.0.0
+
+- name: Update cryptography
+  pip:
+    name: cryptography
+    version: 2.2.2
+
 - name: Install requests
   pip:
     name: requests
+    version: 2.19.1
 
 - name: Install python packaging in (new) virtualenv
   pip:

@@ -15,6 +15,12 @@
     virtualenv: "{{ virtualenv_dir }}"
     extra_args: "--upgrade"
 
+- name: Create symlink for easy sudo access
+  file:
+    src: "{{ virtualenv_dir }}/bin/shell_manager"
+    dest: "/usr/local/bin/shell_manager"
+    state: link
+
 - name: Ensure /opt/hacksports directory exists
   file:
     path: /opt/hacksports
