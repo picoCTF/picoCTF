@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import sys
+import base64
 
 from Crypto.Cipher import AES
 
@@ -13,12 +14,11 @@ welcome = """
 
 
 def encrypt():
-    cipher = AES.new(key.decode('hex'), AES.MODE_ECB)
-    return cipher.encrypt(flag).encode("hex")
-
+    cipher = AES.new(base64.b16decode(key, casefold=True), AES.MODE_ECB)
+    return base64.b16encode(cipher.encrypt(flag))
 
 # flush output immediately
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
-print welcome
-print "KEY: " + key
-print "MESSAGE: " + encrypt()
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'w')
+print(welcome)
+print("KEY: " + key)
+print("MESSAGE: " + encrypt().decode())
