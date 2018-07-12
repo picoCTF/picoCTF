@@ -1,4 +1,4 @@
-# Vagrant, Terraform, Deployment
-.terraform
-.vagrant
-terraform.tfstate*
+/*-console.log
+/.terraform
+/.vagrant
+/terraform.tfstate*

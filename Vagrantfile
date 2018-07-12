@@ -1,6 +1,12 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# TODO:
+# - mount_options looks really fishy
+# - use double quote correctly
+
+require 'etc'
+
 # Extract suffix if working directory starts with prefix; otherwise return "".
 def compute_auto_name_suffix(prefix = "picoCTF")
   dirname = File.basename(Dir.getwd)
@@ -28,7 +34,15 @@ Vagrant.configure("2") do |config|
 
     shell.vm.provider "virtualbox" do |vb|
       vb.name = "picoCTF-shell-dev" + compute_auto_name_suffix()
-      vb.customize ["modifyvm", :id, "--memory", "2048"]
+      # Overridable settings
+      vb.cpus = [(ENV['J'] || '1').to_i, Etc.nprocessors].min
+      vb.gui = ENV['G']
+      vb.memory = (ENV['M'] || '2').to_i * 1024
+      # Others
+      vb.customize [
+        "modifyvm", :id,
+        "--uartmode1", "file", File.join(Dir.pwd, vb.name + "-console.log")
+      ]
     end
   end
 
@@ -52,7 +66,15 @@ Vagrant.configure("2") do |config|
 
     web.vm.provider "virtualbox" do |vb|
       vb.name = "picoCTF-web-dev" + compute_auto_name_suffix()
-      vb.customize ["modifyvm", :id, "--memory", "1024"]
+      # Overridable settings
+      vb.cpus = [(ENV['J'] || '1').to_i, Etc.nprocessors].min
+      vb.gui = ENV['G']
+      vb.memory = (ENV['M'] || '1').to_i * 1024
+      # Others
+      vb.customize [
+        "modifyvm", :id,
+        "--uartmode1", "file", File.join(Dir.pwd, vb.name + "-console.log")
+      ]
     end
   end
 end
