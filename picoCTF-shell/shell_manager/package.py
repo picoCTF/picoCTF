@@ -87,6 +87,11 @@ def postinst_dependencies(problem, problem_path, debian_path, install_path):
 
     listed_requirements = problem.get("pip_requirements", [])
 
+    pip_python_version = problem.get("pip_python_version")
+    valid_pip_python_versions = ["2", "3", "3.6"]
+    if pip_python_version not in valid_pip_python_versions:
+        pip_python_version = "3"
+
     # Write or copy the requirements to the staging directory.
     if len(listed_requirements) > 0:
         if isfile(requirements_path):
@@ -107,8 +112,8 @@ def postinst_dependencies(problem, problem_path, debian_path, install_path):
             logger.debug("python requirements:\n%s", f.read())
 
     if isfile(staging_requirements_path):
-        postinst_template.append(
-            "pip3 install -r {}".format(deployed_requirements_path))
+        postinst_template.append("python{ver} -m pip install -r {path}".format(
+            ver=pip_python_version, path=deployed_requirements_path))
 
     if isfile(dependencies_path):
         copy(dependencies_path, join(install_path, "install_dependencies"))

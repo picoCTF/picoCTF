@@ -6,5 +6,6 @@
   "score" : 70,
   "author": "Tim Becker",
   "organization": "ForAllSecure",
-  "pip_requirements": ["pycrypto"]
+  "pip_requirements": ["pycrypto"],
+  "pip_python_version": "3"
 }

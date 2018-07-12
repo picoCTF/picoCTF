@@ -88,7 +88,8 @@ problem_schema = Schema({
     "pkg_description": All(str, Length(min=1, max=256)),
     "pkg_name": All(str, Length(min=1, max=32)),
     "pkg_dependencies": list,
-    "pip_requirements": list
+    "pip_requirements": list,
+    "pip_python_version": All(str, Length(min=1, max=3))
 })
 
 bundle_schema = Schema({

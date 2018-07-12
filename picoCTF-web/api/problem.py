@@ -56,6 +56,8 @@ problem_schema = Schema({
     check(("Package dependencies must be list.", [list])),
     "pip_requirements":
     check(("pip requirements must be list.", [list])),
+    "pip_python_version":
+    check(("Pip python version must be a string.", [str])),
     "pid":
     check(("You should not specify a pid for a problem.", [lambda _: False])),
     "_id":
