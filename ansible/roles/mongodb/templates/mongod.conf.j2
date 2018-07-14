@@ -3,7 +3,6 @@
 auth = {{ mongodb_conf_auth|to_nice_json }}
 bind_ip = {{ mongodb_conf_bind_ip }}
 dbpath = {{ mongodb_conf_dbpath }}
-nohttpinterface = {{ mongodb_conf_nohttpinterface|to_nice_json }}
 journal = {{ mongodb_conf_journal|to_nice_json }}
 logappend = {{ mongodb_conf_logappend|to_nice_json }}
 logpath = {{ mongodb_conf_logpath }}

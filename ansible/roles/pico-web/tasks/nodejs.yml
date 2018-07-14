@@ -9,8 +9,8 @@
   register: nodejs
 
 - name: Download nodejs 4.x setup script (LTS)
-  get_url: 
-    url: "https://deb.nodesource.com/setup_4.x"
+  get_url:
+    url: "https://deb.nodesource.com/setup_8.x"
     dest: "/tmp/node_setup.sh"
     mode: 0700
 
@@ -36,7 +36,7 @@
 
 # Extracted from picoCTF-platform/scripts/web_setup.sh
 - name: Install nodejs packages (globally)
-  npm: 
+  npm:
     name: "{{ item }}"
     global: yes
   with_items:

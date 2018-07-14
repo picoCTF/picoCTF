@@ -81,7 +81,7 @@ setup(
         'gunicorn==19.8.1',
         'line_profiler==2.1.2',
         'py==1.5.3',
-        'pymongo==3.2.1',
+        'pymongo==3.7.0',
         'pytest==3.6.1',
         'spur==0.3.20',
         'voluptuous==0.11.1',
