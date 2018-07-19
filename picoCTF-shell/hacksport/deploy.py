@@ -41,10 +41,15 @@ def give_port():
     """
 
     global port_random
-
     context = get_deploy_context()
-
+    
+    used_ports = []
+    # Create a list of all used ports
+    for port in context["port_map"]:
+        used_ports.append(port)
+    
     # default behavior
+
     if context["config"] is None:
         return randint(1000, 65000)
 
@@ -70,7 +75,8 @@ def give_port():
             "All usable ports are taken. Cannot deploy any more instances.")
 
     while True:
-        port = port_random.randint(0, 65535)
+        # Get a random port that is not already in use.
+        port = port_random.choice([i for i in range(0, 65535) if i not in used_ports])
         if port not in context["config"].banned_ports_parsed:
             owner, instance = context["port_map"].get(port, (None, None))
             if owner is None or (owner == context["problem"] and
