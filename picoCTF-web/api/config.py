@@ -30,24 +30,91 @@ These are the default settings that will be loaded
 into the database if no settings are already loaded.
 """
 default_settings = {
-    "enable_teachers": True,
-    "enable_feedback": True,
+    "enable_teachers":
+    True,
+    "enable_feedback":
+    True,
 
     # TIME WINDOW
-    "start_time": datetime.datetime.utcnow(),
-    "end_time": datetime.datetime.utcnow(),
+    "start_time":
+    datetime.datetime.utcnow(),
+    "end_time":
+    datetime.datetime.utcnow(),
 
     # EMAIL WHITELIST
     "email_filter": [],
 
     # TEAMS
-    "max_team_size": 1,
+    "max_team_size":
+    1,
 
     # ACHIEVEMENTS
     "achievements": {
         "enable_achievements": True,
         "processor_base_path": "./achievements",
     },
+    "username_blacklist": [
+        "adm",
+        "admin",
+        "audio",
+        "backup",
+        "bin",
+        "cdrom",
+        "competitors",
+        "crontab",
+        "daemon",
+        "dialout",
+        "dip",
+        "disk",
+        "dnsmasq",
+        "fax",
+        "floppy",
+        "games",
+        "gnats",
+        "hacksports",
+        "input",
+        "irc",
+        "kmem",
+        "list",
+        "lp",
+        "lxd",
+        "mail",
+        "man",
+        "messagebus",
+        "mlocate",
+        "netdev",
+        "news",
+        "nobody",
+        "nogroup",
+        "operator",
+        "plugdev",
+        "pollinate",
+        "proxy",
+        "root",
+        "sasl",
+        "shadow",
+        "shellinabox",
+        "src",
+        "ssh",
+        "sshd",
+        "staff",
+        "sudo",
+        "sync",
+        "sys",
+        "syslog",
+        "tape",
+        "tty",
+        "ubuntu",
+        "users",
+        "utmp",
+        "uucp",
+        "uuidd",
+        "vagrant",
+        "vboxadd",
+        "vboxsf",
+        "video",
+        "voice",
+    ],
 
     # EMAIL (SMTP)
     "email": {

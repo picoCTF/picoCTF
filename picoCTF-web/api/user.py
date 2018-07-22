@@ -24,6 +24,16 @@ def _check_username(username):
         [c in string.digits + string.ascii_lowercase for c in username.lower()])
 
 
+def check_blacklisted_usernames(username):
+    """
+    Verify that the username isn't present in the username blacklist.
+    """
+
+    settings = api.config.get_settings()
+    return username not in settings.get(
+        "username_blacklist", api.config.default_settings["username_blacklist"])
+
+
 def verify_email_in_whitelist(email, whitelist=None):
     """
     Verify that the email address passes the global whitelist if one exists.
@@ -71,7 +81,9 @@ user_schema = Schema(
               ("This username already exists.",
                [lambda name: safe_fail(get_user, name=name) is None]),
               ("This username conflicts with an existing team.",
-               [lambda name: safe_fail(api.team.get_team, name=name) is None])),
+               [lambda name: safe_fail(api.team.get_team, name=name) is None]),
+              ("This username is reserved. Please choose another one.",
+               [check_blacklisted_usernames])),
         Required('password'):
         check(("Passwords must be between 3 and 20 characters.",
                [str, Length(min=3, max=20)])),
