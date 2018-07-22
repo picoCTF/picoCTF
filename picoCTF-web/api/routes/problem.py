@@ -17,9 +17,9 @@ blueprint = Blueprint("problem_api", __name__)
 @require_login
 @block_before_competition(WebError("The competition has not begun yet!"))
 def get_visible_problems_hook(category):
-    return WebSuccess(
-        data=api.problem.get_visible_problems(
-            api.user.get_user()['tid'], category=category))
+    visible_problems = api.problem.get_visible_problems(
+        api.user.get_user()['tid'], category=category)
+    return WebSuccess(data=api.problem.sanitize_problem_data(visible_problems))
 
 
 @blueprint.route('/count', defaults={'category': None}, methods=['GET'])
@@ -36,8 +36,9 @@ def get_all_problems_count_hook(category):
 @require_login
 @block_before_competition(WebError("The competition has not begun yet!"))
 def get_unlocked_problems_hook():
-    return WebSuccess(
-        data=api.problem.get_unlocked_problems(api.user.get_user()['tid']))
+    unlocked_problems = api.problem.get_unlocked_problems(
+        api.user.get_user()['tid'])
+    return WebSuccess(data=api.problem.sanitize_problem_data(unlocked_problems))
 
 
 @blueprint.route('/solved', methods=['GET'])
@@ -48,11 +49,7 @@ def get_solved_problems_hook():
     solved_problems = api.problem.get_solved_problems(
         api.user.get_user()['tid'])
 
-    for problem in solved_problems:
-        problem.pop("instances")
-        problem.pop("pkg_dependencies", None)
-
-    return WebSuccess(data=solved_problems)
+    return WebSuccess(data=api.problem.sanitize_problem_data(solved_problems))
 
 
 @blueprint.route('/submit', methods=['POST'])
@@ -84,7 +81,9 @@ def submit_key_hook():
 @block_after_competition(WebError("The competition is over!"))
 def get_single_problem_hook(pid):
     problem_info = api.problem.get_problem(pid, tid=api.user.get_user()['tid'])
-    return WebSuccess(data=problem_info)
+    if not api.user.is_admin():
+        problem_info.pop("instances")
+    return WebSuccess(data=api.problem.sanitize_problem_data(problem_info))
 
 
 @blueprint.route('/feedback', methods=['POST'])

@@ -100,6 +100,21 @@ bundle_schema = Schema({
            [lambda x: type(x) == list]))
 })
 
+SANITATION_KEYS = [
+    "deployment_directory",
+    "flag",
+    "flag_sha1",
+    "iid",
+    "instance_number",
+    "pip_python_version",
+    "pip_requirements",
+    "pkg_dependencies",
+    "service",
+    "should_symlink",
+    "sid",
+    "user",
+]
+
 DEBUG_KEY = None
 
 
@@ -1056,3 +1071,24 @@ def set_bundle_dependencies_enabled(bid, enabled):
 
     update_bundle(bid, {"dependencies_enabled": enabled})
     api.cache.clear_all()
+
+
+def sanitize_problem_data(data):
+    """
+    Removes problem data as specified in SANITATION_KEYS, to eliminate leakage
+    of unnecessary platform information to players.
+
+    Args:
+        data: dict or list of problems
+    """
+
+    def pop_keys(problem_dict):
+        for key in SANITATION_KEYS:
+            problem_dict.pop(key, None)
+
+    if isinstance(data, list):
+        for problem in data:
+            pop_keys(problem)
+    elif isinstance(data, dict):
+        pop_keys(data)
+    return data
