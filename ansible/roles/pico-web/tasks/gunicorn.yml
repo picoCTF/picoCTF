@@ -30,12 +30,8 @@
 - name: Get systemd to pickup gunicorn.service
   command: systemctl daemon-reload
 
-- name: Ensure gunicorn is enabled
+- name: Ensure gunicorn is enabled and restart
   service:
-    name: gunicorn
-    enabled: yes
-
-- name: Ensure gunicorn is restarted
-  service:
-    name: gunicorn
+    name: gunicorn.service
     state: restarted
+    enabled: yes

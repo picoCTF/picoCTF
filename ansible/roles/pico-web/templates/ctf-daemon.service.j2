@@ -1,10 +1,11 @@
 [Unit]
 Description= ctf daemon runner
+After=network.target vboxadd-service.service
 
 [Service]
 Type=simple
 Environment="APP_SETTINGS_FILE={{ web_config_dir }}/deploy_settings.py"
-Environment="PATH={{ virtualenv_dir }}"
+ExecStartPre=/bin/sleep 15
 ExecStart={{ virtualenv_dir }}/bin/daemon_manager -d {{ daemon_src_dir }} cache_stats share_instances
 RestartSec="5min"
 Restart=always
