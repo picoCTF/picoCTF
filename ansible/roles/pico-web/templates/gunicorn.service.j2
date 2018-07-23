@@ -1,7 +1,7 @@
 [Unit]
 Description=gunicorn daemon
 Requires=gunicorn.socket
-After=network.target vboxadd-service
+After=network.target vboxadd-service.service
 
 [Service]
 Environment="APP_SETTINGS_FILE={{ web_config_dir }}/deploy_settings.py"
