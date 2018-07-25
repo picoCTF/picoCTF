@@ -120,8 +120,10 @@ def status(args, config):
                 status["connection"] = True
             except ConnectionRefusedError as e:
                 pass
-        result = execute(
-            ["systemctl", "is-failed", instance["service"]], allow_error=True)
+        if instance["service"]:
+            result = execute(["systemctl", "is-failed", instance["service"]], allow_error=True)
+        else:
+            result = execute(["systemctl", "is-failed"], allow_error=True)
         status["service"] = result.return_code == 1
 
         if status["port"] is not None and not status["connection"]:
