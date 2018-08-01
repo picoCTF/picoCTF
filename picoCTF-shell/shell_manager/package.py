@@ -161,6 +161,11 @@ def problem_builder(args, config):
     Main entrypoint for package building operations.
     """
 
+    if not args.problem_paths:
+        print("usage: shell_manager package [-h] [-s STAGING_DIR] [-o OUT] [-i IGNORE] problem_path")
+        print("shell_manager bundle: error: the following arguments are required: problem_path")
+        raise FatalException
+
     # Grab a problem_path
     problem_base_path = args.problem_paths.pop()
 
