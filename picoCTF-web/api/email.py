@@ -5,10 +5,15 @@ from datetime import datetime
 import api
 from api.common import (check, InternalException, safe_fail, validate,
                         WebException)
-from flask_mail import Message
 from voluptuous import Length, Required, Schema
+import sendgrid
+import os
+from sendgrid.helpers.mail import *
 
 mail = None
+# sg = sendgrid.SendGridAPIClient(apikey=os.environ.get('SENDGRID_API_KEY'))
+sg = sendgrid.SendGridAPIClient(apikey='')
+from_email = Email("admin@picoctf.com")
 
 password_reset_request_schema = Schema({
     Required('username'):
@@ -73,15 +78,18 @@ def request_password_reset(username):
 
     token_value = api.token.set_token({"uid": user['uid']}, "password_reset")
 
+    # body = """We recently received a request to reset the password for the following {0} account:\n\n\t{2}\n\nOur records show that this is the email address used to register the above account.  If you did not request to reset the password for the above account then you need not take any further steps.  If you did request the password reset please follow the link below to set your new password. \n\n {1}/reset#{3} \n\n Best of luck! \n The {0} Team""".format(
+    #     api.config.competition_name, api.config.competition_urls[0], username,
+    #     token_value)
+
     body = """We recently received a request to reset the password for the following {0} account:\n\n\t{2}\n\nOur records show that this is the email address used to register the above account.  If you did not request to reset the password for the above account then you need not take any further steps.  If you did request the password reset please follow the link below to set your new password. \n\n {1}/reset#{3} \n\n Best of luck! \n The {0} Team""".format(
-        api.config.competition_name, api.config.competition_urls[0], username,
+        "picoCTF", "192.168.2.2", username,
         token_value)
 
-    subject = "{} Password Reset".format(api.config.competition_name)
+    # subject = "{} Password Reset".format(api.config.competition_name)
+    subject = "{} Password Reset".format("picoCTF")
 
-    message = Message(body=body, recipients=[user['email']], subject=subject)
-    mail.send(message)
-
+    send_email(email_address=user['email'], subject=subject, body=body)
 
 def send_user_verification_email(username):
     """
@@ -137,9 +145,7 @@ The {0} Team.
     """.format(api.config.competition_name, verification_link)
 
     subject = "{} Account Verification".format(api.config.competition_name)
-
-    message = Message(body=body, recipients=[user['email']], subject=subject)
-    mail.send(message)
+    send_email(email_address=user['email'], subject=subject, body=body)
 
 
 def send_email_invite(gid, email, teacher=False):
@@ -171,6 +177,18 @@ Good luck!
     """.format(api.config.competition_name, group["name"], registration_link)
 
     subject = "{} Registration".format(api.config.competition_name)
+    send_email(email_address=email, subject=subject, body=body)
 
-    message = Message(body=body, recipients=[email], subject=subject)
-    mail.send(message)
+def send_email(email_address, subject, body):
+    """
+    Sends an email using the SendGrid API.
+    """
+
+    to_email = Email(email_address)
+    content = Content("text/plain", body)
+    mail = Mail(from_email, subject, to_email, content)
+    response = sg.client.mail.send.post(request_body=mail.get())
+    if response.status_code >= 500:
+        raise WebException("An error occurred when SendGrid attempted to processes your request.")
+    elif response.status_code >= 400:
+        raise WebException("There was a problem with your request.")

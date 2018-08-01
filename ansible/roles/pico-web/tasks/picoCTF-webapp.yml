@@ -44,3 +44,8 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
   no_log: True
+
+- name: Install sendgrid-python 
+  pip:
+    name: sendgrid
+    virtualenv: "{{ virtualenv_dir }}"
