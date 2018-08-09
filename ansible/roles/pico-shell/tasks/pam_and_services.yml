@@ -95,9 +95,8 @@
 - name: Reload sysctl
   command: sysctl --system
 
-# from eth0 to Predictable Interface Name
 - name: Restart networking service to pickup new configs
-  command: bash -c "ifdown enp0s3 && ifup enp0s3"
+  command: systemctl restart networking
 
 - name: Copy over journald.conf
   copy:
