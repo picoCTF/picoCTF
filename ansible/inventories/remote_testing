@@ -9,11 +9,11 @@ shell
 web
 
 [db]
-remote_testing_db      ansible_host=CHANGE_ME   hostname=pico-aws-testing-db
+remote_testing_db      ansible_connection=local   hostname=pico-aws-testing-db
 
 [shell]
-remote_testing_shell   ansible_host=CHANGE_ME   hostname=pico-aws-testing-shell
+remote_testing_shell   ansible_connection=local   hostname=pico-aws-testing-shell
 
 [web]
-remote_testing_web     ansible_host=CHANGE_ME   hostname=pico-aws-testing-web
+remote_testing_web     ansible_connection=local   hostname=pico-aws-testing-web
 
