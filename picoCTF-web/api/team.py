@@ -299,6 +299,9 @@ def get_all_teams(ineligible=False, eligible=True, show_ineligible=False):
             conditions.append({"eligible": True})
         match = {"$or": conditions}
 
+    # Ignore empty teams (remnants of single player self-team ids)
+    match.update({"size": {"$gt": 0}})
+
     db = api.common.get_conn()
     return list(db.teams.find(match, {"_id": 0}))
 
@@ -381,6 +384,19 @@ def join_team(team_name, password, uid=None):
             raise InternalException(
                 "There was an issue switching your team! Please contact an administrator."
             )
+
+        # Called from within get_solved_problems, clear first
+        api.cache.invalidate_memoization(api.problem.get_unlocked_pids,
+                                         {"args": [desired_team["tid"]]})
+
+        # Clear solved
+        api.cache.invalidate_memoization(api.problem.get_solved_problems,
+                                         {"kwargs.tid": desired_team["tid"]},
+                                         {"kwargs.uid": uid})
+
+        # Make sure team score is reflected as well
+        api.cache.invalidate_memoization(api.stats.get_score,
+                                         {"kwargs.tid": desired_team["tid"]})
 
         return True
     else:
