@@ -9,6 +9,12 @@
     name: "{{ mongodb_daemon_name }}"
     state: restarted
 
+# pymongo is required by the following tasks to create users
+- name: install pymongo for use by ansible
+  package:
+    name: python-pymongo
+    state: present
+
 # uses Client Access Control Localhost Exception for first user
 # as described: https://docs.mongodb.org/manual/tutorial/enable-authentication/
 # ignore errors so subsequent runs don't fail due to the lack of
