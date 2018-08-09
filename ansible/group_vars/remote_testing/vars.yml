@@ -1,8 +1,8 @@
 ---
 # Variables shared across all remote_testing hosts
 
-# admin is the default user for the AWS Debian Jessie AMI
-ansible_user: admin
+# ubuntu is the default user for the AWS Ubuntu AMI
+ansible_user: ubuntu
 
 # If you are the picoCTF platform remotely you may have a private repository.
 # You likely want to configure a read only deployment key, or a machine key.
@@ -23,7 +23,7 @@ flask_app_cookie_domain: "\"{{ web_fqdn }}\""
 flask_app_secret_key: "{{ vault_flask_app_secret_key }}"
 
 # optional web automation
-enable_basic_auth:      True
+enable_basic_auth:      False
 auto_add_shell:         True
 auto_load_problems:     True
 auto_start_competition: True
