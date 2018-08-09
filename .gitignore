@@ -2,3 +2,4 @@
 /.terraform
 /.vagrant
 /terraform.tfstate*
+/dist
