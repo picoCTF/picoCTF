@@ -1,0 +1,73 @@
+---
+# Variables shared across all remote_testing hosts
+
+# ubuntu is the default user for the AWS Ubuntu AMI
+ansible_user: ubuntu
+
+# If you are the picoCTF platform remotely you may have a private repository.
+# You likely want to configure a read only deployment key, or a machine key.
+private_repo: True
+deploy_private_key_file: "deploy.picoCTF.private-repo.id_rsa"
+
+##
+# Web settings (env specific)
+##
+web_fqdn: "{{ hostvars['pico_web']['ansible_host'] }}"
+web_address_internal: "{{ 'http://' + web_fqdn }}"
+nginx_server_name: "{{ web_fqdn }}"
+web_address: "{{ web_fqdn }}"
+htpasswd_accounts: "{{ vault_htpasswd_accounts }}"
+
+flask_app_server_name: "{{ web_fqdn }}"
+flask_app_cookie_domain: "\"{{ web_fqdn }}\""
+flask_app_secret_key: "{{ vault_flask_app_secret_key }}"
+
+# optional web automation
+enable_basic_auth:      False
+auto_add_shell:         True
+auto_load_problems:     True
+auto_start_competition: True
+
+
+###
+# Shell Settings (env specific)
+###
+shell_hostname: "{{ hostvars['pico_shell1']['ansible_host'] }}"
+shell_name: Remote-Shell
+shell_host: "{{ shell_hostname }}"
+shell_user: "{{ ansible_user }}"
+
+# These sensitive variables are loaded from an ansible-vault encrypted file
+# This is an example of a secure way to deploy your configuration secrets
+# For this public example the vault password is "pico" so you can see this in
+# action. You are highly encouraged to rekey this file prior to use.
+# For more information: http://docs.ansible.com/ansible/playbooks_vault.html
+shell_pass: "{{ vault_shell_pass }}"
+shell_admin_password_crypt: "{{ vault_shell_admin_password_crypt }}"
+shell_manager_deploy_secret: " {{ vault_shell_manager_deploy_secret }}"
+
+# Python Virtualenv settings
+virtualenv_dir: "/picoCTF-env"
+
+##
+# Database settings (env specific)
+##
+on_aws: True
+db_private_ip: "{{ hostvars['pico_db']['ansible_host'] }}"
+mongodb_conf_auth: True
+picoAdmin_db_password: "{{ vault_picoAdmin_db_password }}"
+picoWeb_db_password: "{{ vault_picoWeb_db_password }}"
+
+env_db_users:
+  - {
+    name: picoWeb,
+    password: "{{ picoWeb_db_password }}",
+    roles: readWrite,
+    database: "{{ db_name }}"
+    }
+mongodb_web_user: "picoWeb"
+
+##
+# Problem Settings
+# use role defaults (example problems and challenge-sampler bundle)
+##

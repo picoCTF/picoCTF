@@ -1,0 +1,19 @@
+# Inventory to provision/administer the local development environment
+# Used by the toplevel Vagrantfile
+# Also for manual provisioning when ansible is used within a vm
+
+[remote_aws:children]
+db
+shell
+web
+
+# In a development environement, or simple deployment collocate the database
+# with the web server
+[db]
+pico_db     ansible_connection=local    hostname=pico-2018-db-1 ansible_host=<CHANGE_TO_FQDN> db_private_ip=<CHANGE_TO_pico_db_IP> on_aws=<if no EBS: False, else remove>
+
+[shell]
+pico_shell1   ansible_connection=local    hostname=pico-2018-shell-1 ansible_host=<CHANGE_TO_FQDN> db_private_ip=<CHANGE_TO_pico_db_IP>
+
+[web]
+pico_web     ansible_connection=local    hostname=pico-2018-web-1 ansible_host=<CHANGE_TO_FQDN> db_private_ip=<CHANGE_TO_pico_db_IP> web_fqdn=2018.picoctf.com
