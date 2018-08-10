@@ -16,11 +16,18 @@
     - python3.6
     - python3.6-dev
     - python3.6-venv
+    - python-virtualenv
     - gunicorn
     - jekyll
     - nginx
     - libffi-dev
     - libssl-dev
+
+- name: Install pymongo in (new) virtualenv
+  pip:
+    name: pymongo
+    virtualenv: "{{ virtualenv_dir }}"
+    virtualenv_python: python3.6
 
 - name: Install python packaging
   pip:

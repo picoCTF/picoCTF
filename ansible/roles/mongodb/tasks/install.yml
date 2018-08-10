@@ -16,23 +16,12 @@
   apt:
     update_cache: yes
 
-- name: Install mongo and python packages
+- name: Install mongo
   apt:
     name: "{{ item }}"
     state: present
   with_items:
-    - python3.6       # from PPA
-    - python3.6-dev
-    - python3.6-venv
-    - python-virtualenv
-    - python-pip
     - mongodb-org     # from PPA
-
-- name: Install pymongo in (new) virtualenv
-  pip:
-    name: pymongo
-    virtualenv: "{{ virtualenv_dir }}"
-    virtualenv_python: python3.6
 
 - name: Ensure mongodb is running
   service:
