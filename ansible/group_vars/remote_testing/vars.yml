@@ -46,6 +46,8 @@ shell_pass: "{{ vault_shell_pass }}"
 shell_admin_password_crypt: "{{ vault_shell_admin_password_crypt }}"
 shell_manager_deploy_secret: " {{ vault_shell_manager_deploy_secret }}"
 
+# Python Virtualenv settings
+virtualenv_dir: "/picoCTF-env"
 
 ##
 # Database settings (env specific)
