@@ -55,8 +55,8 @@ virtualenv_dir: "/picoCTF-env"
 on_aws: False
 db_private_ip: "{{ hostvars['remote_testing_db']['ansible_host'] }}"
 mongodb_conf_auth: True
-picoAdmin_db_password:  "insecure-password"
-picoWeb_db_password:    "insecure-password"
+picoAdmin_db_password: "{{ vault_picoAdmin_db_password }}"
+picoWeb_db_password: "{{ vault_picoWeb_db_password }}"
 
 env_db_users:
   - {
