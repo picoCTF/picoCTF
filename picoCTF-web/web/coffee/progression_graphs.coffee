@@ -3,7 +3,7 @@ numDataPoints = 720
 divFromSelector = (selector) ->
   _.first($(selector))
 
-strokeColors = [
+borderColors = [
   "rgba(156,99,169,1)"
   "rgba(151,187,205,1)"
   "rgba(230,22,22,1)",
@@ -13,7 +13,7 @@ strokeColors = [
   "rgba(204,104,0,1)",
 ]
 
-fillColors = [
+backgroundColors = [
   "rgba(156,99,169,0.2)",
   "rgba(151,187,205,0.2)",
   "rgba(230,22,22,0.2)",
@@ -24,26 +24,27 @@ fillColors = [
 ]
 
 scoreboardChartSettings =
-  pointHitDetectionRadius: 0
-  pointDotRadius: 1
-  scaleShowGridLines: false
-  pointDot: false
-  bezierCurve: false
-  legendTemplate : "<div class=\"row\">
-                      <% for (var i=0; i<datasets.length; i++){%>
-                        <span style=\"color:<%=datasets[i].strokeColor%>\" class=\"pad glyphicon glyphicon-user\" aria-hidden=\"true\"></span>
-                        <%if(datasets[i].label){%>
-                          <%=datasets[i].label%>
-                        <%}%>
-                      <%}%>
-                    </div>"
+  scales:
+    yAxes: [
+      gridLines:
+        display: false
+    ]
+    xAxes: [
+      gridLines:
+        display: false
+    ]
 
 teamChartSettings =
-  pointHitDetectionRadius: 0
-  pointDotRadius: 0
-  scaleShowGridLines: false
-  pointDot: false
-  bezierCurve: false
+  scales:
+    yAxes: [
+      gridLines:
+        display: false
+    ]
+    xAxes: [
+      gridLines:
+        display: false
+    ]
+
 
 timestampsToBuckets = (samples, key, min, max, seconds) ->
 
@@ -121,9 +122,12 @@ progressionDataToPoints = (data, dataPoints, currentDate = 0) ->
             datasets.push
               label: data.data[i].name
               data: points
-              pointColor: strokeColors[i % strokeColors.length]
-              strokeColor: strokeColors[i % strokeColors.length]
-              fillColor: fillColors[i % strokeColors.length]
+              pointBackgroundColor: borderColors[i % borderColors.length]
+              borderColor: borderColors[i % borderColors.length]
+              backgroundColor: backgroundColors[i % backgroundColors.length]
+              pointHitRadius: 0
+              pointRadius: 1
+              lineTension: 0
 
           data =
             labels: ("" for i in [1..numDataPoints])
@@ -135,10 +139,11 @@ progressionDataToPoints = (data, dataPoints, currentDate = 0) ->
           canvas.attr('width', $(div).width())
           canvas.attr('height', $(div).height())
 
-          chart = new Chart(_.first(canvas).getContext("2d")).Line data, scoreboardChartSettings
-
-          legend = chart.generateLegend()
-          $(div).append(legend)
+          chart = new Chart(_.first(canvas).getContext("2d"), {
+              type: 'line',
+              data: data,
+              options: scoreboardChartSettings
+          });
 
   if gid == "public"
     apiCall "GET", "/api/stats/top_teams/score_progression", {}
@@ -159,7 +164,10 @@ progressionDataToPoints = (data, dataPoints, currentDate = 0) ->
     canvas.attr('width', $(div).width())
     canvas.attr('height', 400)
 
-    chart = new Chart(_.first(canvas).getContext("2d")).Radar radarData
+    chart = new Chart(_.first(canvas).getContext("2d"), {
+              type: 'radar',
+              data: radarData
+            });
   else
     $("<p>Waiting for solved problems.</p>").appendTo div
 
@@ -173,11 +181,14 @@ progressionDataToPoints = (data, dataPoints, currentDate = 0) ->
         dataPoints = progressionDataToPoints [data.data], numDataPoints, timedata.data
 
         datasets = [
-            label: data.data.name
+            label: userStatus.team_name
             data: dataPoints
-            pointColor: strokeColors[0]
-            strokeColor: strokeColors[0]
-            fillColor: fillColors[0]
+            pointBackgroundColor: borderColors[0]
+            borderColor: borderColors[0]
+            backgroundColor: backgroundColors[0]
+            pointHitRadius: 0
+            pointRadius: 0
+            lineTension: 0
         ]
 
         data =
@@ -190,7 +201,11 @@ progressionDataToPoints = (data, dataPoints, currentDate = 0) ->
         canvas.attr('width', $(div).width())
         canvas.attr('height', $(div).height())
 
-        chart = new Chart(_.first(canvas).getContext("2d")).Line data, teamChartSettings
+        chart = new Chart(_.first(canvas).getContext("2d"), {
+              type: 'line',
+              data: data,
+              options: teamChartSettings
+        });
 
       else
           $(selector).html("<p>You have not solved any enabled problems.</p>")
