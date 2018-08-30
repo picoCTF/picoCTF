@@ -7,7 +7,7 @@
   script: >
     scripts/add_shell_server.py
     {{ shell_name }}
-    {{ shell_host }}
+    {{ shell_ip }}
     {{ shell_user }}
     {{ shell_pass }}
     {{ shell_port }}

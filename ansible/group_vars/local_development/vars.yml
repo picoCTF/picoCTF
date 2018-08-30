@@ -27,7 +27,7 @@ auto_start_competition: True
 ###
 shell_hostname: "{{ lookup('env','SIP') or '192.168.2.3' }}"
 shell_name: Local-Development-Shell   # no spaces
-shell_host: "{{ shell_hostname }}"
+shell_ip: "{{ shell_hostname }}"
 shell_user: "{{ ansible_user }}"
 shell_pass: "{{ ansible_ssh_pass }}"
 shell_manager_deploy_secret: "**insecure-secret**"

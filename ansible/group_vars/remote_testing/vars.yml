@@ -34,7 +34,7 @@ auto_start_competition: True
 ###
 shell_hostname: "{{ hostvars['remote_testing_shell']['ansible_host'] }}"
 shell_name: Remote-Testing-Shell
-shell_host: "{{ shell_hostname }}"
+shell_ip: "{{ shell_hostname }}"
 shell_user: "{{ ansible_user }}"
 
 # These sensitive variables are loaded from an ansible-vault encrypted file

@@ -42,7 +42,7 @@ auto_load_problems: False
 
 # Default Shell Server
 shell_name: ""
-shell_host: ""
+shell_ip: ""
 shell_user: ""
 shell_pass: ""
 shell_port: "22"
