@@ -400,7 +400,7 @@ def grade_problem(pid, key, tid=None):
 
 
 @log_action
-def submit_key(tid, pid, key, uid=None, ip=None):
+def submit_key(tid, pid, key, method=None, uid=None, ip=None):
     """
     User problem submission. Problem submission is inserted into the database.
 
@@ -408,7 +408,9 @@ def submit_key(tid, pid, key, uid=None, ip=None):
         tid: user's team id
         pid: problem's pid
         key: answer text
+        method: submission method (e.g. 'game')
         uid: user's uid
+        ip: user's ip
     Returns:
         A dict.
         correct: boolean
@@ -447,9 +449,10 @@ def submit_key(tid, pid, key, uid=None, ip=None):
         'pid': pid,
         'ip': ip,
         'key': key,
+        'method': method,
         'eligible': eligibility,
         'category': problem['category'],
-        'correct': result['correct']
+        'correct': result['correct'],
     }
 
     if (key, pid) in [(submission["key"], submission["pid"])

@@ -64,9 +64,10 @@ def submit_key_hook():
     uid = user_account['uid']
     pid = request.form.get('pid', '')
     key = request.form.get('key', '')
+    method = request.form.get('method', '')
     ip = request.remote_addr
 
-    result = api.problem.submit_key(tid, pid, key, uid, ip)
+    result = api.problem.submit_key(tid, pid, key, method, uid, ip)
 
     if result['correct']:
         return WebSuccess(result['message'], result['points'])

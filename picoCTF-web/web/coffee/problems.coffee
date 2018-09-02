@@ -25,7 +25,7 @@ constructAchievementCallbackChain = (achievements) ->
 submitProblem = (e) ->
   e.preventDefault()
   input = $(e.target).find("input")
-  apiCall "POST", "/api/problems/submit", {pid: input.data("pid"), key: input.val()}
+  apiCall "POST", "/api/problems/submit", {pid: input.data("pid"), key: input.val(), method: "web"}
   .done (data) ->
     if data['status'] is 1
       ga('send', 'event', 'Problem', 'Solve', 'Basic')
