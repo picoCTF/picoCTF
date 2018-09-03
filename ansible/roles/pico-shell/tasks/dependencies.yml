@@ -1,5 +1,5 @@
 ---
-# Playbook that installs the dependencies for the picoctf-shell server
+# Playbook that installs the dependencies for the picoCTF-shell server
 
 - name: Update apt
   apt:
@@ -32,7 +32,6 @@
     - gcc-multilib
     - nginx           # used to serve shellinabox and challenge binaries
     - shellinabox
-
 
 # Needed by templated challenge types
 - name: Install uwsgi and plugins for shell server
@@ -80,3 +79,14 @@
   pip:
     name: appdirs
     virtualenv: "{{ virtualenv_dir }}"
+
+# Fix https://github.com/picoCTF/picoCTF/issues/150
+- name: Replace /bin/sh with wrapper script to preserve privilege
+  copy:
+    content: |
+      #!/bin/dash -p
+      exec /bin/dash -p "$@"
+    dest: /bin/sh
+    owner: root
+    group: root
+    mode: 0755
