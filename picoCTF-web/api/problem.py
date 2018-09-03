@@ -388,9 +388,9 @@ def grade_problem(pid, key, tid=None):
     problem = get_problem(pid=pid)
     instance = get_instance_data(pid, tid)
 
-    correct_key = instance['flag'] if DEBUG_KEY is None else DEBUG_KEY
-
-    correct = correct_key in key
+    correct = instance['flag'] in key
+    if not correct and DEBUG_KEY is not None:
+        correct = DEBUG_KEY in key
 
     return {
         "correct": correct,
