@@ -60,7 +60,7 @@ class StatsHandler(logging.StreamHandler):
                 "gid": gid
             },
         "api.problem.submit_key":
-            lambda tid, pid, key, method=None, uid=None, ip=None, result=None: {
+            lambda tid, pid, key, method, uid=None, ip=None, result=None: {
                 "pid": pid,
                 "key": key,
                 "method": method,
