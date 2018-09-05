@@ -400,7 +400,7 @@ def grade_problem(pid, key, tid=None):
 
 
 @log_action
-def submit_key(tid, pid, key, uid=None, ip=None):
+def submit_key(tid, pid, key, method, uid=None, ip=None):
     """
     User problem submission. Problem submission is inserted into the database.
 
