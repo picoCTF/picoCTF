@@ -50,15 +50,12 @@ LoginForm = React.createClass
         </Alert>
       ).bind this
 
-      processRecaptcha = ( ->
+      generateRecaptcha = ( ->
         if @props.reCAPTCHA_public_key
-          <Row>
-            <Col md={12}>
               <Recaptcha sitekey={@props.reCAPTCHA_public_key} verifyCallback={@props.onRecaptchaSuccess} expiredCallback={@props.onRecaptchaExpire} render="explicit"  />
-            </Col>
-          </Row>
       ).bind this
 
+      # Toggle input fields according to user type
       showOrHide = ((prop, inputName) ->
         inputs = {
           url: false
@@ -72,6 +69,7 @@ LoginForm = React.createClass
           studentOnly: false
           teacherOnly: false
           referrer: false
+          gender: false
         }
         switch @props.usertype.value
           when "student"
@@ -334,7 +332,7 @@ LoginForm = React.createClass
               <Input type="select" name="usertype" id="usertype" defaultValue="" label="Status *" required valueLink={@props.usertype}>
                 <option value="" disabled>-Select Category-</option>
                 <option value="student">Middle/High School Student</option>
-                <option value="teacher">Teacher/Practitioner</option>
+                <option value="teacher">Teacher/Instructor</option>
                 <option value="college">College Student</option>
                 <option value="other">Other</option>
               </Input>
@@ -343,7 +341,7 @@ LoginForm = React.createClass
 
           <Row>
             <Col md={6} className={showOrHide('class', 'affiliation')}>
-              <Input type="text" name="affiliation" id="affiliation" valueLink={@props.affiliation} label={if @props.usertype.value == "other" then "Organization Name *" else "School Name *"} placeholder="Example School, Pittsbugh, PA" required/>
+              <Input type="text" name="affiliation" id="affiliation" valueLink={@props.affiliation} label={if @props.usertype.value == "other" then "Organization Name *" else "School Name *"} placeholder="Example School, Pittsburgh, PA" maxlength="50" required/>
             <p className="help-block">
                Your school or organization name may be visible to other users.
                </p>
@@ -360,7 +358,7 @@ LoginForm = React.createClass
               <Input type="text" name="url" disabled={showOrHide( 'disabled', 'url')} id="url" valueLink={@props.url} label="School URL (optional)" placeholder="School URL"/>
             </Col>
             <Col md={6} className={showOrHide('class', 'grade')}>
-              <Input type="text" name="grade" disabled={showOrHide('disabled','grade')} id="grade" valueLink={@props.grade} label="Your Current grade/year *" placeholder="Your Current grade/year" required/>
+              <Input type="number" min="1" max="12" name="grade" disabled={showOrHide('disabled','grade')} id="grade" valueLink={@props.grade} label="Your Current grade/year *" placeholder="Your Current grade/year" required/>
             </Col>
           </Row>
           <Row>
@@ -399,14 +397,14 @@ LoginForm = React.createClass
               </Input>
             </Col>
           </Row>
-          <Row>
+          <Row className={showOrHide('class', 'gender')}>
             <Col md={if @props.gender.value == "other" then 6 else 12}>
               <Input type="select" id="gender" name="gender" defaultValue="" label="Which gender identity do you most identify with?" valueLink={@props.gender}>
                   <option value="">-Select-</option>
                   <option value="woman">Woman</option>
                   <option value="man">Man</option>
-                  <option value="transwoman">Trans Woman</option>
-                  <option value="transman">Trans Man</option>
+                  <option value="transgenderwoman">Transgender Woman</option>
+                  <option value="transgenderman">Transgender Man</option>
                   <option value="gfnc">Gender Fluid/Non-Conforming</option>
                   <option value="other">I prefer: (fill in:)</option>
               </Input>
@@ -435,8 +433,14 @@ LoginForm = React.createClass
               <Input type="email" name="parentemail" disabled={if @props.age.value == "13-17" then false else true} id="parentemail" valueLink={@props.parentemail} label="Parent's E-mail *" required placeholder="email@example.com" />
             </Col>
           </Row>
-          {processRecaptcha()}
-          <ButtonInput type="submit">Register</ButtonInput>
+          <Row>
+            <Col md={8}>
+              {generateRecaptcha()}
+             </Col>
+            <Col md={4} className="text-right">
+              <ButtonInput className="btn-primary" type="submit">Register</ButtonInput>
+            </Col>
+          </Row>
         </div> else <span/>
       <Panel>
         <form key={@props.status} onSubmit={if @props.status == "Login" then @props.onLogin else @props.onRegistration}>

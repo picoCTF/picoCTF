@@ -85,7 +85,7 @@ user_schema = Schema(
         check(("Passwords must be between 3 and 20 characters.",
                [str, Length(min=3, max=20)])),
         Required('affiliation'):
-        check(("You must specify an affiliation.", [str,
+        check(("You must specify a school or organization.", [str,
                                                     Length(min=3, max=50)])),
         Required('usertype'):
         check(("You must specify a status",
