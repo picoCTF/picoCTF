@@ -174,6 +174,8 @@ def get_settings():
 
     if settings is None:
         db.settings.insert(default_settings)
+        # Initialize indexes, runonce
+        api.setup.index_mongo()
         return default_settings
 
     return settings
