@@ -108,17 +108,21 @@ TeamManagementForm = React.createClass
   mixins: [React.addons.LinkedStateMixin]
 
   getInitialState: ->
-    {}
+    team_name: ""
+    team_password: ""
 
   onTeamRegistration: (e) ->
     e.preventDefault()
-    apiCall "POST", "/api/team/create", {team_name: @state.team_name, team_password: @state.team_password}
-    .done (resp) ->
-      switch resp.status
-        when 0
-            apiNotify resp
-        when 1
-            document.location.href = "/profile"
+    if (!@state.team_name || !@state.team_password)
+      apiNotify({status: 0, message: "Invalid Team name or password."})
+    else
+      apiCall "POST", "/api/team/create", {team_name: @state.team_name, team_password: @state.team_password}
+      .done (resp) ->
+        switch resp.status
+          when 0
+              apiNotify resp
+          when 1
+              document.location.href = "/profile"
 
   onTeamJoin: (e) ->
     e.preventDefault()
