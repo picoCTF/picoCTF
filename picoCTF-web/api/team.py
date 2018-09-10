@@ -402,3 +402,46 @@ def join_team(team_name, password, uid=None):
     else:
         raise InternalException(
             "That is not the correct password to join that team.")
+
+
+@log_action
+def update_password_request(params):
+    """
+    Update team password.
+    Assumes args are keys in params.
+
+    Args:
+        params:
+            new-password: the new password
+            new-password-confirmation: confirmation of password
+    """
+
+    user = api.user.get_user()
+    current_team = api.team.get_team(tid=user["tid"])
+    if current_team["team_name"] == user["username"]:
+        raise WebException("You have not created a team yet.")
+
+    if params["new-password"] != params["new-password-confirmation"]:
+        raise WebException("Your team passwords do not match.")
+
+    if len(params["new-password"]) == 0:
+        raise WebException("Your team password cannot be empty.")
+
+    update_password(user["tid"], params["new-password"])
+
+
+def update_password(tid, password):
+    """
+    Updates a team's password.
+
+    Args:
+        tid: teams's uid.
+        password: the new user password.
+    """
+
+    db = api.common.get_conn()
+    db.teams.update({
+        'tid': tid
+    }, {'$set': {
+        'password': password
+    }})

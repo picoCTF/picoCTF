@@ -80,27 +80,56 @@ TeamManagementForm = React.createClass
         when 1
             document.location.href = "/profile"
 
-  render: ->
 
+  onTeamPasswordChange: (e) ->
+    e.preventDefault()
+    if @state.team_password != @state.confirm_team_password
+      apiNotify {status: 0, message: "Passwords do not match."}
+    else
+      newpass = @state.team_password
+      newpass_confirm = @state.confirm_team_password
+      confirmDialog("This will change the password needed to join your team.", "Team Password Change Confirmation", "Confirm", "Cancel",
+      () ->
+        apiCall "POST", "/api/team/update_password", {"new-password": newpass, "new-password-confirmation": newpass_confirm}
+        .done (resp) ->
+          switch resp.status
+            when 0
+                apiNotify resp
+            when 1
+                apiNotify resp, "/account"
+      )
+
+
+  render: ->
     if @state.team.max_team_size > 1
       towerGlyph = <Glyphicon glyph="tower"/>
       lockGlyph = <Glyphicon glyph="lock"/>
 
-      shouldDisable = if @state.user and @state.user.username != @state.user.team_name then "disabled" else ""
-
-      <Panel header="Team Management">
-        <form onSubmit={@onTeamJoin}>
-          {if shouldDisable then <p>You can not switch or register your account to another team.</p> else <span/>}
-          <Input type="text" valueLink={@linkState "team_name"} addonBefore={towerGlyph} label="Team Name" required disabled={shouldDisable}/>
-          <Input type="password" valueLink={@linkState "team_password"} addonBefore={lockGlyph} label="Team Password" required disabled={shouldDisable}/>
-          <Col md={6}>
-            <span>
-              <Button type="submit" disabled={shouldDisable}>Join Team</Button>
-              <Button onClick={@onTeamRegistration} disabled={shouldDisable}>Register Team</Button>
-            </span>
-          </Col>
-        </form>
-      </Panel>
+      teamCreated = (@state.user and @state.user.username != @state.user.team_name)
+      if teamCreated
+        <Panel header="Team Management">
+          <form onSubmit={@onTeamPasswordChange}>
+            <Input type="text" value={@state.user.team_name} addonBefore={towerGlyph} label="Team Name" readonly/>
+            <Input type="password" valueLink={@linkState "team_password"} addonBefore={lockGlyph} label="New Team Password" required/>
+            <Input type="password" valueLink={@linkState "confirm_team_password"} addonBefore={lockGlyph} label="Confirm New Team Password" required/>
+            <Col md={6}>
+                <Button type="submit">Change Team Password</Button>
+            </Col>
+          </form>
+        </Panel>
+      else
+        <Panel header="Team Management">
+          <form onSubmit={@onTeamJoin}>
+            <Input type="text" valueLink={@linkState "team_name"} addonBefore={towerGlyph} label="Team Name" required/>
+            <Input type="password" valueLink={@linkState "team_password"} addonBefore={lockGlyph} label="Team Password"/>
+            <Col md={6}>
+              <span>
+                <Button type="submit">Join Team</Button>
+                <Button onClick={@onTeamRegistration}>Register Team</Button>
+              </span>
+            </Col>
+          </form>
+        </Panel>
     else
       <div/>
 

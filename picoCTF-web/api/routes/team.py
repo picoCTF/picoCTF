@@ -34,6 +34,15 @@ def create_new_team_hook():
     return WebSuccess("You now belong to your newly created team.")
 
 
+@blueprint.route('/update_password', methods=['POST'])
+@api_wrapper
+@check_csrf
+@require_login
+def update_team_password_hook():
+    api.team.update_password_request(api.common.flat_multi(request.form))
+    return WebSuccess("Your team password has been successfully updated!")
+
+
 @blueprint.route('/join', methods=['POST'])
 @api_wrapper
 @require_login
