@@ -9,7 +9,6 @@ import urllib.parse
 import urllib.request
 
 import api
-import bcrypt
 import flask
 from api.annotations import log_action
 from api.common import (check, InternalException, safe_fail, validate,
@@ -123,19 +122,6 @@ existing_team_schema = Schema({
     Required('team-password-existing'):
         check(("Team passwords must be between 3 and 50 characters.", [str, Length(min=3, max=50)]))
 }, extra=True)
-
-
-def hash_password(password):
-    """
-    Hash plaintext password.
-
-    Args:
-        password: plaintext password
-    Returns:
-        Secure hash of password.
-    """
-
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(8))
 
 
 def get_team(uid=None):
@@ -391,7 +377,7 @@ def create_simple_user_request(params):
         params["firstname"],
         params["lastname"],
         params["email"],
-        hash_password(params["password"]),
+        api.common.hash_password(params["password"]),
         team["tid"],
         country=params["country"],
         teacher=user_is_teacher,
@@ -498,14 +484,14 @@ def update_password(uid, password):
 
     Args:
         uid: user's uid.
-        password: the new user password.
+        password: the new user unhashed password.
     """
 
     db = api.common.get_conn()
     db.users.update({
         'uid': uid
     }, {'$set': {
-        'password_hash': hash_password(password)
+        'password_hash': api.common.hash_password(password)
     }})
 
 

@@ -154,7 +154,7 @@ def create_new_team_request(params, uid=None):
 
     desired_tid = create_team({
         "team_name": params["team_name"],
-        "password": params["team_password"],
+        "password": api.common.hash_password(params["team_password"]),
         # The team's affiliation becomes the creator's affiliation.
         "affiliation": current_team["affiliation"],
         "eligible": True
@@ -170,7 +170,7 @@ def create_team(params):
     Args:
         team_name: Name of the team
         school: Name of the school
-        password: Team's password
+        password: Team's hashed password
         eligible: the teams eligibility
     Returns:
         The newly created team id.
@@ -350,7 +350,8 @@ def join_team(team_name, password, uid=None):
     db = api.common.get_conn()
     max_team_size = api.config.get_settings()["max_team_size"]
 
-    if password == desired_team["password"] and desired_team["size"] < max_team_size:
+    if api.auth.confirm_password(password, desired_team["password"]
+                                ) and desired_team["size"] < max_team_size:
         user_team_update = db.users.find_and_modify(
             query={
                 "uid": user["uid"],
@@ -449,4 +450,8 @@ def update_password(tid, password):
     """
 
     db = api.common.get_conn()
-    db.teams.update({'tid': tid}, {'$set': {'password': password}})
+    db.teams.update({
+        'tid': tid
+    }, {'$set': {
+        'password': api.common.hash_password(password)
+    }})

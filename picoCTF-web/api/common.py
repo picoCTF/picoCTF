@@ -3,6 +3,7 @@ import uuid
 from hashlib import md5
 
 import api
+import bcrypt
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, InvalidName
 from voluptuous import Invalid, MultipleInvalid
@@ -206,3 +207,16 @@ def safe_fail(f, *args, **kwargs):
         return f(*args, **kwargs)
     except APIException:
         return None
+
+
+def hash_password(password):
+    """
+    Hash plaintext password.
+
+    Args:
+        password: plaintext password
+    Returns:
+        Secure hash of password.
+    """
+
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(8))

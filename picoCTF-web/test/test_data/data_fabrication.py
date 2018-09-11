@@ -24,7 +24,7 @@ admin_uid = api.user.create_user(
     "admin",
     "admin",
     "admin@test.com",
-    api.user.hash_password("password"),
+    api.common.hash_password("password"),
     admin_tid,
     admin=True,
     teacher=True)
