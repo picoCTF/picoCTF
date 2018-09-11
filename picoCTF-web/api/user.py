@@ -96,6 +96,7 @@ user_schema = Schema(
     },
     extra=True)
 
+# RETIRE: this concept has been moved to team.py in 56a1fca
 new_team_schema = Schema(
     {
         Required('team-name-new'):
@@ -109,6 +110,7 @@ new_team_schema = Schema(
     },
     extra=True)
 
+# RETIRE: this concept has been moved to team.py in 5265701
 existing_team_schema = Schema({
     Required('team-name-existing'): check(
         ("Existing team names must be between 3 and 50 characters.", [str, Length(min=3, max=50)]),
