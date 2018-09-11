@@ -2,23 +2,25 @@ ProblemSubmissionDoughnut = React.createClass
   componentDidMount: ->
     if @props.visible
       ctx = @getDOMNode().getContext "2d"
-      data = [
-        {
-          value: @props.invalid
-          color:"#F7464A"
-          highlight: "#FF5A5E"
-          label: "Invalid submissions"
-        },
-        {
-          value: @props.valid
-          color: "#46BFBD"
-          highlight: "#5AD3D1"
-          label: "Valid submissions"
-        }
-      ]
 
-      (new Chart ctx).Doughnut data,
-        animateRotate: false
+      data = {
+        datasets: [{
+          data: [@props.invalid, @props.valid],
+          backgroundColor: ["#F7464A", "#46BFBD"],
+          hoverBackgroundColor: ["#FF5A5E", "#5AD3D1"]
+        }],
+        labels: [
+          "Invalid Submissions",
+          "Valid Submissions"
+        ]
+      }
+      chart = new Chart( ctx, {
+          type: 'doughnut',
+          data: data,
+          options: {
+            animation: { animateRotate: false, animateScale: false }
+          }
+      })
 
   render: ->
     style =

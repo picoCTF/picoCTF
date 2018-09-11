@@ -307,8 +307,10 @@ Problem = React.createClass
     submissionDisplay = if @props.submissions and @props.submissions.valid + @props.submissions.invalid >= 1 then \
     <div>
       <h4 className="text-center"> Submissions </h4>
+      <div style={{width: '200px', height: '200px', margin: 'auto'}}>
       <ProblemSubmissionDoughnut valid={@props.submissions.valid}
       invalid={@props.submissions.invalid} visible={@state.expanded} className="text-center"/>
+      </div>
     </div>
     else <p>No solve attempts.</p>
 
