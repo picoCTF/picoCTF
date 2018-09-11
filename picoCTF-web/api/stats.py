@@ -60,13 +60,14 @@ def get_group_scores(gid=None, name=None):
 
     result = []
     for team in members:
-        result.append({
-            "name": team['team_name'],
-            "tid": team['tid'],
-            "affiliation": team["affiliation"],
-            "eligible": team["eligible"],
-            "score": get_score(tid=team['tid'])
-        })
+        if team["size"] > 0:
+            result.append({
+                "name": team['team_name'],
+                "tid": team['tid'],
+                "affiliation": team["affiliation"],
+                "eligible": team["eligible"],
+                "score": get_score(tid=team['tid'])
+            })
 
     return sorted(result, key=lambda entry: entry['score'], reverse=True)
 

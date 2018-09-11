@@ -394,6 +394,19 @@ def join_team(team_name, password, uid=None):
                 "There was an issue switching your team! Please contact an administrator."
             )
 
+        # Remove membership of empty self-team.
+        previous_groups = get_groups(tid=current_team["tid"])
+        for group in previous_groups:
+            api.group.leave_group(gid=group["gid"], tid=current_team["tid"])
+            # Rejoin with new tid if not already member, and classroom
+            # email filter is not enabled.
+            roles = api.group.get_roles_in_group(group["gid"], tid=desired_team["tid"])
+            if not roles["teacher"] and not roles["member"]:
+                group_settings = api.group.get_group_settings(gid=group["gid"])
+                if not group_settings["email_filter"]:
+                        api.group.join_group(gid=group["gid"], tid=desired_team["tid"])
+
+
         # Called from within get_solved_problems, clear first
         api.cache.invalidate_memoization(api.problem.get_unlocked_pids,
                                          {"args": [desired_team["tid"]]})

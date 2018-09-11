@@ -44,7 +44,7 @@ def get_roles_in_group(gid, tid=None, uid=None):
         team = api.team.get_team(tid=tid)
     else:
         raise InternalException(
-            "Either tid or uid must be specified to determine role in group.")
+            "Either tid or uid must be specified to determine role in classroom.")
 
     roles = {}
     roles["owner"] = team["tid"] == group["owner"]
@@ -76,11 +76,11 @@ def get_group(gid=None, name=None, owner_tid=None):
         match.update({"gid": gid})
     else:
         raise InternalException(
-            "Group name and owner or gid must be specified to look up a group.")
+            "Classroom name and owner or gid must be specified to look up a classroom.")
 
     group = db.groups.find_one(match, {"_id": 0})
     if group is None:
-        raise InternalException("Could not find that group!")
+        raise InternalException("Could not find that classroom!")
 
     return group
 
@@ -190,7 +190,7 @@ def change_group_settings(gid, settings):
     group = api.group.get_group(gid=gid)
     if group["settings"]["hidden"] and not settings["hidden"]:
         raise InternalException(
-            "You can not change a hidden group back to a public group.")
+            "You can not change a hidden classroom back to a public classroom.")
 
     db.groups.update({"gid": group["gid"]}, {"$set": {"settings": settings}})
 
@@ -257,7 +257,7 @@ def leave_group(gid, tid):
     roles = get_roles_in_group(gid, tid=team["tid"])
 
     if roles["owner"]:
-        raise InternalException("Owners can not leave their own group!")
+        raise InternalException("Owners can not leave their own classroom!")
     elif roles["teacher"]:
         db.groups.update({'gid': gid}, {'$pull': {"teachers": tid}})
 
@@ -289,7 +289,7 @@ def switch_role(gid, tid, role):
                 }
             })
         else:
-            raise InternalException("Team is already a member of that group.")
+            raise InternalException("Team is already a member of that classroom.")
 
     elif role == "teacher":
         if roles["member"] and not roles["teacher"]:
@@ -304,7 +304,7 @@ def switch_role(gid, tid, role):
                 }
             })
         else:
-            raise InternalException("Team is already a teacher of that group.")
+            raise InternalException("Team is already a teacher of that classroom.")
 
     else:
         raise InternalException("Only supported roles are member and teacher.")

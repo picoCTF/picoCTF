@@ -13,7 +13,7 @@ from voluptuous import Length, Required, Schema
 register_group_schema = Schema(
     {
         Required("group-name"):
-        check(("Class name must be between 3 and 50 characters.",
+        check(("Classroom name must be between 3 and 50 characters.",
                [str, Length(min=3, max=100)]),)
     },
     extra=True)
@@ -21,10 +21,10 @@ register_group_schema = Schema(
 join_group_schema = Schema(
     {
         Required("group-name"):
-        check(("Class name must be between 3 and 50 characters.",
+        check(("Classroom name must be between 3 and 50 characters.",
                [str, Length(min=3, max=100)]),),
         Required("group-owner"):
-        check(("The team name must be between 3 and 40 characters.",
+        check(("The teacher name must be between 3 and 40 characters.",
                [str, Length(min=3, max=40)]),)
     },
     extra=True)
@@ -32,10 +32,10 @@ join_group_schema = Schema(
 leave_group_schema = Schema(
     {
         Required("group-name"):
-        check(("Class name must be between 3 and 50 characters.",
+        check(("Classroom name must be between 3 and 50 characters.",
                [str, Length(min=3, max=100)]),),
         Required("group-owner"):
-        check(("The team name must be between 3 and 40 characters.",
+        check(("The teacher name must be between 3 and 40 characters.",
                [str, Length(min=3, max=40)]),)
     },
     extra=True)
@@ -43,7 +43,7 @@ leave_group_schema = Schema(
 delete_group_schema = Schema(
     {
         Required("group-name"):
-        check(("Class name must be between 3 and 50 characters.",
+        check(("Classroom name must be between 3 and 50 characters.",
                [str, Length(min=3, max=100)]),)
     },
     extra=True)
@@ -69,7 +69,7 @@ def get_group_hook():
     roles = api.group.get_roles_in_group(gid=group["gid"], uid=user["uid"])
 
     if not roles["member"] and not roles["teacher"]:
-        return WebError("You are not a member of this group.")
+        return WebError("You are not a member of this classroom.")
 
     return WebSuccess(data=group)
 
@@ -102,7 +102,7 @@ def change_group_settings_hook():
 
     if roles["teacher"]:
         api.group.change_group_settings(group["gid"], settings)
-        return WebSuccess(message="Group settings changed successfully.")
+        return WebSuccess(message="Classroom settings changed successfully.")
     else:
         return WebError(
             message="You do not have sufficient privilege to do that.")
@@ -155,7 +155,7 @@ def get_teacher_information_hook(gid=None):
     roles = api.group.get_roles_in_group(gid, uid=user["uid"])
 
     if not roles["teacher"]:
-        return WebError("You are not a teacher for this group.")
+        return WebError("You are not a teacher for this classroom.")
 
     return WebSuccess(data=api.group.get_teacher_information(gid=gid))
 
@@ -170,7 +170,7 @@ def get_member_information_hook(gid=None):
     roles = api.group.get_roles_in_group(gid, uid=user["uid"])
 
     if not roles["teacher"]:
-        return WebError("You are not a teacher for this group.")
+        return WebError("You are not a teacher for this classroom.")
 
     return WebSuccess(data=api.group.get_member_information(gid=gid))
 
@@ -185,11 +185,11 @@ def get_group_score_hook():
     roles = api.group.get_roles_in_group(gid, uid=user["uid"])
 
     if not roles["teacher"]:
-        return WebError("You are not a teacher for this group.")
+        return WebError("You are not a teacher for this classroom.")
 
     score = api.stats.get_group_scores(name=name)
     if score is None:
-        return WebError("There was an error retrieving the group's score.")
+        return WebError("There was an error retrieving the classroom's score.")
 
     return WebSuccess(data={'score': score})
 
@@ -197,7 +197,7 @@ def get_group_score_hook():
 @blueprint.route('/create', methods=['POST'])
 @api_wrapper
 @check_csrf
-@require_admin
+@require_teacher
 def create_group_hook():
     """
     Creates a new group. Validates forms.
@@ -213,10 +213,10 @@ def create_group_hook():
     if safe_fail(
             api.group.get_group, name=params["group-name"],
             owner_tid=team["tid"]) is not None:
-        raise WebException("A group with that name already exists!")
+        raise WebException("A classroom with that name already exists!")
 
     gid = api.group.create_group(team["tid"], params["group-name"])
-    return WebSuccess("Successfully created group.", data=gid)
+    return WebSuccess("Successfully created classroom.", data=gid)
 
 
 @blueprint.route('/join', methods=['POST'])
@@ -238,7 +238,7 @@ def join_group_hook():
             api.group.get_group,
             name=params["group-name"],
             owner_tid=owner_team["tid"]) is None:
-        raise WebException("No class exists with that name!")
+        raise WebException("No classroom exists with that name!")
 
     group = api.group.get_group(
         name=params["group-name"], owner_tid=owner_team["tid"])
@@ -246,21 +246,23 @@ def join_group_hook():
     group_settings = api.group.get_group_settings(gid=group["gid"])
 
     team = api.team.get_team()
-    for member_uid in api.team.get_team_uids(tid=team["tid"]):
-        member = api.user.get_user(uid=member_uid)
-        if not api.user.verify_email_in_whitelist(
-                member["email"], group_settings["email_filter"]):
-            raise WebException(
-                "{}'s email does not belong to the whitelist for that group. Your team may not join this group at this time.".
-                format(member["username"]))
+
+    if group_settings["email_filter"]:
+        for member_uid in api.team.get_team_uids(tid=team["tid"]):
+            member = api.user.get_user(uid=member_uid)
+            if not api.user.verify_email_in_whitelist(
+                    member["email"], group_settings["email_filter"]):
+                raise WebException(
+                    "{}'s email does not belong to the whitelist for that classroom. Your team may not join this classroom at this time.".
+                    format(member["username"]))
 
     roles = api.group.get_roles_in_group(group["gid"], tid=team["tid"])
     if roles["teacher"] or roles["member"]:
-        raise WebException("Your team is already a member of that class!")
+        raise WebException("Your team is already a member of that classroom!")
 
     api.group.join_group(group["gid"], team["tid"])
 
-    return WebSuccess("Successfully joined group")
+    return WebSuccess("Successfully joined classroom")
 
 
 @blueprint.route('/leave', methods=['POST'])
@@ -285,11 +287,11 @@ def leave_group_hook():
     roles = api.group.get_roles_in_group(group["gid"], tid=team["tid"])
 
     if not roles["member"] and not roles["teacher"]:
-        raise WebException("Your team is not a member of that class!")
+        raise WebException("Your team is not a member of that classroom!")
 
     api.group.leave_group(group["gid"], team["tid"])
 
-    return WebSuccess("Successfully left group.")
+    return WebSuccess("Successfully left classroom.")
 
 
 @blueprint.route('/delete', methods=['POST'])
@@ -320,9 +322,9 @@ def delete_group_hook():
     if roles["owner"]:
         api.group.delete_group(group["gid"])
     else:
-        raise WebException("Only the owner of a group can delete it!")
+        raise WebException("Only the owner of a classroom can delete it!")
 
-    return WebSuccess("Successfully deleted group")
+    return WebSuccess("Successfully deleted classroom")
 
 
 @blueprint.route('/flag_sharing', methods=['GET'])
@@ -339,7 +341,7 @@ def get_flag_shares():
     roles = api.group.get_roles_in_group(gid, uid=user["uid"])
     if not roles["teacher"]:
         return WebError(
-            "You must be a teacher of a group to see its flag sharing statistics."
+            "You must be a teacher of a classroom to see its flag sharing statistics."
         )
 
     return WebSuccess(
@@ -360,11 +362,11 @@ def force_leave_group_hook():
     user = api.user.get_user()
     roles = api.group.get_roles_in_group(gid, uid=user["uid"])
     if not roles["teacher"]:
-        return WebError("You must be a teacher of a group to remove a team.")
+        return WebError("You must be a teacher of a classroom to remove a team.")
 
     api.group.leave_group(gid, tid)
 
-    return WebSuccess("Team has successfully left the group.")
+    return WebSuccess("Team has successfully left the classroom.")
 
 
 @blueprint.route('/teacher/role_switch', methods=['POST'])
@@ -396,7 +398,7 @@ def switch_user_role_group_hook():
         group["gid"], tid=affected_team["tid"])
     if affected_team_roles["owner"]:
         return WebError(
-            message="You can not change the role of the owner of the group.")
+            message="You can not change the role of the owner of the classroom.")
 
     api.group.switch_role(group["gid"], affected_team["tid"], role)
     return WebSuccess(message="User's role has been successfully changed.")
