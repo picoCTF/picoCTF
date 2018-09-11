@@ -65,7 +65,7 @@ TeamManagementForm = React.createClass
   onTeamRegistration: (e) ->
     e.preventDefault()
     if (!@state.team_name || !@state.team_password)
-      apiNotify({status: 0, message: "Invalid Team name or password."})
+      apiNotify({status: 0, message: "Invalid team name or password."})
     else
       apiCall "POST", "/api/team/create", {team_name: @state.team_name, team_password: @state.team_password}
       .done (resp) ->
