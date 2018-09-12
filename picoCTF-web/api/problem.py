@@ -64,18 +64,17 @@ problem_schema = Schema({
     check(("Your problems should not already have _ids.", [lambda id: False]))
 })
 
-instance_schema = Schema(
-    {
-        Required("description"):
-        check(("The description must be a string.", [str])),
-        Required("flag"):
-        check(("The flag must be a string.", [str])),
-        "port":
-        check(("The port must be an int", [int])),
-        "server":
-        check(("The server must be a string.", [str]))
-    },
-    extra=True)
+instance_schema = Schema({
+    Required("description"):
+    check(("The description must be a string.", [str])),
+    Required("flag"):
+    check(("The flag must be a string.", [str])),
+    "port":
+    check(("The port must be an int", [int])),
+    "server":
+    check(("The server must be a string.", [str]))
+},
+                         extra=True)
 
 bundle_schema = Schema({
     Required("name"):
@@ -646,12 +645,12 @@ def reevaluate_submissions_for_problem(pid):
 
     for key, change in keys.items():
         if change is not None:
-            db.submissions.update(
-                {
-                    "key": key
-                }, {"$set": {
-                    "correct": change
-                }}, multi=True)
+            db.submissions.update({
+                "key": key
+            }, {"$set": {
+                "correct": change
+            }},
+                                  multi=True)
 
 
 def reevaluate_all_submissions():
@@ -803,8 +802,8 @@ def is_problem_unlocked(problem, solved):
         if problem["sanitized_name"] in bundle["problems"]:
             if "dependencies" in bundle and bundle["dependencies_enabled"]:
                 if problem["sanitized_name"] in bundle["dependencies"]:
-                    dependency = bundle["dependencies"][problem[
-                        "sanitized_name"]]
+                    dependency = bundle["dependencies"][
+                        problem["sanitized_name"]]
                     weightsum = sum(
                         dependency['weightmap'].get(p['sanitized_name'], 0)
                         for p in solved)

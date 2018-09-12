@@ -114,8 +114,8 @@ def list_problems(args):
     problems = api.problem.get_all_problems(show_disabled=True)
     for problem in problems:
         print("{} ({}) - {} points".format(
-            problem["name"], "disabled"
-            if problem["disabled"] else "enabled", problem["score"]))
+            problem["name"], "disabled" if problem["disabled"] else "enabled",
+            problem["score"]))
 
 
 def clear_collections(args):
@@ -190,8 +190,8 @@ def load_problems(args):
 
             if 'grader' not in dirnames:
                 logging.warning(
-                    "Problem '{}' appears to have no grader folder. Skipping...".
-                    format(problem_name))
+                    "Problem '{}' appears to have no grader folder. Skipping..."
+                    .format(problem_name))
                 continue
 
             grader_path = path.join(grader_dir, relative_path)
@@ -209,9 +209,8 @@ def load_problems(args):
                     format(problem_name, e))
 
             if 'static' in dirnames:
-                logging.info(
-                    "Found a static directory for '{}'. Copying...".format(
-                        problem_name))
+                logging.info("Found a static directory for '{}'. Copying...".
+                             format(problem_name))
                 static_path = path.join(static_dir, relative_path)
                 if path.exists(static_path):
                     shutil.rmtree(static_path)

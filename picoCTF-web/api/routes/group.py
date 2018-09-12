@@ -10,43 +10,39 @@ from flask import (Blueprint, Flask, render_template, request,
                    send_from_directory, session)
 from voluptuous import Length, Required, Schema
 
-register_group_schema = Schema(
-    {
-        Required("group-name"):
-        check(("Class name must be between 3 and 50 characters.",
-               [str, Length(min=3, max=100)]),)
-    },
-    extra=True)
+register_group_schema = Schema({
+    Required("group-name"):
+    check(("Class name must be between 3 and 50 characters.",
+           [str, Length(min=3, max=100)]),)
+},
+                               extra=True)
 
-join_group_schema = Schema(
-    {
-        Required("group-name"):
-        check(("Class name must be between 3 and 50 characters.",
-               [str, Length(min=3, max=100)]),),
-        Required("group-owner"):
-        check(("The team name must be between 3 and 40 characters.",
-               [str, Length(min=3, max=40)]),)
-    },
-    extra=True)
+join_group_schema = Schema({
+    Required("group-name"):
+    check(("Class name must be between 3 and 50 characters.",
+           [str, Length(min=3, max=100)]),),
+    Required("group-owner"):
+    check(("The team name must be between 3 and 40 characters.",
+           [str, Length(min=3, max=40)]),)
+},
+                           extra=True)
 
-leave_group_schema = Schema(
-    {
-        Required("group-name"):
-        check(("Class name must be between 3 and 50 characters.",
-               [str, Length(min=3, max=100)]),),
-        Required("group-owner"):
-        check(("The team name must be between 3 and 40 characters.",
-               [str, Length(min=3, max=40)]),)
-    },
-    extra=True)
+leave_group_schema = Schema({
+    Required("group-name"):
+    check(("Class name must be between 3 and 50 characters.",
+           [str, Length(min=3, max=100)]),),
+    Required("group-owner"):
+    check(("The team name must be between 3 and 40 characters.",
+           [str, Length(min=3, max=40)]),)
+},
+                            extra=True)
 
-delete_group_schema = Schema(
-    {
-        Required("group-name"):
-        check(("Class name must be between 3 and 50 characters.",
-               [str, Length(min=3, max=100)]),)
-    },
-    extra=True)
+delete_group_schema = Schema({
+    Required("group-name"):
+    check(("Class name must be between 3 and 50 characters.",
+           [str, Length(min=3, max=100)]),)
+},
+                             extra=True)
 
 blueprint = Blueprint("group_api", __name__)
 
@@ -251,8 +247,8 @@ def join_group_hook():
         if not api.user.verify_email_in_whitelist(
                 member["email"], group_settings["email_filter"]):
             raise WebException(
-                "{}'s email does not belong to the whitelist for that group. Your team may not join this group at this time.".
-                format(member["username"]))
+                "{}'s email does not belong to the whitelist for that group. Your team may not join this group at this time."
+                .format(member["username"]))
 
     roles = api.group.get_roles_in_group(group["gid"], tid=team["tid"])
     if roles["teacher"] or roles["member"]:

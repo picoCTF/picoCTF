@@ -8,41 +8,38 @@ from api.common import (check, InternalException, safe_fail,
                         SevereInternalException, validate, WebException)
 from voluptuous import Length, Required, Schema
 
-new_team_schema = Schema(
-    {
-        Required("team_name"):
-        check(
-            ("The team name must be between 3 and 40 characters.",
-             [str, Length(min=3, max=40)]),
-            ("A team with that name already exists.",
-             [lambda name: safe_fail(api.team.get_team, name=name) is None]),
-            ("A username with that name already exists.",
-             [lambda name: safe_fail(api.user.get_user, name=name) is None]),
-        ),
-        Required("team_password"):
-        check(("Passwords must be between 3 and 20 characters.",
-               [str, Length(min=3, max=20)]))
-    },
-    extra=True)
+new_team_schema = Schema({
+    Required("team_name"):
+    check(
+        ("The team name must be between 3 and 40 characters.",
+         [str, Length(min=3, max=40)]),
+        ("A team with that name already exists.",
+         [lambda name: safe_fail(api.team.get_team, name=name) is None]),
+        ("A username with that name already exists.",
+         [lambda name: safe_fail(api.user.get_user, name=name) is None]),
+    ),
+    Required("team_password"):
+    check(("Passwords must be between 3 and 20 characters.",
+           [str, Length(min=3, max=20)]))
+},
+                         extra=True)
 
-join_team_schema = Schema(
-    {
-        Required("team_name"):
-        check(("The team name must be between 3 and 40 characters.",
-               [str, Length(min=3, max=40)]),),
-        Required("team_password"):
-        check(("Passwords must be between 3 and 20 characters.",
-               [str, Length(min=3, max=20)]))
-    },
-    extra=True)
+join_team_schema = Schema({
+    Required("team_name"):
+    check(("The team name must be between 3 and 40 characters.",
+           [str, Length(min=3, max=40)]),),
+    Required("team_password"):
+    check(("Passwords must be between 3 and 20 characters.",
+           [str, Length(min=3, max=20)]))
+},
+                          extra=True)
 
-update_team_schema = Schema(
-    {
-        Required("new-password"):
-        check(("Passwords must be between 3 and 20 characters.",
-               [str, Length(min=3, max=20)]))
-    },
-    extra=True)
+update_team_schema = Schema({
+    Required("new-password"):
+    check(("Passwords must be between 3 and 20 characters.",
+           [str, Length(min=3, max=20)]))
+},
+                            extra=True)
 
 
 def get_team(tid=None, name=None):
@@ -153,11 +150,15 @@ def create_new_team_request(params, uid=None):
             "You can only create one new team per user account!")
 
     desired_tid = create_team({
-        "team_name": params["team_name"],
-        "password": api.common.hash_password(params["team_password"]),
+        "team_name":
+        params["team_name"],
+        "password":
+        api.common.hash_password(params["team_password"]),
         # The team's affiliation becomes the creator's affiliation.
-        "affiliation": current_team["affiliation"],
-        "eligible": True
+        "affiliation":
+        current_team["affiliation"],
+        "eligible":
+        True
     })
 
     return join_team(params["team_name"], params["team_password"], user["uid"])
@@ -350,8 +351,9 @@ def join_team(team_name, password, uid=None):
     db = api.common.get_conn()
     max_team_size = api.config.get_settings()["max_team_size"]
 
-    if api.auth.confirm_password(password, desired_team["password"]
-                                ) and desired_team["size"] < max_team_size:
+    if api.auth.confirm_password(
+            password,
+            desired_team["password"]) and desired_team["size"] < max_team_size:
         user_team_update = db.users.find_and_modify(
             query={
                 "uid": user["uid"],

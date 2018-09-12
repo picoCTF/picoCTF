@@ -322,8 +322,8 @@ class TestProblems(object):
             assert len(solved_problems
                       ) == i + 1, "The team has solved too many problems."
             assert api.stats.get_score(
-                tid=self.tid
-            ) == correct_total, "Team score is calculating incorrectly!"
+                tid=self.
+                tid) == correct_total, "Team score is calculating incorrectly!"
             assert api.stats.get_score(
-                uid=self.uid
-            ) == correct_total, "User score is calculating incorrectly!"
+                uid=self.
+                uid) == correct_total, "User score is calculating incorrectly!"

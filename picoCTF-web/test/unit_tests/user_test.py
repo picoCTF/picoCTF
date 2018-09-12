@@ -162,8 +162,9 @@ class TestUsers(object):
         """
 
         uid = api.user.create_simple_user_request(new_team_user)
-        assert uid == api.user.get_user(name=new_team_user["username"])[
-            "uid"], "Good user created unsuccessfully."
+        assert uid == api.user.get_user(
+            name=new_team_user["username"]
+        )["uid"], "Good user created unsuccessfully."
 
         # user is added to a default team of their username
         team = api.team.get_team(name=new_team_user["username"])
@@ -204,8 +205,9 @@ class TestUsers(object):
 
         # create a new user and join and existing team
         uid = api.user.create_simple_user_request(base_user.copy())
-        assert uid == api.user.get_user(name=base_user["username"])[
-            "uid"], "Good user created unsuccessfully."
+        assert uid == api.user.get_user(
+            name=base_user["username"]
+        )["uid"], "Good user created unsuccessfully."
 
         assert api.team.join_team(
             team["team_name"], team["password"],

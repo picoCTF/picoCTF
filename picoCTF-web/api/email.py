@@ -113,7 +113,8 @@ def send_user_verification_email(username):
             "email_verification_count": 1
         }, "email_verification")
     else:
-        if previous_key["email_verification_count"] < settings["email"]["max_verification_emails"]:
+        if previous_key["email_verification_count"] < settings["email"][
+                "max_verification_emails"]:
             token_value = previous_key["tokens"]["email_verification"]
             db.tokens.find_and_modify(key_query,
                                       {"$inc": {
