@@ -46,8 +46,8 @@ for (firstname, lastname, email, username, _) in data[:100]:
         "firstname": firstname,
         "lastname": lastname,
         "email": email,
-        "eligibility": "eligible"
-        if bool(random.randint(0, 1)) else "ineligible",
+        "eligibility":
+        "eligible" if bool(random.randint(0, 1)) else "ineligible",
         "affiliation": "Test"
     }
     uid = api.user.create_simple_user_request(user_data)

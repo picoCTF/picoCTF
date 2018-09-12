@@ -121,7 +121,8 @@ def status(args, config):
             except ConnectionRefusedError as e:
                 pass
         if instance["service"]:
-            result = execute(["systemctl", "is-failed", instance["service"]], allow_error=True)
+            result = execute(["systemctl", "is-failed", instance["service"]],
+                             allow_error=True)
         else:
             result = execute(["systemctl", "is-failed"], allow_error=True)
         status["service"] = result.return_code == 1
@@ -155,10 +156,10 @@ def status(args, config):
                 pprint("   - Instance {}".format(instance["instance_number"]))
                 pprint("       flag: {}".format(instance["flag"]))
                 pprint("       port: {}".format(instance["port"]))
-                pprint("       service: {}".format("active" if instance[
-                    "service"] else "failed"))
-                pprint("       connection: {}".format("online" if instance[
-                    "connection"] else "offline"))
+                pprint("       service: {}".format(
+                    "active" if instance["service"] else "failed"))
+                pprint("       connection: {}".format(
+                    "online" if instance["connection"] else "offline"))
 
     def print_bundle(bundle, path, prefix=""):
 

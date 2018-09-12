@@ -30,7 +30,6 @@ competition_name = ""
 competition_urls = [
     "",
 ]
-
 """ CTF Settings
 These are the default settings that will be loaded
 into the database if no settings are already loaded.
@@ -48,8 +47,10 @@ default_settings = {
     datetime.datetime.utcnow(),
 
     # COMPETITION INFORMATION
-    "competition_name": "",
-    "competition_url": "",
+    "competition_name":
+    "",
+    "competition_url":
+    "",
 
     # EMAIL WHITELIST
     "email_filter": [],

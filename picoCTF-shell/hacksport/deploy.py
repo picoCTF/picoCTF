@@ -246,10 +246,10 @@ service %s
 
     problem_service_info = problem.service()
     service_content = xinetd_template % (
-        problem.user, problem.port, "no"
-        if problem_service_info["Type"] == "oneshot" else "yes", problem.user,
-        problem.user, problem.user, "100"
-        if problem_service_info["Type"] == "oneshot" else "UNLIMITED",
+        problem.user, problem.port,
+        "no" if problem_service_info["Type"] == "oneshot" else "yes",
+        problem.user, problem.user, problem.user,
+        "100" if problem_service_info["Type"] == "oneshot" else "UNLIMITED",
         problem_service_info['ExecStart'])
 
     service_file_path = join(path, "{}".format(problem.user))
@@ -401,7 +401,8 @@ def template_staging_directory(staging_directory, problem):
 
     # prepend the staging directory to all
     dont_template = copy(problem.dont_template) + [
-        "app/templates", "problem.json", "challenge.py", "templates", "__pre_templated"
+        "app/templates", "problem.json", "challenge.py", "templates",
+        "__pre_templated"
     ]
 
     dont_template_files = list(filter(isfile, dont_template))
@@ -415,9 +416,8 @@ def template_staging_directory(staging_directory, problem):
         if any(
                 os.path.commonprefix([root, path]) == path
                 for path in dont_template_directories):
-            logger.debug(
-                "....Not templating anything in the directory '{}'".format(
-                    root))
+            logger.debug("....Not templating anything in the directory '{}'".
+                         format(root))
             continue
         for filename in filenames:
             if filename in dont_template_files:
@@ -580,8 +580,8 @@ def generate_instance(problem_object,
         else:
             source_path = join(copy_path, source_name)
 
-        problem_hash = problem_object["name"] + deploy_config.deploy_secret + str(
-            instance_number)
+        problem_hash = problem_object[
+            "name"] + deploy_config.deploy_secret + str(instance_number)
         problem_hash = md5(problem_hash.encode("utf-8")).hexdigest()
 
         destination_path = join(STATIC_FILE_ROOT, problem_hash, source_name)
@@ -642,11 +642,11 @@ def generate_instance(problem_object,
     logger.debug("...Created service files '%s','%s'.", service_file,
                  socket_file)
 
-
     # template the description
     # change newline for <br>, otherwise it won't render on the pico website
     problem.description = template_string(problem.description,
-                                          **get_attributes(problem)).replace('\n','<br>')
+                                          **get_attributes(problem)).replace(
+                                              '\n', '<br>')
     logger.debug("...Instance description: %s", problem.description)
 
     return {
@@ -779,8 +779,8 @@ def deploy_problem(problem_directory,
             "deployment_directory":
             deployment_directory,
             "service":
-            None if instance["service_file"] is None else
-            os.path.basename(instance["service_file"]),
+            None if instance["service_file"] is None else os.path.basename(
+                instance["service_file"]),
             "socket":
             None if instance["socket_file"] is None else os.path.basename(
                 instance["socket_file"]),
@@ -968,6 +968,7 @@ def remove_instances(path, instance_list):
 
     if problem_instances:
         execute(["service", "xinetd", "restart"], timeout=60)
+
 
 def undeploy_problems(args, config):
     """ Main entrypoint for problem undeployment """

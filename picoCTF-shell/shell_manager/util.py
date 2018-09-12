@@ -105,18 +105,17 @@ bundle_schema = Schema({
     "pkg_dependencies": list
 })
 
-config_schema = Schema(
-    {
-        Required("deploy_secret"): str,
-        Required("hostname"): str,
-        Required("web_server"): str,
-        Required("default_user"): str,
-        Required("web_root"): str,
-        Required("problem_directory_root"): str,
-        Required("obfuscate_problem_directories"): bool,
-        Required("banned_ports"): list
-    },
-    extra=True)
+config_schema = Schema({
+    Required("deploy_secret"): str,
+    Required("hostname"): str,
+    Required("web_server"): str,
+    Required("default_user"): str,
+    Required("web_root"): str,
+    Required("problem_directory_root"): str,
+    Required("obfuscate_problem_directories"): bool,
+    Required("banned_ports"): list
+},
+                       extra=True)
 
 port_range_schema = Schema({
     Required("start"):

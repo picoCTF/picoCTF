@@ -56,58 +56,55 @@ def verify_email_in_whitelist(email, whitelist=None):
     return False
 
 
-user_schema = Schema(
-    {
-        Required('email'):
-        check(
-            ("Email must be between 5 and 50 characters.",
-             [str, Length(min=5, max=50)]),
-            ("Your email does not look like an email address.",
-             [_check_email_format]),
-        ),
-        Required('firstname'):
-        check(("First Name must be between 1 and 50 characters.",
-               [str, Length(min=1, max=50)])),
-        Required('lastname'):
-        check(("Last Name must be between 1 and 50 characters.",
-               [str, Length(min=1, max=50)])),
-        Required('country'):
-        check(("Please select a country", [str, Length(min=2, max=2)])),
-        Required('username'):
-        check(("Usernames must be between 3 and 20 characters.",
-               [str, Length(min=3, max=20)]),
-              ("Usernames must be alphanumeric.", [_check_username]),
-              ("This username already exists.",
-               [lambda name: safe_fail(get_user, name=name) is None]),
-              ("This username conflicts with an existing team.",
-               [lambda name: safe_fail(api.team.get_team, name=name) is None]),
-              ("This username is reserved. Please choose another one.",
-               [check_blacklisted_usernames])),
-        Required('password'):
-        check(("Passwords must be between 3 and 20 characters.",
-               [str, Length(min=3, max=20)])),
-        Required('affiliation'):
-        check(("You must specify an affiliation.", [str,
-                                                    Length(min=3, max=50)])),
-        Required('eligibility'):
-        check(("You must specify whether or not your account is eligible.",
-               [str, lambda status: status in ["eligible", "ineligible"]])),
-    },
-    extra=True)
+user_schema = Schema({
+    Required('email'):
+    check(
+        ("Email must be between 5 and 50 characters.",
+         [str, Length(min=5, max=50)]),
+        ("Your email does not look like an email address.",
+         [_check_email_format]),
+    ),
+    Required('firstname'):
+    check(("First Name must be between 1 and 50 characters.",
+           [str, Length(min=1, max=50)])),
+    Required('lastname'):
+    check(("Last Name must be between 1 and 50 characters.",
+           [str, Length(min=1, max=50)])),
+    Required('country'):
+    check(("Please select a country", [str, Length(min=2, max=2)])),
+    Required('username'):
+    check(("Usernames must be between 3 and 20 characters.",
+           [str, Length(min=3, max=20)]),
+          ("Usernames must be alphanumeric.", [_check_username]),
+          ("This username already exists.",
+           [lambda name: safe_fail(get_user, name=name) is None]),
+          ("This username conflicts with an existing team.",
+           [lambda name: safe_fail(api.team.get_team, name=name) is None]),
+          ("This username is reserved. Please choose another one.",
+           [check_blacklisted_usernames])),
+    Required('password'):
+    check(("Passwords must be between 3 and 20 characters.",
+           [str, Length(min=3, max=20)])),
+    Required('affiliation'):
+    check(("You must specify an affiliation.", [str, Length(min=3, max=50)])),
+    Required('eligibility'):
+    check(("You must specify whether or not your account is eligible.",
+           [str, lambda status: status in ["eligible", "ineligible"]])),
+},
+                     extra=True)
 
 # RETIRE: this concept has been moved to team.py in 56a1fca
-new_team_schema = Schema(
-    {
-        Required('team-name-new'):
-        check(("The team name must be between 3 and 40 characters.",
-               [str, Length(min=3, max=40)]),
-              ("A team with that name already exists.",
-               [lambda name: safe_fail(api.team.get_team, name=name) is None])),
-        Required('team-password-new'):
-        check(("Team passphrase must be between 3 and 20 characters.",
-               [str, Length(min=3, max=20)])),
-    },
-    extra=True)
+new_team_schema = Schema({
+    Required('team-name-new'):
+    check(("The team name must be between 3 and 40 characters.",
+           [str, Length(min=3, max=40)]),
+          ("A team with that name already exists.",
+           [lambda name: safe_fail(api.team.get_team, name=name) is None])),
+    Required('team-password-new'):
+    check(("Team passphrase must be between 3 and 20 characters.",
+           [str, Length(min=3, max=20)])),
+},
+                         extra=True)
 
 # RETIRE: this concept has been moved to team.py in 5265701
 existing_team_schema = Schema({

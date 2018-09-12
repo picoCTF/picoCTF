@@ -58,8 +58,8 @@ def login(username, password):
             try:
                 api.email.send_user_verification_email(username)
                 raise WebException(
-                    "This account is not verified. An additional email has been sent to {}.".
-                    format(user["email"]))
+                    "This account is not verified. An additional email has been sent to {}."
+                    .format(user["email"]))
             except InternalException as e:
                 raise WebException(
                     "You have hit the maximum number of verification emails. Please contact support."

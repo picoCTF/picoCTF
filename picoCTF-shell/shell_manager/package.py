@@ -39,12 +39,17 @@ def problem_to_control(problem, debian_path):
     control = deepcopy(DEB_DEFAULTS)
     control.update(
         **{
-            "Package": sanitized_name,
-            "Version": problem.get("version", "1.0-0"),
-            "Architecture": problem.get("architecture", "all"),
-            "Maintainer": problem["author"],
-            "Description": problem.get("pkg_description", problem[
-                "description"].replace('\n', '')) # replace the new lines to prevent a crash
+            "Package":
+            sanitized_name,
+            "Version":
+            problem.get("version", "1.0-0"),
+            "Architecture":
+            problem.get("architecture", "all"),
+            "Maintainer":
+            problem["author"],
+            "Description":
+            problem.get("pkg_description", problem["description"].replace(
+                '\n', ''))  # replace the new lines to prevent a crash
         })
 
     if "pkg_dependencies" in problem:
@@ -162,8 +167,12 @@ def problem_builder(args, config):
     """
 
     if not args.problem_paths:
-        print("usage: shell_manager package [-h] [-s STAGING_DIR] [-o OUT] [-i IGNORE] problem_path")
-        print("shell_manager bundle: error: the following arguments are required: problem_path")
+        print(
+            "usage: shell_manager package [-h] [-s STAGING_DIR] [-o OUT] [-i IGNORE] problem_path"
+        )
+        print(
+            "shell_manager bundle: error: the following arguments are required: problem_path"
+        )
         raise FatalException
 
     # Grab a problem_path

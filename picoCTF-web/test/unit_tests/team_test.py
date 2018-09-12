@@ -110,8 +110,8 @@ class TestTeams(object):
             api.team.join_team(team["team_name"], team["password"], uid)
 
         team_uids = api.team.get_team_uids(tid)
-        assert len(team_uids) == api.config.get_settings()[
-            "max_team_size"], "Team does not have correct number of members"
+        assert len(team_uids) == api.config.get_settings(
+        )["max_team_size"], "Team does not have correct number of members"
         assert sorted(uids) == sorted(
             team_uids), "Team does not have the correct members"
 

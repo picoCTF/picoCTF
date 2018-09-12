@@ -366,20 +366,20 @@ def get_stats():
         get_median_eligible_score()))
     bar()
     print(
-        "Average Number of Problems Solved per Team (eligible, scoring): {0:.3f} +/- {1:.3f}".
-        format(*get_average_problems_solved()))
+        "Average Number of Problems Solved per Team (eligible, scoring): {0:.3f} +/- {1:.3f}"
+        .format(*get_average_problems_solved()))
     print(
         "Median Number of Problems Solved per Team (eligible, scoring): {:.3f}".
         format(get_median_problems_solved()))
     bar()
     user_breakdown = get_team_member_solve_stats()
     print(
-        "Average Number of Problems Solved per User (eligible, user scoring): {0:.3f} +/- {1:.3f}".
-        format(*get_average_problems_solved_per_user(
+        "Average Number of Problems Solved per User (eligible, user scoring): {0:.3f} +/- {1:.3f}"
+        .format(*get_average_problems_solved_per_user(
             user_breakdown=user_breakdown)))
     print(
-        "Median Number of Problems Solved per User (eligible, user scoring): {:.3f}".
-        format(
+        "Median Number of Problems Solved per User (eligible, user scoring): {:.3f}"
+        .format(
             get_median_problems_solved_per_user(user_breakdown=user_breakdown)))
     bar()
     print("Team participation averages:")
@@ -387,8 +387,8 @@ def get_stats():
         user_breakdown=user_breakdown)
     for size in sorted(correct_percent.keys()):
         print(
-            "\tTeam size: {0}\t{1:.3f} submitted a correct answer\t{2:.3f} submitted some answer".
-            format(size, correct_percent[size], any_percent[size]))
+            "\tTeam size: {0}\t{1:.3f} submitted a correct answer\t{2:.3f} submitted some answer"
+            .format(size, correct_percent[size], any_percent[size]))
 
     bar()
     print("User background breakdown:")

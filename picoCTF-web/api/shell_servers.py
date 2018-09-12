@@ -7,31 +7,30 @@ from api.common import (check, InternalException, safe_fail, validate,
                         WebException)
 from voluptuous import Length, Required, Schema
 
-server_schema = Schema(
-    {
-        Required("name"):
-        check(
-            ("Name must be a reasonable string.", [str,
-                                                   Length(min=1, max=128)])),
-        Required("host"):
-        check(
-            ("Host must be a reasonable string", [str,
+server_schema = Schema({
+    Required("name"):
+    check(
+        ("Name must be a reasonable string.", [str, Length(min=1, max=128)])),
+    Required("host"):
+    check(
+        ("Host must be a reasonable string", [str, Length(min=1, max=128)])),
+    Required("port"):
+    check(("You have to supply a valid integer for your port.", [int]),
+          ("Your port number must be in the valid range 1-65535.",
+           [lambda x: 1 <= int(x) and int(x) <= 65535])),
+    Required("username"):
+    check(
+        ("Username must be a reasonable string", [str,
                                                   Length(min=1, max=128)])),
-        Required("port"):
-        check(("You have to supply a valid integer for your port.", [int]),
-              ("Your port number must be in the valid range 1-65535.",
-               [lambda x: 1 <= int(x) and int(x) <= 65535])),
-        Required("username"):
-        check(("Username must be a reasonable string",
-               [str, Length(min=1, max=128)])),
-        Required("password"):
-        check(("Username must be a reasonable string",
-               [str, Length(min=1, max=128)])),
-        Required("protocol"):
-        check(("Protocol must be either HTTP or HTTPS",
-               [lambda x: x in ['HTTP', 'HTTPS']]))
-    },
-    extra=True)
+    Required("password"):
+    check(
+        ("Username must be a reasonable string", [str,
+                                                  Length(min=1, max=128)])),
+    Required("protocol"):
+    check(("Protocol must be either HTTP or HTTPS",
+           [lambda x: x in ['HTTP', 'HTTPS']]))
+},
+                       extra=True)
 
 
 def get_server(sid=None, name=None):
@@ -92,8 +91,8 @@ def ensure_setup(shell):
     shell_manager is set up correctly.
     """
 
-    result = shell.run(
-        ["sudo", "/picoCTF-env/bin/shell_manager", "status"], allow_error=True)
+    result = shell.run(["sudo", "/picoCTF-env/bin/shell_manager", "status"],
+                       allow_error=True)
     if result.return_code == 1 and "command not found" in result.stderr_output.decode(
             "utf-8"):
         raise WebException("shell_manager not installed on server.")
