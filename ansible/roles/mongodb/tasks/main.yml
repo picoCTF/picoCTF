@@ -20,6 +20,8 @@
   when: mongodb_conf_auth
 
 - name: Ensure mongodb is started
-  service: 
+  service:
     name: "{{ mongodb_daemon_name }}"
     state: started
+
+- include: disable_thp.yml

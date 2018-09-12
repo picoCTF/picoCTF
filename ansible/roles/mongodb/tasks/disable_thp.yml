@@ -1,0 +1,21 @@
+---
+# Playbook that configures an init.d script to disable Transparent Hugepages
+# Per https://docs.mongodb.com/manual/tutorial/transparent-huge-pages/
+# and https://github.com/agross/systemd-disable-transparent-huge-pages/
+
+- name: Add disable-transparent-hugepages.service
+  copy:
+    src: disable-transparent-hugepages.service
+    dest: "/etc/systemd/system/disable-transparent-hugepages.service"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Get systemd to pickup disable-transparent-hugepages.service
+  command: systemctl daemon-reload
+
+- name: Ensure disable-transparent-hugepages is enabled and started
+  service:
+    name: disable-transparent-hugepages.service
+    state: started
+    enabled: yes
