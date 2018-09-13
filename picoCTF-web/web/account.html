@@ -10,26 +10,7 @@ startup_functions:
 <div class="container">
   <div class="row">
     <div class="col-md-6">
-      <div class="panel panel-danger">
-        <div class="panel-heading">
-          <h3 class="panel-title">Disable Account</h3>
-          <em>This is permanent action; you can not undo this.</em>
-        </div>
-        <div class="panel-body">
-          <div class="col-md-10 col-md-offset-1">
-            <form role="form" id="disable-account-form">
-              <p>Disabling your account will remove you from the competition. You will not be able to log in once you disable your account. Disabled accounts cannot be re-enabled.</p>
-              <div class="form-group">
-                <label for="current-password" class="control-label">Current Password</label>
-                <input name="current-password" id="current-password-disable" class="form-control" type="password" placeholder="Current Password">
-              </div>
-              <div class="form-group">
-                <button id="disable-account-button" class="btn btn-danger" type="submit">Disable Account</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+      <div id="team-management"></div>
     </div>
     <div class="col-md-6">
       <div class="panel panel-default">
@@ -60,7 +41,27 @@ startup_functions:
       </div>
     </div>
     <div class="col-md-6">
-      <div id="team-management"></div>
+      <div class="panel panel-danger">
+        <div class="panel-heading">
+          <h3 class="panel-title">Disable Account</h3>
+          <em>This is permanent action; you can not undo this.</em>
+        </div>
+        <div class="panel-body">
+          <div class="col-md-10 col-md-offset-1">
+            <form role="form" id="disable-account-form">
+              <p>Disabling your account will remove you from the competition. You will not be able to log in once you disable your account. Disabled accounts cannot be re-enabled.</p>
+              <div class="form-group">
+                <label for="current-password" class="control-label">Current Password</label>
+                <input name="current-password" id="current-password-disable" class="form-control" type="password" placeholder="Current Password">
+              </div>
+              <div class="form-group">
+                <button id="disable-account-button" class="btn btn-danger" type="submit">Disable Account</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
+
   </div>
 </div>
