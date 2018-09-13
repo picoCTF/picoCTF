@@ -56,7 +56,7 @@ TeamManagementForm = React.createClass
         user: $set: api.data
     ).bind this
 
-    apiCall "GET", "/api/team/settings"
+    apiCall "GET", "/api/team"
     .done ((api) ->
       @setState update @state,
         team: $set: api.data
@@ -104,6 +104,10 @@ TeamManagementForm = React.createClass
                 apiNotify resp, "/account"
       )
 
+  listMembers: () ->
+    for member in @state.team["members"]
+      <li>{member.username}</li>
+
 
   render: ->
     if @state.team.max_team_size > 1
@@ -113,8 +117,14 @@ TeamManagementForm = React.createClass
       teamCreated = (@state.user and @state.user.username != @state.user.team_name)
       if teamCreated
         <Panel header="Team Management">
+        <p><strong>Team Name:</strong> {@state.team.team_name}</p>
+        <p><strong>Members</strong> ({@state.team.members.length}/5):</p>
+        <ul>
+          {@listMembers()}
+        </ul>
+
+        <hr/>
           <form onSubmit={@onTeamPasswordChange}>
-            <Input type="text" value={@state.user.team_name} addonBefore={towerGlyph} label="Team Name" readonly/>
             <Input type="password" valueLink={@linkState "team_password"} addonBefore={lockGlyph} label="New Team Password" required/>
             <Input type="password" valueLink={@linkState "confirm_team_password"} addonBefore={lockGlyph} label="Confirm New Team Password" required/>
             <Col md={6}>
