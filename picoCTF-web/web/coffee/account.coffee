@@ -106,7 +106,7 @@ TeamManagementForm = React.createClass
 
 
   render: ->
-    if @state.team.max_team_size > 1
+    if @state.team.max_team_size > 1 and not @state.user.teacher
       towerGlyph = <Glyphicon glyph="tower"/>
       lockGlyph = <Glyphicon glyph="lock"/>
 

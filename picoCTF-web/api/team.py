@@ -143,9 +143,12 @@ def create_new_team_request(params, uid=None):
         True if successful, exception thrown otherwise.
     """
 
+    user = api.user.get_user(uid=uid)
+    if user["teacher"]:
+        raise InternalException("Teachers may not create teams!")
+
     validate(new_team_schema, params)
 
-    user = api.user.get_user(uid=uid)
     current_team = api.team.get_team(tid=user["tid"])
 
     if current_team["team_name"] != user["username"]:
@@ -212,7 +215,8 @@ def get_team_members(tid=None, name=None, show_disabled=True):
             "firstname": 1,
             "lastname": 1,
             "disabled": 1,
-            "email": 1
+            "email": 1,
+            "teacher": 1
         }))
     return [
         user for user in users
@@ -322,6 +326,10 @@ def join_team_request(params):
         team_name
         team_password
     """
+
+    user = api.user.get_user()
+    if user["teacher"]:
+        raise InternalException("Teachers may not join teams!")
 
     validate(join_team_schema, params)
 
@@ -468,3 +476,16 @@ def update_password(tid, password):
     }, {'$set': {
         'password': api.common.hash_password(password)
     }})
+    db.teams.update({'tid': tid}, {'$set': {'password': password}})
+
+
+def is_teacher_team(tid):
+    """
+     Checks if team is a teacher's self-team
+    """
+    team = get_team(tid=tid)
+    members = get_team_members(tid=tid)
+    if team["size"] == 1 and members[0]["username"] == team["team_name"] and members[0]["teacher"]:
+        return True
+    else:
+        return False

@@ -292,19 +292,22 @@ def switch_role(gid, tid, role):
             raise InternalException("Team is already a member of that classroom.")
 
     elif role == "teacher":
-        if roles["member"] and not roles["teacher"]:
-            db.groups.update({
-                "gid": gid
-            }, {
-                "$push": {
-                    "teachers": tid
-                },
-                "$pull": {
-                    "members": tid
-                }
-            })
+        if api.team.is_teacher_team(tid):
+            if roles["member"] and not roles["teacher"]:
+                db.groups.update({
+                    "gid": gid
+                }, {
+                    "$push": {
+                        "teachers": tid
+                    },
+                    "$pull": {
+                        "members": tid
+                    }
+                })
+            else:
+                raise InternalException("User is already a teacher of that classroom.")
         else:
-            raise InternalException("Team is already a teacher of that classroom.")
+            raise InternalException("Only teacher users may become classroom teachers.")
 
     else:
         raise InternalException("Only supported roles are member and teacher.")
