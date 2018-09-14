@@ -14,7 +14,7 @@ String.prototype.hashCode = ->
 
 createGroupSetup = () ->
     formDialogContents = _.template($("#new-group-template").html())({})
-    formDialog formDialogContents, "Create a New Class", "OK", "new-group-name", () ->
+    formDialog formDialogContents, "Create a New Classroom", "OK", "new-group-name", () ->
         createGroup($('#new-group-name').val())
 
 @exportProblemCSV = (groupName, teams) ->

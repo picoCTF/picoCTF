@@ -47,7 +47,7 @@ MemberManagementItem = React.createClass
       switchUser = <Button onClick={@switchUserRole.bind(null, @props.tid, "teacher")}>Make Teacher</Button>
 
     <ListGroupItem>
-      <Row>
+      <Row className="row">
         <Col xs={2}>
           {userButton}
         </Col>
@@ -111,10 +111,10 @@ MemberManagement = React.createClass
         ).bind this}
       </ListGroup>
 
-    <div>
+    <Panel>
       <h4>User Management</h4>
       {memberInformation}
-    </div>
+    </Panel>
 
 GroupManagement = React.createClass
   getInitialState: ->
@@ -165,12 +165,12 @@ GroupManagement = React.createClass
     ).bind this
 
   render: ->
-    <div>
-      <Col xs={6}>
+    <div className="row" style={ "margin-top": "10px"}>
+      <Col sm={6}>
         <MemberManagement teacherInformation={@state.teacher_information} currentUser={@state.current_user}
           memberInformation={@state.member_information} gid={@props.gid} refresh={@refreshSettings}/>
       </Col>
-      <Col xs={6}>
+      <Col sm={6}>
         <GroupOptions pushUpdates={@pushUpdates} settings={@state.settings} gid={@props.gid}/>
       </Col>
     </div>
@@ -182,7 +182,7 @@ GroupOptions = React.createClass
     gid: React.PropTypes.string.isRequired
 
   promptGroupHide: ->
-    window.confirmDialog "Hiding your group from the scoreboard is an irrevocable change. You won't be able to change this later.", "Hidden Group Change",
+    window.confirmDialog "This option will hide all members of this classroom from public or competition scoreboards. This change is irrevocable; you will not be able to change this back later.", "Hidden Classroom Change",
     "Okay", "Cancel", (() ->
       @props.pushUpdates ((data) -> update data, {hidden: {$set: true}})
     ).bind this, () -> false
@@ -190,22 +190,22 @@ GroupOptions = React.createClass
   render: ->
     if @props.settings.hidden
       hiddenGroupDisplay =
-        <p>This group is <b>hidden</b> from the general scoreboard.</p>
+        <p>This classroom is <b>hidden</b> from the general scoreboard.</p>
     else
       hiddenGroupDisplay =
         <p>
-          This group is <b>visible</b> on the scoreboard.
+          This classroom is <b>visible</b> on the scoreboard.
           Click <a href="#" onClick={@promptGroupHide}>here</a> to hide it.
         </p>
 
-    <div>
-      <h4>Group Options</h4>
+    <Panel>
+      <h4>Classroom Options</h4>
       <Panel>
         <form>
           {hiddenGroupDisplay}
         </form>
       </Panel>
-    </div>
+    </Panel>
 
 EmailWhitelistItem = React.createClass
   propTypes:
@@ -289,7 +289,7 @@ TeacherManagement = React.createClass
   render: ->
     <TabbedArea activeKey={@state.tabKey} onSelect={@onTabSelect}>
       {@state.groups.map ((group, i) ->
-        <TabPane eventKey={i} key={i} tab={group.name}>
+        <TabPane eventKey={i} key={i} tab={group.name} className="tab-pane-outline">
           <GroupManagement key={group.name} gid={group.gid}/>
         </TabPane>
       ).bind this}

@@ -1,6 +1,6 @@
 .btn-sq {
-  width: 80px !important;
-  height: 80px !important;
+  max-width: 80px !important;
+  max-height: 80px !important;
   font-size: 48px;
 }
 
