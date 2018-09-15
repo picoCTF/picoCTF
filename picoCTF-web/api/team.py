@@ -429,6 +429,10 @@ def join_team(team_name, password, uid=None):
         api.cache.invalidate_memoization(api.stats.get_score,
                                          {"kwargs.tid": desired_team["tid"]})
 
+        # Update score progression
+        api.cache.invalidate_memoization(api.stats.get_score_progression,
+                                         {"kwargs.tid": desired_team["tid"]})
+
         return True
     else:
         raise InternalException(

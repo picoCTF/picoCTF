@@ -704,13 +704,14 @@ def get_problem(pid=None, name=None, tid=None, show_disabled=True):
     return problem
 
 
-def get_all_problems(category=None, show_disabled=False):
+def get_all_problems(category=None, show_disabled=False, names_only=False):
     """
     Gets all of the problems in the database.
 
     Args:
         category: Optional parameter to restrict which problems are returned
         show_disabled: Boolean indicating whether or not to show disabled problems.
+        names_only: Only return names and categories, used for progression tracking
     Returns:
         List of problems from the database
     """
@@ -724,10 +725,16 @@ def get_all_problems(category=None, show_disabled=False):
     if not show_disabled:
         match.update({'disabled': False})
 
+    # Return all except objectID
+    projection = {"_id": 0}
+
+    # Return only name and category
+    if names_only:
+        projection.update({"name": 1, "category": 1})
+
     return list(
-        db.problems.find(match, {
-            "_id": 0
-        }).sort([('score', pymongo.ASCENDING), ('name', pymongo.ASCENDING)]))
+        db.problems.find(match, projection).sort([('score', pymongo.ASCENDING),
+                                                  ('name', pymongo.ASCENDING)]))
 
 
 @api.cache.memoize()

@@ -22,6 +22,18 @@ def get_visible_problems_hook(category):
     return WebSuccess(data=api.problem.sanitize_problem_data(visible_problems))
 
 
+@blueprint.route('/all', defaults={'category': None}, methods=['GET'])
+@blueprint.route('/all/category/<category>', methods=['GET'])
+@api_wrapper
+@require_login
+@require_teacher
+@block_before_competition(WebError("The competition has not begun yet!"))
+def get_all_problems_hook(category):
+    all_problems = api.problem.get_all_problems(
+        category=category, names_only=True)
+    return WebSuccess(data=api.problem.sanitize_problem_data(all_problems))
+
+
 @blueprint.route('/count', defaults={'category': None}, methods=['GET'])
 @blueprint.route('/count/<category>', methods=['GET'])
 @api_wrapper

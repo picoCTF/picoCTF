@@ -18,7 +18,7 @@ createGroupSetup = () ->
         createGroup($('#new-group-name').val())
 
 @exportProblemCSV = (groupName, teams) ->
-  apiCall "GET", "/api/problems" # was using /api/admin/problems, but doesn't need this privilege
+  apiCall "GET", "/api/problems/all" # New teacher-only route for problem names and categories ONLY
   .done ((resp) ->
     if resp.status == 0
       apiNotify resp
