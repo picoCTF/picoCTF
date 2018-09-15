@@ -181,12 +181,12 @@ post_scripts:
             </div>
           </div>
           <% _.each(_.sortBy(teams, "team_name"), function(team) {
-            member = team.members[0]; %>
+            members = team.members.map(function(member){ return member.username }).join(", ") %>
             <div class="row">
               <div class="col-md-12">
                   <div class="problem panel panel-default">
                     <div class="panel-heading team-visualization-enabler" expanded data-tid="<%= team.tid %>" data-toggle="collapse" data-target="#<%= (groupName+team.tid).hashCode() %>">
-                        <%- team.team_name %> (<%- member.firstname %> <%- member.lastname %>) <div class="pull-right"><%- team.competition_active ? team.score : '' %></div>
+                        <%- team.team_name %> (<%- members %>) <div class="pull-right"><%- team.competition_active ? team.score : '' %></div>
                     </div>
                     <div class="panel-collapse collapse" id="<%= (groupName+team.tid).hashCode() %>">
                       <div class="panel-body">
@@ -247,7 +247,7 @@ post_scripts:
                                   </tbody>
                                 </table>
                               <% } else { %>
-                                <p>User has not solved any problems.</p>
+                                <p>No problems have been solved.</p>
                               <% } %>
                           </div>
                         </div>

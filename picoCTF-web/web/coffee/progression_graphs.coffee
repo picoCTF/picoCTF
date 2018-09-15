@@ -181,7 +181,7 @@ progressionDataToPoints = (data, dataPoints, currentDate = 0) ->
         dataPoints = progressionDataToPoints [data.data], numDataPoints, timedata.data
 
         datasets = [
-            label: userStatus.team_name
+            label: "Score"
             data: dataPoints
             pointBackgroundColor: borderColors[0]
             borderColor: borderColors[0]
@@ -208,9 +208,9 @@ progressionDataToPoints = (data, dataPoints, currentDate = 0) ->
         });
 
       else
-          $(selector).html("<p>You have not solved any enabled problems.</p>")
+          $(selector).html("<p>No problems have been solved.</p>")
     else
-        $(selector).html("<p>You have not solved any enabled problems.</p>")
+        $(selector).html("<p>No problems have been solved.</p>")
 
 @drawTeamProgressionGraph = (selector, container_selector) ->
   apiCall "GET", "/api/stats/team/score_progression", {}
