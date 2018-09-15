@@ -332,6 +332,7 @@ def create_simple_user_request(params):
             eligibility: "eligible" or "ineligible"
             country: 2-digit country code
             affiliation: user's affiliation
+            usertype: "student", "teacher" or other
             demo: arbitrary dict of demographic data
             gid: group registration
             rid: registration id
@@ -359,7 +360,7 @@ def create_simple_user_request(params):
 
         whitelist = group_settings["email_filter"]
 
-    user_is_teacher = False
+    user_is_teacher = params["usertype"] == "teacher"
     user_was_invited = False
 
     if params.get("rid", None):
