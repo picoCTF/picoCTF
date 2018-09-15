@@ -293,7 +293,7 @@ def generate_instance_deployment_directory(username):
 
     directory = username
     if deploy_config.obfuscate_problem_directories:
-        directory = md5(
+        directory = username + "_" + md5(
             (username + deploy_config.deploy_secret).encode()).hexdigest()
 
     root_dir = deploy_config.problem_directory_root
