@@ -97,12 +97,13 @@ def get_groups(tid=None, uid=None):
 
     if uid is not None:
         user = api.user.get_user(uid=uid)
-        admin = api.user.is_admin(uid=user["uid"])
+        # Given potential scale of *all* classrooms, DISABLED
+        # admin = api.user.is_admin(uid=user["uid"])
         tid = user["tid"]
     else:
         tid = api.team.get_team(tid=tid)["tid"]
 
-    # Admins should be able to view all groups.
+    # (DISABLED) Admins should be able to view all groups.
     group_query = {
         "$or": [{
             'owner': tid
