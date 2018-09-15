@@ -232,7 +232,10 @@ def join_group_hook():
     params = api.common.flat_multi(request.form)
     validate(join_group_schema, params)
 
-    owner_team = api.team.get_team(name=params["group-owner"])
+    owner_team = safe_fail(api.team.get_team, name=params["group-owner"])
+
+    if not owner_team:
+        raise WebException("No teacher exists with that name!")
 
     if safe_fail(
             api.group.get_group,
