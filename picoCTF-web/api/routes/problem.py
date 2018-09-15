@@ -30,7 +30,7 @@ def get_visible_problems_hook(category):
 @block_before_competition(WebError("The competition has not begun yet!"))
 def get_all_problems_hook(category):
     all_problems = api.problem.get_all_problems(
-        category=category, names_only=True)
+        category=category, basic_only=True)
     return WebSuccess(data=api.problem.sanitize_problem_data(all_problems))
 
 
