@@ -421,7 +421,7 @@ def submit_key(tid, pid, key, method, uid=None, ip=None):
     db = api.common.get_conn()
     validate(submission_schema, {"tid": tid, "pid": pid, "key": key})
 
-    if pid not in get_unlocked_pids(tid):
+    if pid not in get_unlocked_pids(tid, category=None):
         raise InternalException(
             "You can't submit flags to problems you haven't unlocked.")
 
@@ -688,7 +688,7 @@ def get_problem(pid=None, name=None, tid=None, show_disabled=True):
     else:
         raise InternalException("Must supply pid or display name")
 
-    if tid is not None and pid not in get_unlocked_pids(tid):
+    if tid is not None and pid not in get_unlocked_pids(tid, category=None):
         raise InternalException("You cannot get this problem")
 
     if not show_disabled:

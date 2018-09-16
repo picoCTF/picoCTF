@@ -59,7 +59,7 @@ def get_unlocked_problems_hook():
 @block_before_competition(WebError("The competition has not begun yet!"))
 def get_solved_problems_hook():
     solved_problems = api.problem.get_solved_problems(
-        api.user.get_user()['tid'])
+        tid=api.user.get_user()['tid'])
 
     return WebSuccess(data=api.problem.sanitize_problem_data(solved_problems))
 
@@ -146,7 +146,7 @@ def request_problem_hint_hook():
         return WebError("You have to supply the source of the hint.")
 
     tid = api.user.get_team()["tid"]
-    if pid not in api.problem.get_unlocked_pids(tid):
+    if pid not in api.problem.get_unlocked_pids(tid, category=None):
         return WebError("Your team hasn't unlocked this problem yet!")
 
     hint(pid, source)
