@@ -118,7 +118,7 @@ TeamManagementForm = React.createClass
       if teamCreated
         <Panel header="Team Management">
         <p><strong>Team Name:</strong> {@state.team.team_name}</p>
-        <p><strong>Members</strong> ({@state.team.members.length}/5):</p>
+        <p><strong>Members</strong> ({@state.team.members.length}/{@state.team.max_team_size}):</p>
         <ul>
           {@listMembers()}
         </ul>
