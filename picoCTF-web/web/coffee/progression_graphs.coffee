@@ -166,7 +166,8 @@ progressionDataToPoints = (data, dataPoints, currentDate = 0) ->
 
     chart = new Chart(_.first(canvas).getContext("2d"), {
               type: 'radar',
-              data: radarData
+              data: radarData,
+              options: { scale: { ticks: { beginAtZero: true } } }
             });
   else
     $("<p>Waiting for solved problems.</p>").appendTo div
