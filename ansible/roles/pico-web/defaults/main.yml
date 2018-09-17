@@ -8,6 +8,7 @@ web_code_dir: "{{pico_base_dir}}/picoCTF-web"
 ###
 # picoCTF-web and API configuration
 ###
+web_build_dir:        "/picoCTF-web-build"
 web_config_dir:       "/picoCTF-web-config"
 pico_web_api_dir:     "{{ web_code_dir }}"
 pico_web_js_out_path: "{{ pico_web_api_dir}}/web/js/"

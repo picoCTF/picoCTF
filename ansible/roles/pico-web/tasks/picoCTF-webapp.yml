@@ -25,8 +25,15 @@
 - name: Compile CoffeeScript
   command: "cjsx -bc -o {{ pico_web_js_out_path }} {{ pico_web_coffescript_in_path }}"
 
+# Copy web to another dir before build; this dir should be native on the host
+- name: Synchronize picoCTF-web to a directory on host
+  synchronize:
+    src: "{{ pico_web_api_dir }}/"
+    dest: "{{ web_build_dir }}"
+    delete: yes
+
 - name: Run Jekyll to rebuild new web
-  shell: "cd {{ pico_web_api_dir }}/web && jekyll build"
+  shell: "cd {{ web_build_dir }}/web && jekyll build"
   become: yes
 
 - name: Ensure admin user owns pico web config dir
