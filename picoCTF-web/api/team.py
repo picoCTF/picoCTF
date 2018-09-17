@@ -14,10 +14,10 @@ new_team_schema = Schema(
         check(
             ("The team name must be between 3 and 40 characters.",
              [str, Length(min=3, max=40)]),
+            ("This team name conflicts with an existing user name.",
+             [lambda name: safe_fail(api.user.get_user, name=name) is None]),
             ("A team with that name already exists.",
              [lambda name: safe_fail(api.team.get_team, name=name) is None]),
-            ("A username with that name already exists.",
-             [lambda name: safe_fail(api.user.get_user, name=name) is None]),
         ),
         Required("team_password"):
         check(("Passwords must be between 3 and 20 characters.",
@@ -28,8 +28,12 @@ new_team_schema = Schema(
 join_team_schema = Schema(
     {
         Required("team_name"):
-        check(("The team name must be between 3 and 40 characters.",
-               [str, Length(min=3, max=40)]),),
+        check(
+            ("The team name must be between 3 and 40 characters.",
+               [str, Length(min=3, max=40)]),
+            ("This team name conflicts with an existing user name.",
+             [lambda name: safe_fail(api.user.get_user, name=name) is None]),
+        ),
         Required("team_password"):
         check(("Passwords must be between 3 and 20 characters.",
                [str, Length(min=3, max=20)]))

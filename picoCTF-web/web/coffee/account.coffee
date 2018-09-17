@@ -134,6 +134,7 @@ TeamManagementForm = React.createClass
         </Panel>
       else
         <Panel header="Team Management">
+        <p>To avoid confusion on the scoreboard, you may not create a team that shares the same name as an existing user.</p>
           <form onSubmit={@onTeamJoin}>
             <Input type="text" valueLink={@linkState "team_name"} addonBefore={towerGlyph} label="Team Name" required/>
             <Input type="password" valueLink={@linkState "team_password"} addonBefore={lockGlyph} label="Team Password" required/>
