@@ -63,8 +63,7 @@ def get_server(sid=None, name=None):
 
 def get_connection(sid):
     """
-    Attempts to connect to the given server and
-    returns a connection.
+    Attempts to connect to the given server and returns a connection.
     """
 
     server = get_server(sid)
@@ -90,6 +89,8 @@ def ensure_setup(shell):
     """
     Runs sanity checks on the shell connection to ensure that
     shell_manager is set up correctly.
+
+    Leaves connection open.
     """
 
     result = shell.run(
@@ -192,6 +193,8 @@ def get_problem_status_from_server(sid):
     Connects to the server and checks the status of the problems running there.
     Runs `sudo shell_manager status --json` and parses its output.
 
+    Closes connection after running command.
+
     Args:
         sid: The sid of the server to check
 
@@ -204,9 +207,10 @@ def get_problem_status_from_server(sid):
     shell = get_connection(sid)
     ensure_setup(shell)
 
-    output = shell.run(
-        ["sudo", "/picoCTF-env/bin/shell_manager", "status",
-         "--json"]).output.decode("utf-8")
+    with shell:
+        output = shell.run(
+            ["sudo", "/picoCTF-env/bin/shell_manager", "status",
+             "--json"]).output.decode("utf-8")
     data = json.loads(output)
 
     all_online = True
@@ -229,6 +233,8 @@ def load_problems_from_server(sid):
     Connects to the server and loads the problems from its deployment state.
     Runs `sudo shell_manager publish` and captures its output.
 
+    Closes connection after running command.
+
     Args:
         sid: The sid of the server to load problems from.
 
@@ -238,7 +244,8 @@ def load_problems_from_server(sid):
 
     shell = get_connection(sid)
 
-    result = shell.run(["sudo", "/picoCTF-env/bin/shell_manager", "publish"])
+    with shell:
+        result = shell.run(["sudo", "/picoCTF-env/bin/shell_manager", "publish"])
     data = json.loads(result.output.decode("utf-8"))
 
     # Pass along the server
