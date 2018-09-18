@@ -90,3 +90,70 @@
     owner: root
     group: root
     mode: 0755
+
+- name: Install common apt packages for CTF shell servers
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+  # archive tools
+    - bzip2
+    - gzip
+    - tar
+    - unzip
+    - zip
+  # build tools
+    - build-essential
+    - gdb
+    - perl
+    - python
+    - python3
+    - ruby
+  # common command line tools
+    - dos2unix
+    - gawk
+    - grep
+    - jq
+    - realpath
+    - sed
+    - silversearcher-ag
+  # editors
+    - bvi
+    - emacs-nox
+    - joe
+    - nano
+    - tweak
+    - vim-nox
+  # forensics tools
+    - foremost
+    - scalpel
+    - sleuthkit
+    - testdisk
+  # networking tools
+    - curl
+    - netcat-openbsd
+    - socat
+    - traceroute
+    - wget
+  # terminal multiplexers
+    - screen
+    - tmux
+  # z: misc
+    - expect
+
+- name: Install common pip2 packages for CTF shell servers
+  pip:
+    name: "{{ item }}"
+  with_items:
+    - ipython<6.0 # 6.0 dropped support for Python2
+    - ptpython
+    - pwntools
+
+- name: Install common pip3 packages for CTF shell servers
+  pip:
+    name: "{{ item }}"
+    executable: pip3
+  with_items:
+    - ipython
+    - ptpython
+    - pwntools

@@ -1,8 +1,0 @@
-{
-  "name": "Challenge Sampler Tools",
-  "author": "Alexandre Rebert",
-  "description": "This is a basic set of tools useful for nearly any CTF.",
-  "categories": ["Tools"],
-  "problems": [],
-  "pkg_dependencies": ["gdb", "foremost", "vim-nox", "expect", "tmux", "screen", "unzip", "bvi", "hexedit", "curl", "wget", "scalpel", "ipython"]
-}

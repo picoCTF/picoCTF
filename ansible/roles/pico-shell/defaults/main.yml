@@ -33,8 +33,3 @@ bundles:
     name: "challenge-sampler",
     instances: 2
   }
-  - {
-    source: "{{ pico_base_dir }}/problems/bundles/challenge-sampler-tools.json",
-    name: "challenge-sampler-tools",
-    instances: 1
-  }
