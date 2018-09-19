@@ -29,7 +29,11 @@ server_schema = Schema(
                [str, Length(min=1, max=128)])),
         Required("protocol"):
         check(("Protocol must be either HTTP or HTTPS",
-               [lambda x: x in ['HTTP', 'HTTPS']]))
+               [lambda x: x in ['HTTP', 'HTTPS']])),
+        "server_number":
+        check(("Server number must be an integer.", [int]),
+              ("Server number must be a valid integer.",
+              [lambda x: 0 < int(x)])),
     },
     extra=True)
 
@@ -59,6 +63,21 @@ def get_server(sid=None, name=None):
             "Server with sid '{}' does not exist".format(sid))
 
     return server
+
+
+def get_server_number(sid):
+    """
+    Gets the server_number designation
+    """
+    if sid is None:
+        raise InternalException("You must specify a sid")
+
+    server = get_server(sid=sid)
+    if server is None:
+        raise InternalException(
+            "Server with sid '{}' does not exist".format(sid))
+
+    return server["server_number"]
 
 
 def get_connection(sid):
@@ -102,7 +121,9 @@ def ensure_setup(shell):
 
 def add_server(params):
     """
-    Add a shell server to the pool of servers.
+    Add a shell server to the pool of servers. First server is
+    automatically assigned server_number 1 (yes, 1-based numbering)
+    if not otherwise specified.
 
     Args:
         params: A dict containing:
@@ -110,6 +131,7 @@ def add_server(params):
             port
             username
             password
+            server_number
     Returns:
        The sid.
     """
@@ -125,6 +147,11 @@ def add_server(params):
         raise WebException("Shell server with this name already exists")
 
     params["sid"] = api.common.hash(params["name"])
+
+    # Automatically set first added server as server_number 1
+    if db.shell_servers.count() == 0:
+        params["server_number"] = params.get("server_number", 1)
+
     db.shell_servers.insert(params)
 
     return params["sid"]
@@ -141,6 +168,7 @@ def update_server(sid, params):
             port
             username
             password
+            server_number
     """
 
     db = api.common.get_conn()
@@ -179,13 +207,20 @@ def remove_server(sid):
     db.shell_servers.remove({"sid": sid})
 
 
-def get_servers():
+def get_servers(get_all=False):
     """
-    Returns the list of added shell servers.
+    Returns the list of added shell servers, or the assigned shell server
+    shard if sharding is enabled
     """
 
     db = api.common.get_conn()
-    return list(db.shell_servers.find({}, {"_id": 0}))
+
+    settings = api.config.get_settings()
+    match = {}
+    if not get_all and settings["shell_servers"]["enable_sharding"]:
+        server_number = api.team.get_team()["server_assignment"]
+        match = {"server_number": server_number}
+    return list(db.shell_servers.find(match, {"_id": 0}))
 
 
 def get_problem_status_from_server(sid):
@@ -255,3 +290,39 @@ def load_problems_from_server(sid):
 
     has_instances = lambda p: len(p["instances"]) > 0
     return len(list(filter(has_instances, data["problems"])))
+
+
+def assign_server_number():
+    """
+    Assigns a server number based on current teams count and
+    configured stepping
+
+    Returns:
+         (int) server_number
+    """
+    settings = api.config.get_settings()["shell_servers"]
+    db = api.common.get_conn()
+
+    team_count = db.teams.count()
+    assigned_number = 1
+
+    steps = settings["steps"]
+
+    if steps:
+        if team_count < steps[-1]:
+            for i, step in enumerate(steps):
+                if team_count < step:
+                    assigned_number = i + 1
+                    break
+        else:
+            assigned_number = 1 + len(steps) + (
+                team_count - steps[-1]) // settings["default_stepping"]
+
+    else:
+        assigned_number = team_count // settings["default_stepping"] + 1
+
+    return assigned_number
+
+    # Limit server assignment to range of existing servers?
+    #max_number = db.shell_servers.find({}, {"server_number": 1}).sort({"server_number": -1}).limit(1)
+    #return min(max_number, assigned_number)

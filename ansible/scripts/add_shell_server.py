@@ -11,7 +11,7 @@ import sys
 import api
 
 
-def main(name, host, user, password, port, protocol):
+def main(name, host, user, password, port, proto):
     try:
         # If a server by this name exists no action necessary
         api.shell_servers.get_server(name=name)
@@ -23,7 +23,8 @@ def main(name, host, user, password, port, protocol):
                 "port": port,
                 "username": user,
                 "password": password,
-                "protocol": proto
+                "protocol": proto,
+                "server_number": 1
             })
         except Exception as e:
             print(e)

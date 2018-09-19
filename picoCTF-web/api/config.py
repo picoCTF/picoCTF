@@ -154,6 +154,13 @@ default_settings = {
     "logging": {
         "admin_emails": ["ben@example.com", "joe@example.com"],
         "critical_error_timeout": 600
+    },
+
+    # SHELL SERVERS
+    "shell_servers": {
+        "enable_sharding": False,
+        "default_stepping": 5000,
+        "steps": [7500, 12500, 17500],
     }
 }
 """ Helper functions to get settings. Do not change these """

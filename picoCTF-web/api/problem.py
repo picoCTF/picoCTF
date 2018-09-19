@@ -142,10 +142,16 @@ def set_instance_ids(problem, sid):
     Generate the instance ids for a set of problems.
     """
 
+    settings = api.config.get_settings()
+    if settings["shell_servers"]["enable_sharding"]:
+        server_number = api.shell_servers.get_server_number(sid)
+
     for instance in problem["instances"]:
         instance["iid"] = api.common.hash(
             str(instance["instance_number"]) + sid + problem["pid"])
         instance["sid"] = sid
+        if settings["shell_servers"]["enable_sharding"]:
+            instance["server_number"] = server_number
 
 
 def insert_problem(problem, sid=None):
@@ -296,17 +302,30 @@ def assign_instance_to_team(pid, tid=None, reassign=False):
     team = api.team.get_team(tid=tid)
     problem = get_problem(pid=pid)
 
+    available_instances = problem["instances"]
+
+    settings = api.config.get_settings()
+    if settings["shell_servers"]["enable_sharding"]:
+        available_instances = list(
+            filter(lambda i: i["server_number"] == team["server_number"],
+                   problem["instances"]))
+
     if pid in team["instances"] and not reassign:
         raise InternalException(
             "Team with tid {} already has an instance of pid {}.".format(
                 tid, pid))
 
-    if len(problem["instances"]) == 0:
-        raise InternalException(
-            "Problem {} has no instances to assign.".format(pid))
+    if len(available_instances) == 0:
+        if settings["shell_servers"]["enable_sharding"]:
+            raise InternalException(
+                "Your assigned shell server is currently down. Please contact an admin."
+            )
+        else:
+            raise InternalException(
+                "Problem {} has no instances to assign.".format(pid))
 
-    instance_number = randint(0, len(problem["instances"]) - 1)
-    iid = problem["instances"][instance_number]["iid"]
+    instance_number = randint(0, len(available_instances) - 1)
+    iid = available_instances[instance_number]["iid"]
 
     team["instances"][pid] = iid
 
