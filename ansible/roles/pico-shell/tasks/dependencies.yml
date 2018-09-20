@@ -129,6 +129,7 @@
     - scalpel
     - sleuthkit
     - testdisk
+    - tshark
   # networking tools
     - curl
     - netcat-openbsd
