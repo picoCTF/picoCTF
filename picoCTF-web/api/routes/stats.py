@@ -79,3 +79,9 @@ def get_group_top_teams_score_progressions_hook():
     gid = request.args.get("gid", None)
     return WebSuccess(
         data=api.stats.get_top_teams_score_progressions(gid=gid, eligible=True))
+
+
+@blueprint.route('/registration', methods=['GET'])
+@api_wrapper
+def get_registration_count_hook():
+    return WebSuccess(data=api.stats.get_registration_count())

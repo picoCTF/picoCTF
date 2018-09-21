@@ -716,3 +716,13 @@ def print_review_comments():
             print("----------")
             for comment in comments:
                 print("'%s'" % comment)
+
+
+@api.cache.memoize()
+def get_registration_count():
+    db = api.common.get_conn()
+    stats = {
+        "users": db.users.count(),
+        "teams": db.teams.count()
+    }
+    return stats
