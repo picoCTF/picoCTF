@@ -142,16 +142,15 @@ def set_instance_ids(problem, sid):
     Generate the instance ids for a set of problems.
     """
 
-    settings = api.config.get_settings()
-    if settings["shell_servers"]["enable_sharding"]:
-        server_number = api.shell_servers.get_server_number(sid)
+    server_number = api.shell_servers.get_server_number(sid)
 
     for instance in problem["instances"]:
         instance["iid"] = api.common.hash(
             str(instance["instance_number"]) + sid + problem["pid"])
         instance["sid"] = sid
-        if settings["shell_servers"]["enable_sharding"]:
+        if server_number:
             instance["server_number"] = server_number
+
 
 
 def insert_problem(problem, sid=None):
