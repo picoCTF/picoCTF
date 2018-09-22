@@ -723,6 +723,7 @@ def get_registration_count():
     db = api.common.get_conn()
     stats = {
         "users": db.users.count(),
-        "teams": db.teams.count()
+        "teams": db.teams.count(),
+        "groups": db.groups.count()
     }
     return stats
