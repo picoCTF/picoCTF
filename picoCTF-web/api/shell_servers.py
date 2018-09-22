@@ -32,8 +32,8 @@ server_schema = Schema(
                [lambda x: x in ['HTTP', 'HTTPS']])),
         "server_number":
         check(("Server number must be an integer.", [int]),
-              ("Server number must be a valid integer.",
-              [lambda x: 0 < int(x)])),
+              ("Server number must be a positive integer.",
+               [lambda x: 0 < int(x)])),
     },
     extra=True)
 
@@ -142,6 +142,8 @@ def add_server(params):
 
     if isinstance(params["port"], str):
         params["port"] = int(params["port"])
+    if isinstance(params.get("server_number"), str):
+        params["server_number"] = int(params["server_number"])
 
     if safe_fail(get_server, name=params["name"]) is not None:
         raise WebException("Shell server with this name already exists")
@@ -186,6 +188,8 @@ def update_server(sid, params):
 
     if isinstance(params["port"], str):
         params["port"] = int(params["port"])
+    if isinstance(params.get("server_number"), str):
+        params["server_number"] = int(params["server_number"])
 
     db.shell_servers.update({"sid": server["sid"]}, {"$set": params})
 
