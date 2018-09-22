@@ -192,7 +192,8 @@ def create_team(params):
 
     settings = api.config.get_settings()
     if settings["shell_servers"]["enable_sharding"]:
-        params['server_number'] = api.shell_servers.assign_server_number()
+        params['server_number'] = api.shell_servers.assign_server_number(
+            new_team=True)
 
     db.teams.insert(params)
 

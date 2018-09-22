@@ -296,7 +296,7 @@ def load_problems_from_server(sid):
     return len(list(filter(has_instances, data["problems"])))
 
 
-def assign_server_number():
+def assign_server_number(new_team=True, tid=None):
     """
     Assigns a server number based on current teams count and
     configured stepping
@@ -307,7 +307,16 @@ def assign_server_number():
     settings = api.config.get_settings()["shell_servers"]
     db = api.common.get_conn()
 
-    team_count = db.teams.count()
+    if new_team:
+        team_count = db.teams.count()
+    else:
+        if not tid:
+            raise InternalException("tid must be specified.")
+        oid = db.teams.find_one({"tid": tid}, {"_id": 1})
+        if not oid:
+            raise InternalException("Invalid tid.")
+        team_count = db.teams.count({"_id": {"$lt": oid["_id"]}})
+
     assigned_number = 1
 
     steps = settings["steps"]
