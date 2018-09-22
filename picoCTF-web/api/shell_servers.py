@@ -67,7 +67,7 @@ def get_server(sid=None, name=None):
 
 def get_server_number(sid):
     """
-    Gets the server_number designation
+    Gets the server_number designation from sid
     """
     if sid is None:
         raise InternalException("You must specify a sid")
@@ -77,7 +77,7 @@ def get_server_number(sid):
         raise InternalException(
             "Server with sid '{}' does not exist".format(sid))
 
-    return server["server_number"]
+    return server.get("server_number")
 
 
 def get_connection(sid):
@@ -214,7 +214,7 @@ def remove_server(sid):
 def get_servers(get_all=False):
     """
     Returns the list of added shell servers, or the assigned shell server
-    shard if sharding is enabled
+    shard if sharding is enabled. Defaults to server 1 if not assigned
     """
 
     db = api.common.get_conn()
@@ -222,8 +222,8 @@ def get_servers(get_all=False):
     settings = api.config.get_settings()
     match = {}
     if not get_all and settings["shell_servers"]["enable_sharding"]:
-        server_number = api.team.get_team()["server_number"]
-        match = {"server_number": server_number}
+        team = api.team.get_team()
+        match = {"server_number": team.get("server_number", 1)}
     return list(db.shell_servers.find(match, {"_id": 0}))
 
 

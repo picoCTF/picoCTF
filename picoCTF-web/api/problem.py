@@ -307,7 +307,7 @@ def assign_instance_to_team(pid, tid=None, reassign=False):
     settings = api.config.get_settings()
     if settings["shell_servers"]["enable_sharding"]:
         available_instances = list(
-            filter(lambda i: i["server_number"] == team["server_number"],
+            filter(lambda i: i.get("server_number") == team.get("server_number", 1),
                    problem["instances"]))
 
     if pid in team["instances"] and not reassign:
