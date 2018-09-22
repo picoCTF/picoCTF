@@ -218,7 +218,7 @@ def get_servers(get_all=False):
     settings = api.config.get_settings()
     match = {}
     if not get_all and settings["shell_servers"]["enable_sharding"]:
-        server_number = api.team.get_team()["server_assignment"]
+        server_number = api.team.get_team()["server_number"]
         match = {"server_number": server_number}
     return list(db.shell_servers.find(match, {"_id": 0}))
 
