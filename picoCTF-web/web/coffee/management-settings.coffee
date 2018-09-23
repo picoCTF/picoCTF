@@ -224,6 +224,76 @@ EmailTab = React.createClass
       </Row>
     </Well>
 
+ShardingTab = React.createClass
+  propTypes:
+    refresh: React.PropTypes.func.isRequired
+    shardingSettings: React.PropTypes.object.isRequired
+
+  getInitialState: ->
+    settings = @props.shardingSettings
+
+  updateSteps: (e) ->
+    @setState update @state,
+      $set:
+        steps: e.target.value.replace(/, +/g, ",").split(',').map(Number)
+
+  updateDefaultStepping: (e) ->
+    @setState update @state,
+      $set:
+        default_stepping: parseInt(e.target.value)
+
+  toggleSharding: ->
+    @setState update @state,
+      $set:
+        enable_sharding: !@state.enable_sharding
+
+  toggleLimitRange: ->
+    @setState update @state,
+      $set:
+        limit_added_range: !@state.limit_added_range
+
+  pushUpdates: (makeChange) ->
+    pushData =
+      shell_servers:
+        enable_sharding: @state.enable_sharding
+        default_stepping: @state.default_stepping
+        steps: @state.steps
+        limit_added_range: @state.limit_added_range
+
+    if typeof(makeChange) == "function"
+      pushData = makeChange pushData
+
+    apiCall "POST", "/api/admin/settings/change", {json: JSON.stringify(pushData)}
+    .done ((data) ->
+      apiNotify data
+      @props.refresh()
+    ).bind(this)
+
+  render: ->
+    shardingDescription = "Sharding splits teams to different shell_servers based on stepping"
+    defaultSteppingDescription = "Default stepping, applied after defined steps"
+    stepsDescription = "Comma delimited list of stepping (e.g. '1000,1500,2000')"
+    limitRangeDescription = "Sharding splits teams to different shell_servers based on stepping"
+
+    <Well>
+      <Row>
+        <Col sm={8}>
+          <BooleanEntry name="Enable Sharding" value={@state.enable_sharding} onChange=@toggleSharding description={shardingDescription}/>
+          <TextEntry name="Defined Steps" value={@state.steps} type="text" onChange=@updateSteps description={stepsDescription}/>
+          <TextEntry name="Default Stepping" value={@state.default_stepping} type="text" onChange=@updateDefaultStepping description={defaultSteppingDescription}/>
+          <BooleanEntry name="Limit to Added Range" value={@state.limit_added_range} onChange=@toggleLimitRange description={limitRangeDescription}/>
+          <Row>
+            <div className="text-center">
+              <ButtonToolbar>
+                <Button onClick={@pushUpdates}>Update</Button>
+              </ButtonToolbar>
+            </div>
+          </Row>
+        </Col>
+      </Row>
+    </Well>
+
+
 SettingsTab = React.createClass
   getInitialState: ->
     settings:
@@ -246,6 +316,11 @@ SettingsTab = React.createClass
       logging:
         admin_emails: []
       email_filter: []
+      shell_servers:
+        enable_sharding: false
+        default_stepping: 1
+        steps: ""
+        limit_added_range: false
 
     tabKey: "general"
 
@@ -282,6 +357,11 @@ SettingsTab = React.createClass
           <TabPane eventKey='general' tab='General'>
             <GeneralTab refresh=@refresh settings={generalSettings} key={Math.random()}/>
           </TabPane>
+
+          <TabPane eventKey='sharding' tab='Sharding'>
+            <ShardingTab refresh={@refresh} shardingSettings={@state.settings.shell_servers} key={Math.random()}/>
+          </TabPane>
+
           <TabPane eventKey='email' tab='Email'>
             <EmailTab refresh={@refresh} emailSettings={@state.settings.email} emailFilterSettings={@state.settings.email_filter}
               loggingSettings={@state.settings.logging} key={Math.random()}/>
