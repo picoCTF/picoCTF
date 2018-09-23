@@ -269,11 +269,29 @@ ShardingTab = React.createClass
       @props.refresh()
     ).bind(this)
 
+  assignServerNumbers: ->
+    confirmDialog("This will assign server_numbers to all unassigned teams. This may include teams previously defaulted to server_number 1 and already given problem instances!", "Assign Server Numbers Confirmation", "Assign Server Numbers", "Cancel",
+    () ->
+      apiCall "POST", "/api/admin/shell_servers/reassign_teams", {}
+      .done (data) ->
+        apiNotify data
+    , () ->
+    )
+
+  reassignServerNumbers: ->
+    confirmDialog("This will reassign all teams. Problem instances will be randomized for any teams that change servers!", "Reassign Server Numbers Confirmation", "Reassign Server Numbers", "Cancel",
+    () ->
+      apiCall "POST", "/api/admin/shell_servers/reassign_teams", {"include_assigned": "True"}
+      .done (data) ->
+        apiNotify data
+    , () ->
+    )
+
   render: ->
     shardingDescription = "Sharding splits teams to different shell_servers based on stepping"
     defaultSteppingDescription = "Default stepping, applied after defined steps"
     stepsDescription = "Comma delimited list of stepping (e.g. '1000,1500,2000')"
-    limitRangeDescription = "Sharding splits teams to different shell_servers based on stepping"
+    limitRangeDescription = "Limit assignments to the highest added server_number"
 
     <Well>
       <Row>
@@ -282,6 +300,7 @@ ShardingTab = React.createClass
           <TextEntry name="Defined Steps" value={@state.steps} type="text" onChange=@updateSteps description={stepsDescription}/>
           <TextEntry name="Default Stepping" value={@state.default_stepping} type="text" onChange=@updateDefaultStepping description={defaultSteppingDescription}/>
           <BooleanEntry name="Limit to Added Range" value={@state.limit_added_range} onChange=@toggleLimitRange description={limitRangeDescription}/>
+          <br/><Button onClick={@assignServerNumbers}>Assign Server Numbers</Button> &nbsp; <Button onClick={@reassignServerNumbers}>Reassign All Server Numbers</Button><br/><br/>
           <Row>
             <div className="text-center">
               <ButtonToolbar>

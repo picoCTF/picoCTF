@@ -168,15 +168,14 @@ def reassign_teams_hook():
         return WebError(
             "Enable sharding first before assigning server numbers.")
     else:
-        include_assigned = request.form.get("include_assigned", None)
-        if include_assigned is None:
-            return WebError(
-                "You must specify whether to reassigned already-assigned teams."
-            )
+        include_assigned = request.form.get("include_assigned", False)
+        count = api.shell_servers.reassign_teams(
+            include_assigned=include_assigned)
+        if include_assigned:
+            action = "reassigned."
         else:
-            count = api.shell_servers.reassign_teams(
-                include_assigned=include_assigned)
-            return WebSuccess(str(count) + " teams reassigned.")
+            action = "assigned."
+        return WebSuccess(str(count) + " teams " + action)
 
 
 @blueprint.route("/bundle/dependencies_active", methods=["POST"])
