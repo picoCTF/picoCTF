@@ -161,6 +161,7 @@ default_settings = {
         "enable_sharding": False,
         "default_stepping": 5000,
         "steps": [7500, 12500, 17500],
+        "limit_added_range": False,
     }
 }
 """ Helper functions to get settings. Do not change these """

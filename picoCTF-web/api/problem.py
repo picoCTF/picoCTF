@@ -148,9 +148,8 @@ def set_instance_ids(problem, sid):
         instance["iid"] = api.common.hash(
             str(instance["instance_number"]) + sid + problem["pid"])
         instance["sid"] = sid
-        if server_number:
+        if server_number is not None:
             instance["server_number"] = server_number
-
 
 
 def insert_problem(problem, sid=None):

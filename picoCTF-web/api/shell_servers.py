@@ -296,7 +296,7 @@ def load_problems_from_server(sid):
     return len(list(filter(has_instances, data["problems"])))
 
 
-def assign_server_number(new_team=True, tid=None):
+def get_assigned_server_number(new_team=True, tid=None):
     """
     Assigns a server number based on current teams count and
     configured stepping
@@ -334,8 +334,39 @@ def assign_server_number(new_team=True, tid=None):
     else:
         assigned_number = team_count // settings["default_stepping"] + 1
 
-    return assigned_number
+    if settings["limit_added_range"]:
+        max_number = list(
+            db.shell_servers.find({}, {
+                "server_number": 1
+            }).sort("server_number", -1).limit(1))[0]["server_number"]
+        return min(max_number, assigned_number)
+    else:
+        return assigned_number
 
-    # Limit server assignment to range of existing servers?
-    #max_number = db.shell_servers.find({}, {"server_number": 1}).sort({"server_number": -1}).limit(1)
-    #return min(max_number, assigned_number)
+
+def reassign_teams(include_assigned=False):
+    db = api.common.get_conn()
+
+    if include_assigned:
+        teams = api.team.get_all_teams(show_ineligible=True)
+    else:
+        teams = list(
+            db.teams.find({
+                "server_number": {
+                    "$exists": False
+                }
+            }, {
+                "_id": 0,
+                "tid": 1
+            }))
+
+    for team in teams:
+        server_number = get_assigned_server_number(
+            new_team=False, tid=team["tid"])
+        db.teams.update({
+            'tid': team["tid"]
+        }, {'$set': {
+            'server_number': server_number
+        }})
+
+    return len(teams)

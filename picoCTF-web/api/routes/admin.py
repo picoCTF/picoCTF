@@ -160,6 +160,25 @@ def check_status_of_shell_server():
             data=data)
 
 
+@blueprint.route("/shell_servers/reassign_teams", methods=['POST'])
+@api_wrapper
+@require_admin
+def reassign_teams_hook():
+    if not api.config.get_settings()["shell_servers"]["enable_sharding"]:
+        return WebError(
+            "Enable sharding first before assigning server numbers.")
+    else:
+        include_assigned = request.form.get("include_assigned", None)
+        if include_assigned is None:
+            return WebError(
+                "You must specify whether to reassigned already-assigned teams."
+            )
+        else:
+            count = api.shell_servers.reassign_teams(
+                include_assigned=include_assigned)
+            return WebSuccess(str(count) + " teams reassigned.")
+
+
 @blueprint.route("/bundle/dependencies_active", methods=["POST"])
 @api_wrapper
 @require_admin
