@@ -363,10 +363,14 @@ def reassign_teams(include_assigned=False):
     for team in teams:
         server_number = get_assigned_server_number(
             new_team=False, tid=team["tid"])
+        # Set server_number and clear instances
         db.teams.update({
             'tid': team["tid"]
         }, {'$set': {
-            'server_number': server_number
+            'server_number': server_number,
+            'instances': {}
         }})
+        # Re-assign instances
+        safe_fail(api.problem.get_visible_problems, team["tid"])
 
     return len(teams)
