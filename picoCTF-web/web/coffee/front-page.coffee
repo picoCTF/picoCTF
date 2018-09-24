@@ -289,10 +289,12 @@ AuthPanel = React.createClass
     showRegStats = (()->
       if @state.regStats
         <Panel>
-          <h4><strong>Registration Stats</strong></h4>
-          <p><strong>{@state.regStats.users}</strong> users registered. <strong>{@state.regStats.teamed_users}</strong> users have
-              joined <strong>{@state.regStats.teams}</strong> teams. <strong>{@state.regStats.groups}</strong> classrooms have been
-              created.</p>
+          <h4><strong>Registration Statistics</strong></h4>
+          <p>
+            <strong>{@state.regStats.users}</strong> users have registered, <strong>{@state.regStats.teamed_users}</strong> of
+            which have formed <strong>{@state.regStats.teams}</strong> teams.<br />
+            <strong>{@state.regStats.groups}</strong> classrooms have been created by teachers.
+          </p>
         </Panel>
     ).bind this
 
