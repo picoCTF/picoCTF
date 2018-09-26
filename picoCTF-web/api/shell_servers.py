@@ -224,7 +224,15 @@ def get_servers(get_all=False):
     if not get_all and settings["shell_servers"]["enable_sharding"]:
         team = api.team.get_team()
         match = {"server_number": team.get("server_number", 1)}
-    return list(db.shell_servers.find(match, {"_id": 0}))
+
+    servers = list(db.shell_servers.find(match, {"_id": 0}))
+
+    if len(servers) == 0 and settings["shell_servers"]["enable_sharding"]:
+        raise InternalException(
+            "Your assigned shell server is currently down. Please contact an admin."
+        )
+
+    return servers
 
 
 def get_problem_status_from_server(sid):
