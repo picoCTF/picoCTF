@@ -358,7 +358,7 @@ LoginForm = React.createClass
               <Input type="text" name="url" disabled={showOrHide( 'disabled', 'url')} id="url" valueLink={@props.url} label="School URL (optional)" placeholder="School URL"/>
             </Col>
             <Col md={6} className={showOrHide('class', 'grade')}>
-              <Input type="number" min="1" max="12" name="grade" disabled={showOrHide('disabled','grade')} id="grade" valueLink={@props.grade} label="Your Current grade/year *" placeholder="Your Current grade/year" required/>
+              <Input type="number" min="1" max="12" name="grade" disabled={showOrHide('disabled','grade')} id="grade" valueLink={@props.grade} label="Your Current Grade/Year (1-12) *" placeholder="Your Current Grade/Year" required/>
             </Col>
           </Row>
           <Row>

@@ -412,3 +412,7 @@ img.logo-landscape {
 .glyphicon-thumbs-down.active {
     color:red;
 }
+
+.capitalize {
+  text-transform: capitalize;
+}

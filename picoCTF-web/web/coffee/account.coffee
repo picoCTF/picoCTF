@@ -106,8 +106,7 @@ TeamManagementForm = React.createClass
 
   listMembers: () ->
     for member in @state.team["members"]
-      <li>{member.username}</li>
-
+      <li>{member.username} (<span className="capitalize">{member.usertype} - {member.country}</span>)</li>
 
   render: ->
     if @state.team.max_team_size > 1 and not @state.user.teacher

@@ -90,33 +90,39 @@ def get_group_average_score(gid=None, name=None):
 
 # Stored by the cache_stats daemon
 @api.cache.memoize()
-def get_all_team_scores(eligible=None):
+def get_all_team_scores(eligible=None, country=None, show_ineligible=False):
     """
     Gets the score for every team in the database.
 
     Args:
         eligible: required boolean field
+        show_ineligible: ignore eligibility, show all
+        country: optional restriction by country
 
     Returns:
         A list of dictionaries with name and score
     """
 
-    if eligible is None:
-        raise InternalException("Eligible must be set to either true or false")
-
-    if eligible:
-        teams = api.team.get_all_teams(eligible=True, ineligible=False)
+    if show_ineligible:
+        teams = api.team.get_all_teams(show_ineligible=True)
     else:
-        teams = api.team.get_all_teams(eligible=False, ineligible=True)
+        if eligible is None:
+            raise InternalException("Eligible must be set to either true or false")
+
+        if eligible:
+            teams = api.team.get_all_teams(eligible=True, country=country, ineligible=False)
+        else:
+            teams = api.team.get_all_teams(eligible=False, country=country, ineligible=True)
 
     db = api.api.common.get_conn()
 
     result = []
+    all_groups = api.group.get_all_groups()
     for team in teams:
         # Get the full version of the group.
         groups = [
-            api.group.get_group(group["gid"])
-            for group in api.team.get_groups(tid=team["tid"])
+            group for group in all_groups if team["tid"] in group["members"] or
+            team["tid"] in group["teachers"] or team["tid"] == group["owner"]
         ]
 
         # Determine if the user is exclusively a member of hidden groups.
@@ -125,7 +131,7 @@ def get_all_team_scores(eligible=None):
             [not (group["settings"]["hidden"]) for group in groups]):
             team_query = db.submissions.find({
                 'tid': team['tid'],
-                'eligible': eligible,
+                #'eligible': eligible,
                 'correct': True
             })
             if team_query.count() > 0:
@@ -140,14 +146,14 @@ def get_all_team_scores(eligible=None):
                     "tid": team['tid'],
                     "score": score,
                     "affiliation": team["affiliation"],
-                    "eligible": team["eligible"],
+                    #"eligible": team["eligible"],
                     "lastsubmit": lastsubmit
                 })
     time_ordered = sorted(result, key=lambda entry: entry['lastsubmit'])
     time_ordered_time_removed = [{
         'name': x['name'],
-        'eligible': x['eligible'],
-        'tid': x['tid'],
+        #'eligible': x['eligible'],
+        #'tid': x['tid'],
         'score': x['score'],
         'affiliation': x['affiliation']
     } for x in time_ordered]
@@ -287,7 +293,7 @@ def get_score_progression(tid=None, uid=None, category=None):
     return result
 
 
-def get_top_teams(gid=None, eligible=None):
+def get_top_teams(gid=None, eligible=None, country=None, show_ineligible=False):
     """
     Finds the top teams
 
@@ -303,7 +309,7 @@ def get_top_teams(gid=None, eligible=None):
         if eligible is None:
             raise InternalException(
                 "Eligible must be set to either true or false")
-        all_teams = api.stats.get_all_team_scores(eligible=eligible)
+        all_teams = api.stats.get_all_team_scores(eligible=eligible, country=country, show_ineligible=show_ineligible)
     else:
         all_teams = api.stats.get_group_scores(gid=gid)
     return all_teams if len(all_teams) < top_teams else all_teams[:top_teams]
@@ -333,12 +339,15 @@ def get_problem_solves(name=None, pid=None):
 
 
 @api.cache.memoize()
-def get_top_teams_score_progressions(gid=None, eligible=True):
+def get_top_teams_score_progressions(gid=None, eligible=True, country=None, show_ineligible=False):
     """
     Gets the score_progressions for the top teams
 
     Args:
         gid: If specified, compute the progressions for the top teams from this group only
+        country: If specified, limit teams by country
+        eligible: If specified, limit teams to eligible ones
+        show_ineligible: if specified, show all teams, eligible and eligible
 
     Returns:
         The top teams and their score progressions.
@@ -349,7 +358,7 @@ def get_top_teams_score_progressions(gid=None, eligible=True):
         "name": team["name"],
         "affiliation": team["affiliation"],
         "score_progression": get_score_progression(tid=team["tid"]),
-    } for team in get_top_teams(gid=gid, eligible=eligible)]
+    } for team in get_top_teams(gid=gid, eligible=eligible, country=country, show_ineligible=show_ineligible)]
 
 
 # Custom statistics not necessarily to be served publicly
@@ -721,18 +730,19 @@ def print_review_comments():
 @api.cache.memoize()
 def get_registration_count():
     db = api.common.get_conn()
-    users = db.users.count();
+    users = db.users.count()
     stats = {
         "users": users,
         "teams": db.teams.count() - users,
         "groups": db.groups.count()
     }
-    all_users = api.user.get_all_users()
-    teamed_users = 0
-    for user in all_users:
-        real_team = db.teams.count({"tid": user["tid"], "team_name": {"$ne": user["username"]}})
-        if real_team:
-            teamed_users += 1
+    usernames = set(db.users.find({}).distinct("username"))
+    team_names = set(db.teams.find({}).distinct("team_name"))
+
+    real_team_names = team_names - usernames
+    real_team_ids = list(db.teams.find({"team_name": {"$in": list(real_team_names)}}).distinct("tid"))
+
+    teamed_users = db.users.count({"tid": {"$in": real_team_ids}})
     stats["teamed_users"] = teamed_users
 
     return stats

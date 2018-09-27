@@ -145,11 +145,11 @@ progressionDataToPoints = (data, dataPoints, currentDate = 0) ->
               options: scoreboardChartSettings
           });
 
-  if gid == "public"
+  if gid == "student"
     apiCall "GET", "/api/stats/top_teams/score_progression", {}
     .done drawgraph
-  else if gid == "ineligible"
-    apiCall "GET", "/api/stats/top_teams/score_progression", {eligible: false}
+  else if gid == "global"
+    apiCall "GET", "/api/stats/top_teams/score_progression", {show_ineligible: true}
     .done drawgraph
   else
     apiCall "GET", "/api/stats/group/score_progression", {gid:gid}

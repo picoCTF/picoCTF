@@ -192,6 +192,7 @@ def create_user(username,
                 usertype,
                 country,
                 demo,
+                eligible,
                 teacher=False,
                 admin=False,
                 verified=False):
@@ -209,6 +210,7 @@ def create_user(username,
         country: primary country (dependent on usertype)
         demo: dict of demographic data
         teacher: whether this account is a teacher
+        eligible: whether this account is eligible for prizes (or at least, not ineligible)
     Returns:
         Returns the uid of the newly created user
     """
@@ -255,6 +257,7 @@ def create_user(username,
         'demo': demo,
         'teacher': teacher,
         'admin': admin,
+        'eligible': eligible,
         'disabled': False,
         'verified': not settings["email"]["email_verification"] or verified,
         'extdata': {},
@@ -391,8 +394,9 @@ def create_simple_user_request(params):
     team_params = {
         "team_name": params["username"],
         "password": api.common.token(),
-        "eligible": params["eligibility"] == "eligible",
-        "affiliation": params["affiliation"]
+        "eligible": params["eligibility"],
+        "affiliation": params["affiliation"],
+        "country": params["country"]
     }
     tid = api.team.create_team(team_params)
 
@@ -412,6 +416,7 @@ def create_simple_user_request(params):
         params["usertype"],
         params["country"],
         params["demo"],
+        params["eligibility"],
         teacher=user_is_teacher,
         verified=user_was_invited)
 
