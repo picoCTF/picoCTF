@@ -603,8 +603,6 @@ AuthPanel = React.createClass
 
     form['g-recaptcha-response'] = @state.captcha
 
-    console.log(form)
-
     apiCall "POST", "/api/user/create_simple", form
     .done ((resp) ->
       switch resp.status

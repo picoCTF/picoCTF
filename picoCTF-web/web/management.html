@@ -120,8 +120,7 @@ startup_functions:
     %>
     <div class="problem-list panel-group">
         <% _.each(applicable_problems, function(problem, i) { %>
-        <% //console.log(problem); %>
-        <div class="pad col-sm-6 col-md-<%- problem_width %> col-lg-<%- Math.floor(3*problem_width/4) %>">
+         <div class="pad col-sm-6 col-md-<%- problem_width %> col-lg-<%- Math.floor(3*problem_width/4) %>">
             <% window.data.problems[problem.pid] = problem %>
             <%= renderProblem({problem: problem}) %>
         </div>

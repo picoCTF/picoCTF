@@ -2,13 +2,15 @@
 layout: default
 title: News
 ---
-<div class="container">    
-        {% for post in site.posts %}           
+<div class="container">
+        {% for post in site.posts %}
+        <div class="well">
             <h2>
                 {{ post.title }}
             </h2>
-            {{ post.content }}        
+            {{ post.content }}
+        </div>
         {% endfor %}
      <hr />
-    <p class="rss-subscribe">subscribe <a href="{{ "feed.xml" | prepend: site.baseurl }}">via RSS</a></p>
+  <p class="rss-subscribe">subscribe <a href="{{ "feed.xml" | prepend: site.baseurl }}">via RSS</a></p>
 </div>
