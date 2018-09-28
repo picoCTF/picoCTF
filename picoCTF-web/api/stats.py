@@ -153,7 +153,7 @@ def get_all_team_scores(eligible=None, country=None, show_ineligible=False):
     time_ordered_time_removed = [{
         'name': x['name'],
         #'eligible': x['eligible'],
-        #'tid': x['tid'],
+        'tid': x['tid'],
         'score': x['score'],
         'affiliation': x['affiliation']
     } for x in time_ordered]

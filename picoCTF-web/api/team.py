@@ -447,7 +447,7 @@ def join_team(team_name, password, uid=None):
         # Clear solved
         api.cache.invalidate_memoization(api.problem.get_solved_problems,
                                          {"kwargs.tid": desired_team["tid"]},
-                                         {"kwargs.uid": uid})
+                                         {"kwargs.uid": user["uid"]})
 
         # Make sure team score is reflected as well
         api.cache.invalidate_memoization(api.stats.get_score,

@@ -91,7 +91,7 @@ def run():
     if api.utilities.check_competition_active():
         teams = api.team.get_all_teams(show_ineligible=True)
 
-        for server in api.shell_servers.get_servers():
+        for server in api.shell_servers.get_servers(get_all=True):
             try:
                 shell = api.shell_servers.get_connection(server["sid"])
             except api.common.WebException as e:
