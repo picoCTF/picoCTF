@@ -31,6 +31,7 @@
     src: "{{ pico_web_api_dir }}/"
     dest: "{{ web_build_dir }}"
     delete: yes
+  delegate_to: "{{ inventory_hostname }}"
 
 - name: Run Jekyll to rebuild new web
   shell: "cd {{ web_build_dir }}/web && jekyll build"
