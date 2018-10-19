@@ -5,7 +5,7 @@
 
 - name: Autoload Shell Server into web interface
   script: >
-    scripts/add_shell_server.py
+    add_shell_server.py
     {{ shell_name }}
     {{ shell_ip }}
     {{ shell_user }}
@@ -21,7 +21,7 @@
   no_log: True
 
 - name: Autoload Problems into web interface
-  script: scripts/load_problems.py {{ shell_name }}
+  script: load_problems.py {{ shell_name }}
   environment:
     APP_SETTINGS_FILE: "{{ web_config_dir }}/deploy_settings.py"
     PATH: "{{ virtualenv_dir }}/bin/"
@@ -30,7 +30,7 @@
   when: auto_load_problems
 
 - name: Auto Start competition
-  script: scripts/start_competition.py
+  script: start_competition.py
   environment:
     APP_SETTINGS_FILE: "{{ web_config_dir }}/deploy_settings.py"
     PATH: "{{ virtualenv_dir }}/bin/"
