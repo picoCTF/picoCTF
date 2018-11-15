@@ -34,7 +34,9 @@ Vagrant.configure("2") do |config|
          web_address:"http://"+(ENV['WIP'] || '192.168.2.2'),
          web_address_internal:"http://"+(ENV['WIP'] || '192.168.2.2'),
          shell_hostname:(ENV['SIP'] || '192.168.2.3'),
-         shell_host:(ENV['SIP'] || '192.168.2.3')
+         shell_host:(ENV['SIP'] || '192.168.2.3'),
+         server_SAN:"DNS:localhost,IP:127.0.0.1,IP:" + (ENV['SIP'] || '192.168.2.3'),
+         client:"web"
       }
       ansible.verbose = ENV['V']
     end
@@ -73,7 +75,8 @@ Vagrant.configure("2") do |config|
          web_address:"http://"+(ENV['WIP'] || '192.168.2.2'),
          web_address_internal:"http://"+(ENV['WIP'] || '192.168.2.2'),
          shell_hostname:(ENV['SIP'] || '192.168.2.3'),
-         shell_host:(ENV['SIP'] || '192.168.2.3')
+         shell_host:(ENV['SIP'] || '192.168.2.3'),
+         client:"web"
       }
       ansible.verbose = ENV['V']
     end

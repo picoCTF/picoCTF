@@ -15,12 +15,24 @@
   become_method: sudo
   roles:
     - common
+    - docker
+    - docker_tls
     - pico-shell
+  post_tasks:
+    - name: Generate docker client cert for web
+      import_role:
+        name: docker_tls
+        tasks_from: gen_client
 
 - hosts: web
   remote_user: "{{ ansible_user }}"
   become: yes
   become_method: sudo
+  pre_tasks:
+    - name: Deploy docker client certs
+      import_role:
+        name: docker_tls
+        tasks_from: config_user
   roles:
     - common
     - pico-web 
