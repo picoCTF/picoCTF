@@ -1,0 +1,57 @@
+---
+# Generate a client certificate
+# expects: client
+
+- name: Set key name
+  set_fact:
+    key: "{{key_dir}}/client-{{client}}-key.pem"
+    crt: "{{key_dir}}/client-{{client}}.pem"
+    csr: "{{key_dir}}/client-{{client}}.csr"
+
+- name: Create client private key ({{client}})
+  openssl_privatekey:
+    path: "{{key}}"
+  register: clientkey
+
+- name: Create CSR for client
+  openssl_csr:
+    path: "{{csr}}"
+    privatekey_path: "{{key}}"
+    common_name: "{{client}}"
+    extended_key_usage:
+      - clientAuth
+  when: clientkey.changed
+
+- name: Create client certificate
+  openssl_certificate:
+    path: "{{crt}}"
+    privatekey_path: "{{key}}"
+    csr_path: "{{csr}}"
+    ownca_path: "{{ca_crt}}"
+    ownca_privatekey_path: "{{ca_key}}"
+    provider: ownca
+  when: clientkey.changed
+
+- name: Set permissions on key
+  file:
+    path: "{{key}}"
+    mode: 0400
+
+- name: Set permissions on certs
+  file:
+    path: "{{crt}}"
+    mode: 0444
+
+- name: Remove CSR
+  file:
+    path: "{{csr}}"
+    state: absent
+
+- name: Fetch client keys
+  fetch:
+    src: "{{item.src}}"
+    dest: "certs/{{item.name}}"
+    flat: yes
+  with_items:
+    - {src: "{{key}}", name: "{{client}}-key.pem"}
+    - {src: "{{crt}}", name: "{{client}}.pem"}

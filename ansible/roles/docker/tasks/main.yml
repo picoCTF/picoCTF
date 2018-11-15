@@ -1,0 +1,69 @@
+---
+# Install Docker per:
+# https://docs.docker.com/engine/installation/linux/docker-ce/debian/
+
+- name: Select facts based on distro  ({{ansible_distribution + '_' + ansible_distribution_release}})
+  set_fact:
+    repo_facts: "{{distro_facts[ansible_distribution + '_' + ansible_distribution_release]}}"
+
+- name: Set distro specific repo facts
+  set_fact:
+    apt_key_url: "{{repo_facts['apt_key_url']}}"
+    apt_key_id: "{{repo_facts['apt_key_id']}}"
+    repo: "{{repo_facts['repo']}}"
+
+- name: Remove conflicting Docker versions
+  apt:
+    name:
+      - docker
+      - docker-engine
+      - docker.io
+    state: absent
+
+- name: Install Docker dependencies
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg2
+      - software-properties-common
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install Docker apt key
+  apt_key:
+    url: "{{apt_key_url}}"
+    id: "{{apt_key_id}}"
+    state: present
+
+- name: Add Docker repository
+  apt_repository:
+    repo: "{{repo}}"
+    state: present
+    update_cache: yes
+
+# Now that we include the Docker repo, update the apt cache
+- name: Install docker-ce
+  apt:
+    name: docker-ce
+    state: present
+
+- name: Start docker service
+  service:
+    name: docker
+    state: started
+
+- name: Make docker group
+  group:
+    name: docker
+    state: present
+
+- name: Add "{{ansible_user}}" to docker group
+  user:
+    name: "{{ansible_user}}"
+    groups: docker
+    append: yes
+
+- include: compose.yml

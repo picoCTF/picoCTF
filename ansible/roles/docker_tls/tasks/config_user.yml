@@ -1,0 +1,28 @@
+---
+# configure the host so the ansible user can access the remote docker daemon
+# expects: client, user (defaults to ansible_user)
+
+- set_fact:
+    home_conf: "/home/{{user}}/.docker"
+
+- name: Create .docker dir for user ({{user}})
+  file:
+    path: "{{home_conf}}"
+    state: directory
+    owner: "{{user}}"
+    group: "{{user}}"
+    mode: "0700"
+
+# keys/certificates were generated and fetched in gen_client
+- name: Copy keys and certificates for user
+  copy:
+    src: "{{item.src}}"
+    dest: "{{item.dest}}"
+    owner: "{{user}}"
+    group: "{{user}}"
+    mode: "0400"
+  with_items:
+    - {src: "certs/{{client}}-key.pem", dest: "{{home_conf}}/key.pem"}
+    - {src: "certs/{{client}}.pem", dest: "{{home_conf}}/cert.pem"}
+    - {src: "certs/ca.pem", dest: "{{home_conf}}/ca.pem"}
+

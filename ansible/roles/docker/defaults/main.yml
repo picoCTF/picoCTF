@@ -1,0 +1,16 @@
+---
+
+# Distribution specific facts
+distro_facts:
+  Debian_stretch:
+    apt_key_url: "https://download.docker.com/linux/debian/gpg"
+    apt_key_id: "9DC858229FC7DD38854AE2D88D81803C0EBFCD88"
+    repo: "deb [arch=amd64] https://download.docker.com/linux/debian stretch stable"
+  Ubuntu_xenial:
+    apt_key_url: "https://download.docker.com/linux/ubuntu/gpg"
+    apt_key_id: "9DC858229FC7DD38854AE2D88D81803C0EBFCD88"
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
+
+docker_compose_version: "1.22.0"
+docker_compose_checksum: "sha256:f679a24b93f291c3bffaff340467494f388c0c251649d640e661d509db9d57e9"
+

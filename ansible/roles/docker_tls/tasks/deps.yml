@@ -1,0 +1,9 @@
+---
+
+- name: Install pip2
+  apt:
+    name: python-pip
+
+- name: Install pyOpenSSL
+  pip:
+    name: pyOpenSSL
