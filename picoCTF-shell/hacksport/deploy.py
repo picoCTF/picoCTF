@@ -2,8 +2,9 @@
 Problem deployment.
 """
 
-HIGHEST_PORT = 65535
-LOWEST_PORT = 1025
+# use non-ephemeral ports
+HIGHEST_PORT = 32767
+LOWEST_PORT = 5000
 LOCALHOST = "127.0.0.1"
 
 PROBLEM_FILES_DIR = "problem_files"

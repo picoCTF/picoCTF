@@ -11,7 +11,7 @@ from os import chmod, listdir, sep, unlink
 from os.path import isdir, isfile, join
 from shutil import copy2, copytree
 
-from voluptuous import All, Length, MultipleInvalid, Range, Required, Schema
+from voluptuous import All, Length, MultipleInvalid, Range, Required, Schema, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -66,12 +66,15 @@ default_config = ConfigDict({
 
     # list of port ranges that should not be assigned to any instances
     # this bans the first ports 0-1024 and 4242 for shellinaboxd
+    # this also bans the emphemeral ports which could be used by on-demand
+    # instances 32768-60999 per /proc/sys/net/ipv4/ip_local_port_range
+    # reference: https://docs.docker.com/engine/reference/run/#expose-incoming-ports
     "banned_ports": [{
         "start": 0,
-        "end": 1024
+        "end": 5000
     }, {
-        "start": 4242,
-        "end": 4242
+        "start": 32768,
+        "end": 60999
     }]
 })
 
@@ -114,7 +117,11 @@ config_schema = Schema(
         Required("web_root"): str,
         Required("problem_directory_root"): str,
         Required("obfuscate_problem_directories"): bool,
-        Required("banned_ports"): list
+        Required("banned_ports"): list,
+        Optional("docker_host"): str,
+        Optional("docker_ca_cert"): str,
+        Optional("docker_client_cert"): str,
+        Optional("docker_client_key"): str
     },
     extra=True)
 
