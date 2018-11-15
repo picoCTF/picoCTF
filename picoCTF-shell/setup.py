@@ -5,7 +5,6 @@ https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
 
-import os
 import sys
 # To use a consistent encoding
 from codecs import open
@@ -75,6 +74,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'coloredlogs==10.0',
+        'docker[tls]==3.5.1',
         'Flask==1.0.2',
         'Jinja2==2.10',
         'openssh-wrapper==0.4',
