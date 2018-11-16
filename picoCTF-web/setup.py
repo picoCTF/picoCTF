@@ -5,7 +5,6 @@ https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
 
-import os
 import sys
 # To use a consistent encoding
 from codecs import open
@@ -75,6 +74,7 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
+        'docker[tls]==3.5.1',
         'Flask==1.0.2',
         'Flask-Bcrypt==0.7.1',
         'Flask-Mail==0.9.1',

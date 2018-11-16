@@ -2,9 +2,6 @@
 Flask routing
 """
 
-import json
-import mimetypes
-import os.path
 from datetime import datetime
 
 import api
@@ -15,11 +12,10 @@ import api.routes.problem
 import api.routes.stats
 import api.routes.team
 import api.routes.user
-from api.annotations import (api_wrapper, block_after_competition,
-                             block_before_competition, check_csrf, log_action,
-                             require_admin, require_login, require_teacher)
-from api.common import WebError, WebSuccess
-from flask import Flask, render_template, request, send_from_directory, session
+import api.routes.docker
+from api.annotations import api_wrapper
+from api.common import WebSuccess
+from flask import Flask, request, session
 from flask_mail import Mail
 from werkzeug.contrib.fixers import ProxyFix
 
@@ -65,6 +61,9 @@ def config_app(*args, **kwargs):
         api.routes.problem.blueprint, url_prefix="/api/problems")
     app.register_blueprint(
         api.routes.achievements.blueprint, url_prefix="/api/achievements")
+
+    # XXX: place behind config flag and check connectivity
+    app.register_blueprint(api.routes.docker.blueprint, url_prefix="/api/docker")
 
     api.logger.setup_logs({"verbose": 2})
     return app

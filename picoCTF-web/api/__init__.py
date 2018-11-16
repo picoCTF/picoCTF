@@ -20,6 +20,7 @@ import api.admin
 import api.shell_servers
 import api.email
 import api.token
+import api.docker
 
 # MUST BE LAST
 import api.config
