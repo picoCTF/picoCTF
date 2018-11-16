@@ -42,6 +42,22 @@ submitProblem = (e) ->
         new_achievements = (x for x in data.data when !x.seen)
         constructAchievementCallbackChain new_achievements
 
+createContainer = (e) -> 
+  e.preventDefault()
+  input = $(e.target).find("input")                                         # get form to extract digest from input-data
+  apiCall "POST", "/api/docker/create", {digest: input.data("digest")}      # make API call
+  .done (data) ->
+    if data['status'] is 1
+      console.log("made container")
+      console.log(data)
+      loadProblems()
+      messageDialog 
+    else
+      console.log("bad response")
+      console.log(data)
+      messageDialog 
+    
+
 addProblemReview = (e) ->
   target = $(e.target)
 
@@ -106,6 +122,7 @@ loadProblems = ->
 
           $(".problem-hint").hide()
           $(".problem-submit").on "submit", submitProblem
+          $(".docker-create").on "submit", createContainer
 
           $(".rating-button").on "click", addProblemReview
 

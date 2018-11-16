@@ -98,6 +98,7 @@ startup_functions:
 <script type="text/template" id="problem-submit-template">
     <p class="problem-description">
         <%= problem.description %>
+
     <div class="row">
         <div class="col-md-11">
             <% if(problem.hint) { %>
@@ -114,6 +115,22 @@ startup_functions:
         </div>
     </div>
     </p>
+
+    <% if(problem.docker_challenge) { %>
+    <div class="row">
+        <form class="docker-create">
+            <div class="col-md text-center">
+              <div class="input-group input-group-sm">
+                <span class="input-group-btn">
+                  <button class="btn btn-success" type="submit">Start Challenge</button>
+                </span>
+                <input type="hidden" data-digest="<%- problem.instance_digest %>" class="form-control"/>
+              </div>
+            </div>
+        </form>
+    </div>
+    <% } %>
+
     <div class="row">
         <form class="problem-submit">
             <div class="col-md-10 col-sm-9 col-xs-7 col-lg-11">
