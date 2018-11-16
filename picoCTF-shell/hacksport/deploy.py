@@ -129,6 +129,7 @@ from hacksport.operations import create_user, execute
 from hacksport.problem import (Compiled, Directory, ExecutableFile, File,
                                FlaskApp, PHPApp, WebService, PreTemplatedFile,
                                ProtectedFile, Remote, Service)
+from hacksport.docker import DockerChallenge
 from hacksport.status import get_all_problem_instances, get_all_problems
 from jinja2 import Environment, FileSystemLoader, Template
 from shell_manager.bundle import get_bundle, get_bundle_root
@@ -797,12 +798,17 @@ def deploy_problem(problem_directory,
             instance_number,
             "should_symlink":
             not isinstance(problem, Service) and len(instance["files"]) > 0,
-            "files": [f.to_dict() for f in instance["files"]]
+            "files": [f.to_dict() for f in instance["files"]],
+            "docker_challenge": isinstance(problem, DockerChallenge)
         }
 
         if isinstance(problem, Service):
             deployment_info["port"] = problem.port
             logger.debug("...Port %d has been allocated.", problem.port)
+
+        # pass along image digest so webui can launch the correct image
+        if isinstance(problem, DockerChallenge):
+            deployment_info["instance_digest"] = problem.image_digest
 
         instance_info_path = os.path.join(deployment_json_dir,
                                           "{}.json".format(instance_number))
