@@ -187,8 +187,21 @@ def insert_problem(problem, sid=None):
     set_instance_ids(problem, sid)
 
     # XXX: also track port information and TTL
+    digests = []
+    for i in problem["instances"]:
+        if i["docker_challenge"]:
+            digests.append(i["instance_digest"])
+
+            try:
+                docker_pub = api.app.app.config["DOCKER_PUB"]
+            except KeyError:
+                raise WebException("Attempted to load a DockerChallenge but DOCKER_PUB not configured")
+
+            # update port display style with docker host value
+            for p, v in i["port_info"].items():
+                v["fmt"] = v["fmt"].format(host=docker_pub)
+
     # track problem to image information for docker instances
-    digests = [i["instance_digest"] for i in problem["instances"] if i["docker_challenge"]]
     if len(digests) > 0:
         data = {"pid": pid, "digests": digests}
         db.images.update({"pid": pid}, data, upsert=True)
@@ -975,7 +988,7 @@ def get_visible_problems(tid, category=None):
 
     # Query database for the status of any running containers for this team.
     for container in api.docker.list_containers_db(tid):
-        result[container["pid"]]["container"] = container
+        result[container["pid"]]["container"] = dict(container)
 
     return result.values()
 

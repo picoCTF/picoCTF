@@ -32,8 +32,7 @@ def create_container_hook():
     result = api.docker.create(tid, digest)
 
     if result['success']:
-        # XXX: Actually parse result into a better response
-        return WebSuccess(result['message'], result)
+        return WebSuccess(result['message'])
     else:
         return WebError(result['message'])
 
@@ -55,7 +54,6 @@ def stop_container_hook():
     # Delete the container
     result = api.docker.delete(container_id)
 
-    # XXX: more useful outputs
     if result:
         return WebSuccess("Challenge stopped")
     else:
@@ -90,8 +88,7 @@ def reset_container_hook():
     # Create the container
     create_result = api.docker.create(tid, digest)
 
-    # XXX: more useful outputs
     if del_result and create_result["success"]:
-        return WebSuccess("Challenge reset")
+        return WebSuccess("Challenge reset.\nBe sure to use the new port.")
     else:
-        return WebError("Error resetting challenge: " + create_result['message'])
+        return WebError("Error resetting challenge")

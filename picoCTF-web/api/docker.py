@@ -4,6 +4,7 @@ import docker
 
 import api
 from api.common import SevereInternalException
+from api.problem import get_problem_instance
 
 log = api.logger.use(__name__)
 
@@ -130,26 +131,29 @@ def create(tid, image_name):
         print("error: " + e.explanation)
         return {"success": False, "message": "Error creating container"}
 
-    container_id = container.id
+    # Generate final display ports for the container
+    # ex: {'5555/tcp': [{'HostIp': '0.0.0.0', 'HostPort': '32842'}]}
+    ports = api_client.inspect_container(container.id)['NetworkSettings']['Ports']
+    ports = {k.split("/")[0]: v[0]["HostPort"] for k, v in ports.items()}
 
-    ports = api_client.inspect_container(container_id)['NetworkSettings']['Ports']
     print("ports: ", ports)
+    port_info = get_problem_instance(pid, tid)["port_info"]
+    display_ports = []
+    for container_port, external_port in ports.items():
+        info = port_info[container_port]
+        display = {"desc": info["desc"], "msg": info["fmt"].format(port=external_port)}
+        display_ports.append(display)
 
     # store container information in database
-    data = {"cid": container_id,
-            "ports": ports,
+    data = {"cid": container.id,
+            "ports": display_ports,
             "tid": tid,
             "pid": pid}
 
     db.containers.insert(data)
 
     # XXX: Get metadata about the running container into the container itself
-    return {
-        "success": True,
-        "message": "Challenge started",
-        "container_id": container_id,
-        "ports": ports
-    }
+    return {"success": True, "message": "Challenge started"}
 
 def delete(cid):
     """
@@ -197,7 +201,6 @@ def list_containers_daemon(tid):
     return existing
 
 
-# XXX: streamline just necessary information (don't return raw cursor)
 def list_containers_db(tid):
     """
     List the currently running containers for a team. Checks metadata stored in

@@ -16,6 +16,8 @@ class DockerChallenge(Challenge):
     Class variables that must be defined:
     * problem_name - name that will show up in Docker UI for this problem
     """
+    problem_name = None         # XXX: should be able to derive
+    ports = {}
 
     def __init__(self):
         """ Connnects to the docker daemon"""
@@ -42,9 +44,23 @@ class DockerChallenge(Challenge):
         self.image_name = 'challenges:{}'.format(self.problem_name)
 
         logger.debug("Building docker image: {}".format(self.image_name))
-        self.image_digest = self._build_docker_image(build_args, timeout)
-        if self.image_digest is None:
+        img = self._build_docker_image(build_args, timeout)
+        if img is None:
             raise Exception('Unable to build docker image')
+
+        self.image_digest = img.id
+
+        try:
+            exposed_ports = img.attrs["Config"]["ExposedPorts"].keys()
+        except KeyError:
+            raise Exception("Dockerfile must expose at least 1 port")
+
+        # Ensure all ports are represented and convert to ints, e.g. "5555/tcp"
+        image_ports = [int(p.split("/")[0]) for p in exposed_ports]
+        for p in image_ports:
+            if p not in self.ports:
+                self.ports[p] = Plain("challenge")
+
         logger.debug("Built image, digest: {}".format(self.image_digest))
 
     def _build_docker_image(self, build_args, timeout):
@@ -72,4 +88,37 @@ class DockerChallenge(Challenge):
             logger.error("Docker API Error: " + e.explanation)
             return None
 
-        return img.id
+        return img
+
+
+# Utility classes to handle templating of ports. Will get formated twice in the
+# following order host, then port (this is why the extra {} in the fmt string)
+class HTTP():
+    def __init__(self, desc, path=""):
+        self.desc = desc
+        self.path = path
+
+    def dict(self):
+        return {"fmt": "http://{{host}}:{{{port}}}{path}".format(path=self.path),
+                "desc": self.desc}
+
+class Netcat():
+    def __init__(self, desc):
+        self.desc = desc
+
+    def dict(self):
+        return {"fmt": "nc {host} {{port}}", "desc": self.desc}
+
+class Plain():
+    def __init__(self, desc):
+        self.desc = desc
+
+    def dict(self):
+        return {"fmt": "{host}:{{port}}", "desc": self.desc}
+
+class Custom():
+    def __init__(self, fmt, desc):
+        self.desc = desc
+
+    def dict(self):
+        return {"fmt": self.fmt, "desc": self.desc}

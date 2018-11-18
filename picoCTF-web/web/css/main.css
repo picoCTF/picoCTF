@@ -412,3 +412,9 @@ img.logo-landscape {
 .glyphicon-thumbs-down.active {
     color:red;
 }
+
+/* pad docker row */
+.row-pad {
+    margin-top:10px;
+    margin-bottom:10px;
+}

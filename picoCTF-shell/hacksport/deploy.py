@@ -809,6 +809,7 @@ def deploy_problem(problem_directory,
         # pass along image digest so webui can launch the correct image
         if isinstance(problem, DockerChallenge):
             deployment_info["instance_digest"] = problem.image_digest
+            deployment_info["port_info"] = {n: p.dict() for n, p in problem.ports.items()}
 
         instance_info_path = os.path.join(deployment_json_dir,
                                           "{}.json".format(instance_number))
