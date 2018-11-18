@@ -973,14 +973,8 @@ def get_visible_problems(tid, category=None):
             result[pid] = unlocked_filter(get_problem_instance(pid, tid), solved)
             # result.append(unlocked_filter(get_problem_instance(pid, tid), solved))
 
-    # XXX: streamline just nessecary information
     # Query database for the status of any running containers for this team.
-    # There is the potential that this information is stale, however since this
-    # is a common request path (relative to container related updates), we will
-    # defer the freshness of updating the ground truth to container related
-    # requests.
-    db = api.common.get_conn()
-    for container in db.containers.find({"tid": tid}):
+    for container in api.docker.list_containers_db(tid):
         result[container["pid"]]["container"] = container
 
     return result.values()

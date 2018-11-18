@@ -28,10 +28,6 @@ def create_container_hook():
     if any(char not in string.hexdigits + "sha:" for char in digest):
         return WebError("Invalid image digest")
 
-    # Get a list of live running containers
-    existing = api.docker.list_containers(tid)
-    print(existing)
-
     # Create the container
     result = api.docker.create(tid, digest)
 
@@ -40,3 +36,4 @@ def create_container_hook():
         return WebSuccess(result['message'], result)
     else:
         return WebError(result['message'])
+
