@@ -60,3 +60,38 @@ def stop_container_hook():
         return WebSuccess("Challenge stopped")
     else:
         return WebError("Error stopping challenge")
+
+@blueprint.route('/reset', methods=['POST'])
+@api_wrapper
+@check_csrf
+@require_login
+@block_before_competition(WebError("The competition has not begun yet!"))
+@block_after_competition(WebError("The competition is over!"))
+def reset_container_hook():
+
+    # Containers are mapped to teams
+    user_account = api.user.get_user()
+    tid = user_account['tid']
+
+    # get form values
+    digest = request.form.get('digest', '')
+    container_id = request.form.get('cid', '')
+    print("cid: ", container_id)
+
+    # fail fast on invalid requests
+    if any(char not in string.hexdigits for char in container_id):
+        return WebError("Invalid container ID")
+    if any(char not in string.hexdigits + "sha:" for char in digest):
+        return WebError("Invalid image digest")
+
+    # Delete the container
+    del_result = api.docker.delete(container_id)
+
+    # Create the container
+    create_result = api.docker.create(tid, digest)
+
+    # XXX: more useful outputs
+    if del_result and create_result["success"]:
+        return WebSuccess("Challenge reset")
+    else:
+        return WebError("Error resetting challenge: " + create_result['message'])

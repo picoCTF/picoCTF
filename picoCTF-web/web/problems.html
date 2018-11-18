@@ -130,6 +130,17 @@ startup_functions:
         </form>
       <% } else { %>
         <%= problem.container.cid %>
+        <form class="docker-reset">
+              <div class="input-group input-group-sm">
+                <span class="input-group-btn">
+                  <button class="btn btn-warn" type="submit">Reset Challenge</button>
+                </span>
+                <input type="hidden"
+                  data-cid="<%- problem.container.cid %>"
+                  data-digest="<%- problem.instance_digest %>"
+                class="form-control"/>
+            </div>
+        </form>
         <form class="docker-stop">
               <div class="input-group input-group-sm">
                 <span class="input-group-btn">

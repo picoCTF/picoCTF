@@ -71,6 +71,20 @@ stopContainer = (e) ->
       console.log(data)
       messageDialog
 
+resetContainer = (e) ->
+  e.preventDefault()
+  input = $(e.target).find("input")
+  apiCall "POST", "/api/docker/reset", {digest: input.data("digest"), cid: input.data("cid")}      # make API call
+  .done (data) ->
+    if data['status'] is 1
+      console.log("reset challenge")
+      loadProblems()
+      messageDialog
+    else
+      console.log("bad response")
+      console.log(data)
+      messageDialog
+
 addProblemReview = (e) ->
   target = $(e.target)
 
@@ -137,6 +151,7 @@ loadProblems = ->
           $(".problem-submit").on "submit", submitProblem
           $(".docker-create").on "submit", createContainer
           $(".docker-stop").on "submit", stopContainer
+          $(".docker-reset").on "submit", resetContainer
 
           $(".rating-button").on "click", addProblemReview
 
