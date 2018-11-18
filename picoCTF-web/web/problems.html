@@ -118,8 +118,8 @@ startup_functions:
 
     <% if(problem.docker_challenge){ %>
     <div class="row">
-      <div class="col-md text-center">
       <% if(!problem.hasOwnProperty("container")) { %>
+      <div class="col-md text-center">
         <form class="docker-create">
               <div class="input-group input-group-sm">
                 <span class="input-group-btn">
@@ -128,29 +128,31 @@ startup_functions:
                 <input type="hidden" data-digest="<%- problem.instance_digest %>" class="form-control"/>
             </div>
         </form>
+      </div>
       <% } else { %>
+      <div class="col-md-8 text-center">
         <%= problem.container.cid %>
+      </div>
+      <div class="col-md-1">
         <form class="docker-reset">
-              <div class="input-group input-group-sm">
                 <span class="input-group-btn">
-                  <button class="btn btn-warn" type="submit">Reset Challenge</button>
+                  <button class="btn btn-warning" type="submit">Reset</button>
                 </span>
                 <input type="hidden"
                   data-cid="<%- problem.container.cid %>"
                   data-digest="<%- problem.instance_digest %>"
                 class="form-control"/>
-            </div>
         </form>
+      </div>
+      <div class="col-md-1">
         <form class="docker-stop">
-              <div class="input-group input-group-sm">
                 <span class="input-group-btn">
-                  <button class="btn btn-danger" type="submit">Stop Challenge</button>
+                  <button class="btn btn-danger" type="submit">Stop</button>
                 </span>
                 <input type="hidden" data-cid="<%- problem.container.cid %>" class="form-control"/>
-            </div>
         </form>
-      <% } %>
       </div>
+      <% } %>
     </div>
     <% } %>
 

@@ -45,17 +45,14 @@ submitProblem = (e) ->
 createContainer = (e) -> 
   e.preventDefault()
   input = $(e.target).find("input")
+  $(e.target).html("<p>Loading...</p>")                                     # prevent multi-click
   apiCall "POST", "/api/docker/create", {digest: input.data("digest")}      # make API call
   .done (data) ->
     if data['status'] is 1
-      console.log("made container")
-      console.log(data)
       loadProblems()
-      messageDialog 
+      apiNotify data
     else
-      console.log("bad response")
-      console.log(data)
-      messageDialog 
+      apiNotify data
     
 stopContainer = (e) -> 
   e.preventDefault()
@@ -63,13 +60,10 @@ stopContainer = (e) ->
   apiCall "POST", "/api/docker/stop", {cid: input.data("cid")}      # make API call
   .done (data) ->
     if data['status'] is 1
-      console.log("stopped container")
       loadProblems()
-      messageDialog
+      apiNotify data
     else
-      console.log("bad response")
-      console.log(data)
-      messageDialog
+      apiNotify data
 
 resetContainer = (e) ->
   e.preventDefault()
@@ -77,13 +71,10 @@ resetContainer = (e) ->
   apiCall "POST", "/api/docker/reset", {digest: input.data("digest"), cid: input.data("cid")}      # make API call
   .done (data) ->
     if data['status'] is 1
-      console.log("reset challenge")
       loadProblems()
-      messageDialog
+      apiNotify data
     else
-      console.log("bad response")
-      console.log(data)
-      messageDialog
+      apiNotify data
 
 addProblemReview = (e) ->
   target = $(e.target)
