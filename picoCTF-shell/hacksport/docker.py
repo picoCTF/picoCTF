@@ -94,13 +94,18 @@ class DockerChallenge(Challenge):
 # Utility classes to handle templating of ports. Will get formated twice in the
 # following order host, then port (this is why the extra {} in the fmt string)
 class HTTP():
-    def __init__(self, desc, path=""):
+    def __init__(self, desc, path="", link_text=""):
         self.desc = desc
         self.path = path
+        self.link_text = link_text
 
     def dict(self):
-        return {"fmt": "http://{{host}}:{{{port}}}{path}".format(path=self.path),
-                "desc": self.desc}
+        url = "http://{host}:{{port}}" + self.path
+        if self.link_text == "":
+            link = "<a href='{}'>{}</a>".format(url, url)
+        else:
+            link = "<a href='{}'>{}</a>".format(url, self.link_text)
+        return {"fmt": link, "desc": self.desc}
 
 class Netcat():
     def __init__(self, desc):

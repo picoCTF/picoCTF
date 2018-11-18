@@ -132,7 +132,7 @@ startup_functions:
       <% } else { %>
         <% for (var i = 0; i < problem.container.ports.length; i++){ %>
         <div class="col-md-3">
-          <p><strong><%- problem.container.ports[i].desc %></strong> <%- problem.container.ports[i].msg %></p>
+          <p><strong><%= problem.container.ports[i].desc %></strong>: <%= problem.container.ports[i].msg %></p>
         </div>
         <% } %>
       <div class="col-md-2 align-middle">
