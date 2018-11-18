@@ -44,7 +44,7 @@ submitProblem = (e) ->
 
 createContainer = (e) -> 
   e.preventDefault()
-  input = $(e.target).find("input")                                         # get form to extract digest from input-data
+  input = $(e.target).find("input")
   apiCall "POST", "/api/docker/create", {digest: input.data("digest")}      # make API call
   .done (data) ->
     if data['status'] is 1
@@ -57,6 +57,19 @@ createContainer = (e) ->
       console.log(data)
       messageDialog 
     
+stopContainer = (e) -> 
+  e.preventDefault()
+  input = $(e.target).find("input")
+  apiCall "POST", "/api/docker/stop", {cid: input.data("cid")}      # make API call
+  .done (data) ->
+    if data['status'] is 1
+      console.log("stopped container")
+      loadProblems()
+      messageDialog
+    else
+      console.log("bad response")
+      console.log(data)
+      messageDialog
 
 addProblemReview = (e) ->
   target = $(e.target)
@@ -123,6 +136,7 @@ loadProblems = ->
           $(".problem-hint").hide()
           $(".problem-submit").on "submit", submitProblem
           $(".docker-create").on "submit", createContainer
+          $(".docker-stop").on "submit", stopContainer
 
           $(".rating-button").on "click", addProblemReview
 

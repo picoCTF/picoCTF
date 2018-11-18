@@ -168,12 +168,13 @@ def delete(cid):
     except docker.errors.NotFound as e:
         print("container not found: ", cid)
     except docker.errors.APIError as e:
-        print("error: " + e.explanation)
-        raise
+        print("docker error: " + e.explanation)
+        return False
 
     # also remove from database
     db = api.common.get_conn()
     db.containers.delete_many({"cid": cid})
+    return True
 
 
 def list_containers_daemon(tid):

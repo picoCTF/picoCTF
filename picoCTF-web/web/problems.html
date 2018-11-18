@@ -128,9 +128,16 @@ startup_functions:
                 <input type="hidden" data-digest="<%- problem.instance_digest %>" class="form-control"/>
             </div>
         </form>
-      hi
       <% } else { %>
         <%= problem.container.cid %>
+        <form class="docker-stop">
+              <div class="input-group input-group-sm">
+                <span class="input-group-btn">
+                  <button class="btn btn-danger" type="submit">Stop Challenge</button>
+                </span>
+                <input type="hidden" data-cid="<%- problem.container.cid %>" class="form-control"/>
+            </div>
+        </form>
       <% } %>
       </div>
     </div>

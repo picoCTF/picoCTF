@@ -37,3 +37,26 @@ def create_container_hook():
     else:
         return WebError(result['message'])
 
+@blueprint.route('/stop', methods=['POST'])
+@api_wrapper
+@check_csrf
+@require_login
+@block_before_competition(WebError("The competition has not begun yet!"))
+@block_after_competition(WebError("The competition is over!"))
+def stop_container_hook():
+
+    container_id = request.form.get('cid', '')
+    print("stopping: ", container_id)
+
+    # fail fast on invalid requests
+    if any(char not in string.hexdigits for char in container_id):
+        return WebError("Invalid container ID")
+
+    # Delete the container
+    result = api.docker.delete(container_id)
+
+    # XXX: more useful outputs
+    if result:
+        return WebSuccess("Challenge stopped")
+    else:
+        return WebError("Error stopping challenge")
