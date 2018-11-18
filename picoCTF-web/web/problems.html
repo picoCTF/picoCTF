@@ -116,18 +116,23 @@ startup_functions:
     </div>
     </p>
 
-    <% if(problem.docker_challenge) { %>
+    <% if(problem.docker_challenge){ %>
     <div class="row">
+      <div class="col-md text-center">
+      <% if(!problem.hasOwnProperty("container")) { %>
         <form class="docker-create">
-            <div class="col-md text-center">
               <div class="input-group input-group-sm">
                 <span class="input-group-btn">
                   <button class="btn btn-success" type="submit">Start Challenge</button>
                 </span>
                 <input type="hidden" data-digest="<%- problem.instance_digest %>" class="form-control"/>
-              </div>
             </div>
         </form>
+      hi
+      <% } else { %>
+        <%= problem.container.cid %>
+      <% } %>
+      </div>
     </div>
     <% } %>
 

@@ -1,9 +1,7 @@
 """ Module for interacting with the problems """
 
-import imp
 from copy import copy, deepcopy
 from datetime import datetime
-from os.path import isfile, join
 from random import randint
 
 import api
@@ -180,17 +178,24 @@ def insert_problem(problem, sid=None):
 
     # initially disable problems
     problem["disabled"] = True
-    problem["pid"] = api.common.hash("{}-{}".format(problem["name"],
-                                                    problem["author"]))
+    pid = api.common.hash("{}-{}".format(problem["name"], problem["author"]))
+    problem["pid"] = pid
 
     for instance in problem["instances"]:
         validate(instance_schema, instance)
 
     set_instance_ids(problem, sid)
 
-    if safe_fail(get_problem, pid=problem["pid"]) is not None:
+    # XXX: also track port information and TTL
+    # track problem to image information for docker instances
+    digests = [i["instance_digest"] for i in problem["instances"] if i["docker_challenge"]]
+    if len(digests) > 0:
+        data = {"pid": pid, "digests": digests}
+        db.images.update({"pid": pid}, data, upsert=True)
+
+    if safe_fail(get_problem, pid=pid) is not None:
         # problem is already inserted, so update instead
-        old_problem = copy(get_problem(pid=problem["pid"]))
+        old_problem = copy(get_problem(pid=pid))
 
         # leave all instances from different shell server
         instances = list(
@@ -205,7 +210,7 @@ def insert_problem(problem, sid=None):
             problem["instances"]) == 0
 
         # run the update
-        update_problem(problem["pid"], problem)
+        update_problem(pid, problem)
         return
 
     if safe_fail(get_problem, name=problem["name"]) is not None:
@@ -216,7 +221,7 @@ def insert_problem(problem, sid=None):
     db.problems.insert(problem)
     api.cache.fast_cache.clear()
 
-    return problem["pid"]
+    return pid
 
 
 def remove_problem(pid):
@@ -959,26 +964,26 @@ def get_visible_problems(tid, category=None):
     unlocked_pids = get_unlocked_pids(tid, category=category)
     solved_pids = get_solved_pids(tid=tid)
 
-    result = []
-
-    result = []
-    # locked = []
+    result = {}
 
     for problem in all_problems:
-        if problem["pid"] in unlocked_pids:
-            result.append(
-                unlocked_filter(
-                    get_problem_instance(problem["pid"], tid),
-                    problem["pid"] in solved_pids))
+        pid = problem["pid"]
+        if pid in unlocked_pids:
+            solved = pid in solved_pids
+            result[pid] = unlocked_filter(get_problem_instance(pid, tid), solved)
+            # result.append(unlocked_filter(get_problem_instance(pid, tid), solved))
 
-        # Disable locked problem display.
-        # else:
-        # locked.append(locked_filter(problem))
+    # XXX: streamline just nessecary information
+    # Query database for the status of any running containers for this team.
+    # There is the potential that this information is stale, however since this
+    # is a common request path (relative to container related updates), we will
+    # defer the freshness of updating the ground truth to container related
+    # requests.
+    db = api.common.get_conn()
+    for container in db.containers.find({"tid": tid}):
+        result[container["pid"]]["container"] = container
 
-    # place locked problems at the end of the list
-    # result.extend(locked)
-
-    return result
+    return result.values()
 
 
 def get_unlocked_problems(tid, category=None):
@@ -1035,7 +1040,6 @@ def load_published(data):
         insert_problem(problem, sid=data["sid"])
 
     if "bundles" in data:
-        db = api.common.get_conn()
         for bundle in data["bundles"]:
             insert_bundle(bundle)
 

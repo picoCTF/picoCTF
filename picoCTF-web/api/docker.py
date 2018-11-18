@@ -59,8 +59,16 @@ def create(tid, image_name):
         image_name: the sha256 digest for the image to launch
     Returns:
         A dictionary containing the container_id and port mappings for the newly
-        running container. sucess is False on any errors.
+        running container. success is False on any errors.
     """
+
+    db = api.common.get_conn()
+
+    # Query information about the requested image to ensure it exists and get
+    # problem and port mapping information
+    image_info = db.images.find_one({"digests": image_name})
+    if image_info is None:
+        return {"success": False, "message": "Invalid image"}
 
     client, api_client = get_clients()
     # XXX: manage total number of containers per user
@@ -76,12 +84,20 @@ def create(tid, image_name):
             publish_all_ports=True)
     except docker.errors.APIError as e:
         print("error: " + e.explanation)
-        return {"sucess": False, "message": "Error creating container"}
+        return {"success": False, "message": "Error creating container"}
 
     container_id = container.id
 
     ports = api_client.inspect_container(container_id)['NetworkSettings']['Ports']
     print("ports: ", ports)
+
+    # store container information in database
+    data = {"cid": container_id,
+            "ports": ports,
+            "tid": tid,
+            "pid": image_info["pid"]}
+
+    db.containers.insert(data)
 
     # XXX: Get metadata about the running container into the container itself
     return {
@@ -94,7 +110,8 @@ def create(tid, image_name):
 
 def list_containers(tid):
     """
-    List the currently running containers for a team
+    List the currently running containers for a team. Checks ground truth by
+    querying the docker daemon.
 
     Args:
         tid: The team id to lookup containers for
