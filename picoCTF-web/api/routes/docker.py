@@ -1,4 +1,6 @@
 
+import string
+
 import api
 from api.annotations import (api_wrapper, block_after_competition,
                              block_before_competition, check_csrf,
@@ -21,6 +23,14 @@ def create_container_hook():
     user_account = api.user.get_user()
     tid = user_account['tid']
     digest = request.form.get('digest', '')
+
+    # fail fast on invalid requests
+    if any(char not in string.hexdigits + "sha:" for char in digest):
+        return WebError("Invalid image digest")
+
+    # Get a list of live running containers
+    existing = api.docker.list_containers(tid)
+    print(existing)
 
     # Create the container
     result = api.docker.create(tid, digest)

@@ -1,4 +1,3 @@
-import string
 import time
 
 import docker
@@ -51,33 +50,33 @@ def get_clients():
     return __client, __api_client
 
 
-def create(tid, sha256):
-    # fail fast on invalid requests
-    if any(char not in string.hexdigits + "sha:" for char in sha256):
-        return {"sucess": False, "message": "Invalid image digest"}
+def create(tid, image_name):
+    """
+    Start a new container from the specified image.
 
-    image_name = sha256
+    Args:
+        tid: The team id to lookup containers for
+        image_name: the sha256 digest for the image to launch
+    Returns:
+        A dictionary containing the container_id and port mappings for the newly
+        running container. sucess is False on any errors.
+    """
 
-    try:
-        client, api_client = get_clients()
-        filters = {"ancestor": image_name, "label": "owner={}".format(tid)}
-        existing = client.containers.list(filters=filters)
-        print("existing: ", existing)
-
-    except docker.errors.APIError as e:
-        print("error: " + e.explanation)
-        return {"sucess": False, "message": "Error creating container"}
-
+    client, api_client = get_clients()
     # XXX: manage total number of containers per user
     # XXX: prevent duplicate containers per challenge
     # XXX: manage container longevity and deletion
     labels = {"owner": str(tid), "delete_at": str(int(time.time()) + 20 * 60)}
-    container = client.containers.run(
-        image=image_name,
-        labels=labels,
-        detach=True,
-        remove=True,
-        publish_all_ports=True)
+    try:
+        container = client.containers.run(
+            image=image_name,
+            labels=labels,
+            detach=True,
+            remove=True,
+            publish_all_ports=True)
+    except docker.errors.APIError as e:
+        print("error: " + e.explanation)
+        return {"sucess": False, "message": "Error creating container"}
 
     container_id = container.id
 
@@ -91,3 +90,22 @@ def create(tid, sha256):
         "container_id": container_id,
         "ports": ports
     }
+
+
+def list_containers(tid):
+    """
+    List the currently running containers for a team
+
+    Args:
+        tid: The team id to lookup containers for
+    Returns:
+        list of Container objects, or None on error
+    """
+    try:
+        client, _ = get_clients()
+        filters = {"label": "owner={}".format(tid)}
+        existing = client.containers.list(filters=filters)
+    except docker.errors.APIError as e:
+        print("error: " + e.explanation)
+        return None
+    return existing
