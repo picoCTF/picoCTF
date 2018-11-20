@@ -13,3 +13,10 @@ SECRET_KEY = "{{ flask_app_secret_key | default("INSECURE_DEFAULT_CHANGE_ME") }}
 SESSION_COOKIE_DOMAIN = {{ flask_app_cookie_domain | default("None") }}
 SESSION_COOKIE_PATH = "{{ flask_app_cookie_path | default("/") }}"
 SESSION_COOKIE_NAME = "{{ flask_app_cookie_name | default("flask") }}"
+
+DOCKER_PUB    = "{{ docker_public_host }}"
+DOCKER_HOST   = "{{ docker_internal_host }}"
+DOCKER_CA     = "{{ docker_ca }}"
+DOCKER_CLIENT = "{{ docker_client }}"
+DOCKER_KEY    = "{{ docker_key }}"
+DOCKER_CONTAINERS_PER_TEAM = {{ docker_containers_per_team }}

@@ -52,3 +52,11 @@ shell_proto: "HTTP"
 # HTTP Basic Auth
 enable_basic_auth: false
 htpasswd_accounts: []
+
+# Docker Challenge Support
+docker_public_host: ""
+docker_internal_host: ""
+docker_ca: ""
+docker_client: ""
+docker_key: ""
+docker_containers_per_team: 5

@@ -105,10 +105,10 @@ def create(tid, image_name):
     existing_containers = ensure_consistency(tid)
 
     # Check if team has exceeded the number of allowed containers
-    settings = api.config.get_settings()
-    if "containers_per_team" in settings:
-        num_allowed = settings["containers_per_user"]
-        if num_allowed >= len(existing_containers):
+    conf = api.app.app.config
+    if "DOCKER_CONTAINERS_PER_TEAM" in conf:
+        num_allowed = conf["DOCKER_CONTAINERS_PER_TEAM"]
+        if len(existing_containers) >= num_allowed:
             msg = "Container limit Reached. Stop another challenge to start this challenge"
             return {"success": False, "message": msg}
 
