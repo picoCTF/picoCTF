@@ -42,6 +42,9 @@ def get_team_review_count(tid=None, uid=None):
         return count
 
 
+# This is on the /scoreboard handler hot path and should be cached. Stored by
+# the cache_stats daemon.
+@api.cache.memoize()
 def get_group_scores(gid=None, name=None):
     """
     Get the group scores.

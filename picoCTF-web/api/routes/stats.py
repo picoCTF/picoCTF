@@ -41,6 +41,7 @@ def get_team_score_progression():
 @api_wrapper
 @block_before_competition(WebError("The competition has not begun yet!"))
 def get_scoreboard_hook():
+
     result = {}
     result['public'] = api.stats.get_all_team_scores(eligible=True)
     result['groups'] = []
@@ -50,13 +51,13 @@ def get_scoreboard_hook():
         if not api.team.get_team(tid=user["tid"])["eligible"]:
             result['ineligible'] = api.stats.get_all_team_scores(eligible=False)
         for group in api.team.get_groups(uid=user["uid"]):
+            # this is called on every scoreboard pageload and should be cached
+            # to support large groups
+            group_scoreboard = api.stats.get_group_scores(gid=group['gid'])
             result['groups'].append({
-                'gid':
-                group['gid'],
-                'name':
-                group['name'],
-                'scoreboard':
-                api.stats.get_group_scores(gid=group['gid'])
+                'gid': group['gid'],
+                'name': group['name'],
+                'scoreboard': group_scoreboard
             })
 
     return WebSuccess(data=result)
