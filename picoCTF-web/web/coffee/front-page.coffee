@@ -10,6 +10,8 @@ Alert = ReactBootstrap.Alert
 
 update = React.addons.update
 
+Recaptcha = ReactRecaptcha
+
 LoginForm = React.createClass
 
   render: ->
@@ -46,6 +48,15 @@ LoginForm = React.createClass
         <Alert bsStyle="warning">
           You can register provided you have an email for one of these domains: <strong>{@props.emailFilter.join ", "}</strong>.
         </Alert>
+      ).bind this
+
+      processRecaptcha = ( ->
+        if @props.reCAPTCHA_public_key
+          <Row>
+            <Col md={12}>
+              <Recaptcha sitekey={@props.reCAPTCHA_public_key} verifyCallback={@props.onRecaptchaSuccess} expiredCallback={@props.onRecaptchaExpire} render="explicit"  />
+            </Col>
+          </Row>
       ).bind this
 
       showOrHide = ((prop, inputName) ->
@@ -424,6 +435,7 @@ LoginForm = React.createClass
               <Input type="email" name="parentemail" disabled={if @props.age.value == "13-17" then false else true} id="parentemail" valueLink={@props.parentemail} label="Parent's E-mail *" required placeholder="email@example.com" />
             </Col>
           </Row>
+          {processRecaptcha()}
           <ButtonInput type="submit">Register</ButtonInput>
         </div> else <span/>
       <Panel>
@@ -512,6 +524,7 @@ AuthPanel = React.createClass
     rid: params.r
     status: params.status
     groupName: ""
+    captcha: ""
     eligibility: "eligible"
     regStats: {}
 
@@ -554,6 +567,10 @@ AuthPanel = React.createClass
   onRegistration: (e) ->
     e.preventDefault()
 
+    if @state.settings.enable_captcha && @state.captcha == ""
+      apiNotify {status: 0, message: "ReCAPTCHA required."}
+      return
+
     form = {}
     form.gid = @state.gid
     form.rid = @state.rid
@@ -578,6 +595,8 @@ AuthPanel = React.createClass
       form.country = form.demo.schoolcountry
     else
       form.country = form.demo.residencecountry
+
+    form['g-recaptcha-response'] = @state.captcha
 
     console.log(form)
 
@@ -643,6 +662,14 @@ AuthPanel = React.createClass
     @setState update @state,
         page: $set: page
 
+  onRecaptchaSuccess: (captcha) ->
+    @setState update @state,
+      captcha: $set: captcha
+
+  onRecaptchaExpire: () ->
+    @setState update @state,
+      captcha: $set: ""
+
   render: ->
     links =
     username: @linkState "username"
@@ -692,9 +719,11 @@ AuthPanel = React.createClass
       <div>
         <Row>
             <Col md={6} mdOffset={3}>
-              <LoginForm setPage={@setPage} status={@state.page} onRegistration={@onRegistration}
-                onLogin={@onLogin} onPasswordReset={@onPasswordReset} emailFilter={@state.settings.email_filter}
-                groupName={@state.groupName} rid={@state.rid} gid={@state.gid} {...links}/>
+              <LoginForm setPage={@setPage} onRecaptchaSuccess={@onRecaptchaSuccess} onRecaptchaExpire={@onRecaptchaExpire}
+                status={@state.page} reCAPTCHA_public_key={@state.settings.reCAPTCHA_public_key}
+                onRegistration={@onRegistration} onLogin={@onLogin} onPasswordReset={@onPasswordReset}
+                emailFilter={@state.settings.email_filter} groupName={@state.groupName} rid={@state.rid}
+                gid={@state.gid} {...links}/>
               {showRegStats()}
             </Col>
         </Row>

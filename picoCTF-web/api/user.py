@@ -302,7 +302,7 @@ def _validate_captcha(data):
 
     post_data = urllib.parse.urlencode({
         "secret":
-        api.config.reCAPTCHA_private_key,
+        settings['reCAPTCHA_private_key'],
         "response":
         data["g-recaptcha-response"],
         "remoteip":
@@ -310,10 +310,10 @@ def _validate_captcha(data):
     }).encode("utf-8")
 
     request = urllib.request.Request(
-        api.config.captcha_url, post_data, method='POST')
+        settings['captcha_url'], post_data, method='POST')
     response = urllib.request.urlopen(request).read().decode("utf-8")
     parsed_response = json.loads(response)
-    return parsed_response['success'] == True
+    return parsed_response['success'] is True
 
 
 @log_action
