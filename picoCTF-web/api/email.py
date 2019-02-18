@@ -140,8 +140,26 @@ The {0} Team.
 
     subject = "{} Account Verification".format(settings["competition_name"])
 
-    message = Message(body=body, recipients=[user['email']], subject=subject)
-    mail.send(message)
+    verification_message = Message(body=body, recipients=[user['email']], subject=subject)
+
+    bulk = [verification_message]
+
+    if settings["parent_verification_email"] and previous_key is None and user['demo']['age'] == "13-17":
+        body = """
+        Welcome to {0}!  Thank you for authorizing the participation of your child age 13-17 in {0} and providing your email address as part of the account registration process for your child.  As a reminder, the Terms of Service, Privacy Statement and Competition Rules for {0}.
+    
+        If you received this email in error because you did not authorize your child’s registration for {0}, you are not the child’s parent or legal guardian, or your child is under age 13, please email us immediately at {2}
+        """.format(settings["competition_name"])
+
+        subject = "{} Parent Account Verification".format(settings["competition_name"])
+        recipients = [user['demo']['parentemail']]
+        parent_email = Message(body=body, recipients=recipients, subject=subject)
+
+        bulk.append(parent_email)
+
+    with mail.connect() as conn:
+        for msg in bulk:
+            conn.send(msg)
 
 
 def send_email_invite(gid, email, teacher=False):

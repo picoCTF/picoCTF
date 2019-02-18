@@ -130,6 +130,7 @@ default_settings = {
     "email": {
         "enable_email": False,
         "email_verification": False,
+        "parent_verification_email": False,
         "smtp_url": "",
         "smtp_port": 587,
         "email_username": "",

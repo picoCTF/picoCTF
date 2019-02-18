@@ -71,8 +71,6 @@ user_schema = Schema(
         Required('lastname'):
         check(("Last Name must be between 1 and 50 characters.",
                [str, Length(min=1, max=50)])),
-        Required('country'):
-        check(("Please select a country", [str, Length(min=2, max=2)])),
         Required('username'):
         check(("Usernames must be between 3 and 20 characters.",
                [str, Length(min=3, max=20)]),
@@ -89,9 +87,23 @@ user_schema = Schema(
         Required('affiliation'):
         check(("You must specify an affiliation.", [str,
                                                     Length(min=3, max=50)])),
-        Required('eligibility'):
-        check(("You must specify whether or not your account is eligible.",
-               [str, lambda status: status in ["eligible", "ineligible"]])),
+        Required('usertype'):
+        check(("You must specify a status",
+               [str, lambda status: status in ["student", "college", "teacher", "other"]])),
+        Required('country'):
+            check(("Please select a country", [str, Length(min=2, max=2)])),
+        Required("demo"): Schema({
+            "parentemail":
+            check(
+                ("Parent Email must be between 5 and 50 characters.",
+                 [str, Length(min=5, max=50)]),
+                ("Your parent's email does not look like an email address.",
+                 [_check_email_format]),
+            ),
+            Required("age"):
+            check(("You must specify your age",
+                   [lambda age: age in ["13-17", "18+"]])),
+        }, extra=True),
     },
     extra=True)
 
@@ -177,8 +189,10 @@ def create_user(username,
                 email,
                 password_hash,
                 tid,
+                usertype,
+                country,
+                demo,
                 teacher=False,
-                country="US",
                 admin=False,
                 verified=False):
     """
@@ -191,6 +205,9 @@ def create_user(username,
         email: user's email
         password_hash: a hash of the user's password
         tid: the team id to join
+        usertype: category of user (student, teacher, etc)
+        country: primary country (dependent on usertype)
+        demo: dict of demographic data
         teacher: whether this account is a teacher
     Returns:
         Returns the uid of the newly created user
@@ -233,10 +250,12 @@ def create_user(username,
         'email': email,
         'password_hash': password_hash,
         'tid': tid,
+        'usertype': usertype,
+        'country': country,
+        'demo': demo,
         'teacher': teacher,
         'admin': admin,
         'disabled': False,
-        'country': country,
         'verified': not settings["email"]["email_verification"] or verified,
         'extdata': {},
     }
@@ -304,19 +323,30 @@ def create_simple_user_request(params):
     Assume arguments to be specified in a dict.
 
     Args:
-        username: user's username
-        password: user's password
-        firstname: user's first name
-        lastname: user's first name
-        email: user's email
-        eligible: "eligible" or "ineligible"
-        affiliation: user's affiliation
-        gid: group registration
-        rid: registration id
+        params:
+            username: user's username
+            password: user's password
+            firstname: user's first name
+            lastname: user's first name
+            email: user's email
+            eligibility: "eligible" or "ineligible"
+            country: 2-digit country code
+            affiliation: user's affiliation
+            demo: arbitrary dict of demographic data
+            gid: group registration
+            rid: registration id
     """
 
-    params["country"] = "US"
+    if params["usertype"] == "student":
+        params["eligibility"] = "eligible"
+    else:
+        params["eligibility"] = "ineligible"
+
     validate(user_schema, params)
+
+    if api.config.get_settings()["email"]["parent_verification_email"] and params["demo"]["age"] != "18+" and not params["demo"].get("parentemail", None):
+        raise WebException(
+            "You must include your parent's email address")
 
     whitelist = None
 
@@ -363,7 +393,6 @@ def create_simple_user_request(params):
         "eligible": params["eligibility"] == "eligible",
         "affiliation": params["affiliation"]
     }
-
     tid = api.team.create_team(team_params)
 
     if tid is None:
@@ -379,7 +408,9 @@ def create_simple_user_request(params):
         params["email"],
         api.common.hash_password(params["password"]),
         team["tid"],
-        country=params["country"],
+        params["usertype"],
+        params["country"],
+        params["demo"],
         teacher=user_is_teacher,
         verified=user_was_invited)
 

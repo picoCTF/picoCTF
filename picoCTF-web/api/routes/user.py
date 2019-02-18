@@ -38,7 +38,7 @@ def create_simple_user_hook():
     settings = api.config.get_settings()
 
     new_uid = api.user.create_simple_user_request(
-        api.common.flat_multi(request.form))
+        api.common.parse_multi_form(request.form))
 
     # Only automatically login if we don't have to verify
     if api.user.get_user(uid=new_uid)["verified"]:
