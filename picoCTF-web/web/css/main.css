@@ -416,3 +416,10 @@ img.logo-landscape {
 .capitalize {
   text-transform: capitalize;
 }
+
+.pagination-container {
+  text-align: center;
+}
+.pagination>li {
+  cursor: pointer;
+}

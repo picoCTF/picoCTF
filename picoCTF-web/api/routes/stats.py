@@ -44,37 +44,58 @@ def get_team_score_progression():
 @api_wrapper
 @block_before_competition(WebError("The competition has not begun yet!"))
 def get_scoreboard_hook(board, page):
+    def get_user_pos(scoreboard, tid):
+        for pos, team in enumerate(scoreboard):
+            if team["tid"] == tid:
+                return pos
+        return 1
+
+    user = None
+    if api.auth.is_logged_in():
+        user = api.user.get_user()
+
     # Old board, limit 1-50
     if board is None:
-        result = {}
-        result['groups'] = []
+        result = {'tid': 0, 'groups': []}
         global_board = api.stats.get_all_team_scores(show_ineligible=True)
         result['global'] = {
             'name': 'global',
             'pages': math.ceil(len(global_board) / scoreboard_page_len),
-            'scoreboard': global_board[:scoreboard_page_len],
+            'start_page': 1
         }
+        if user is None:
+            result['global']['scoreboard'] = global_board[:scoreboard_page_len]
+        else:
+            result['tid'] = user['tid']
+            global_pos = get_user_pos(global_board, user["tid"])
+            start_slice = math.floor(global_pos / 50) * 50
+            result['global']['scoreboard'] = global_board[start_slice:start_slice + 50]
+            result['global']['start_page'] = math.ceil((global_pos + 1) / 50)
 
-        if api.auth.is_logged_in():
-            user = api.user.get_user()
-
-            student_board = api.stats.get_all_team_scores(eligible=True, country=None, show_ineligible=False)
+            result['country'] = user["country"]
+            student_board = api.stats.get_all_team_scores(eligible=True, country=user["country"], show_ineligible=False)
+            student_pos = get_user_pos(student_board, user["tid"])
+            start_slice = math.floor(student_pos / 50) * 50
             result['student'] = {
                 'name': 'student',
                 'pages': math.ceil(len(student_board) / scoreboard_page_len),
-                'scoreboard': student_board[:scoreboard_page_len],
+                'scoreboard': student_board[start_slice:start_slice + 50],
+                'start_page': math.ceil((student_pos + 1) / 50),
             }
 
             for group in api.team.get_groups(uid=user["uid"]):
                 group_board = api.stats.get_group_scores(gid=group['gid'])
+                group_pos = get_user_pos(group_board, user["tid"])
+                start_slice = math.floor(group_pos / 50) * 50
                 result['groups'].append({
                     'gid':
                     group['gid'],
                     'name':
                     group['name'],
                     'scoreboard':
-                    group_board[:scoreboard_page_len],
+                    group_board[start_slice:start_slice + 50],
                     'pages': math.ceil(len(group_board) / scoreboard_page_len),
+                    'start_page': math.ceil((group_pos + 1) / 50),
                 })
 
         return WebSuccess(data=result)
@@ -101,6 +122,8 @@ def get_scoreboard_hook(board, page):
             elif board == "student":
                 result = api.stats.get_all_team_scores(eligible=True, country=user.get("country"),
                                                        show_ineligible=False)[start:end]
+            else:
+                result = []
             return WebSuccess(data=result)
         else:
             return WebError("A valid board must be specified")

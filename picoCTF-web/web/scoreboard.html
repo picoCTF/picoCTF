@@ -1,10 +1,11 @@
 ---
 layout: default
-title: Top Scoreboard
+title: Scoreboard
 post_scripts:
  - js/progression_graphs.js
  - js/scoreboard.js
  - js/libs/Chart.min.js
+ - js/libs/bootstrap-paginator.min.js
 startup_functions:
 ---
 
@@ -26,12 +27,15 @@ startup_functions:
   </ul>
   <div class="tab-content">
    <div class="row">
+      <h3 class="text-center">Top 5 Progression</h3>
       <div id="global-progression" class="progression-graph"></div>
     </div>
     <div id="global" class="tab-pane fade in active">
-      <%= renderScoreboard({data: data.global}) %>
+      <%= renderScoreboard({data: data.global, tid: data.tid}) %>
       <% if (data.global.pages > 1) { %>
+      <div class="pagination-container">
         <ul id="global-pagination" class="pagination"></ul>
+      </div>
       <% } %>
     </div>
     <% if(data.student !== undefined) { %>
@@ -39,9 +43,11 @@ startup_functions:
         <div id="student-progression" class="progression-graph"></div>
       </div>
       <div id="student" class="tab-pane fade">
-        <%= renderScoreboard({data: data.student}) %>
+        <%= renderScoreboard({data: data.student, tid: data.tid}) %>
         <% if (data.student.pages > 1) { %>
+        <div class="pagination-container">
           <ul id="student-pagination" class="pagination"></ul>
+        </div>
         <% } %>
       </div>
     <% } %>
@@ -50,9 +56,11 @@ startup_functions:
         <div id="<%= group.gid %>-progression" class="progression-graph"></div>
       </div>
       <div id="<%= group.gid %>" class="tab-pane fade">
-        <%= renderScoreboard({data: group}) %>
+        <%= renderScoreboard({data: group, tid: data.tid}) %>
         <% if (group.pages > 1) { %>
+        <div class="pagination-container">
           <ul id="<%= group.name %>-pagination" class="pagination"></ul>
+        </div>
         <% } %>
       </div>
      <% }); %>
@@ -72,8 +80,12 @@ startup_functions:
       </thead>
       <tbody>
         <% _.each(data.scoreboard, function(team, i) { %>
-          <tr>
-            <td><%= i+1 %>.</td>
+            <% if(team.tid == tid) { %>
+            <tr class="alert alert-success">
+            <% } else { %>
+            <tr>
+            <% } %>
+            <td><%= (50*(data.start_page - 1)) + i + 1 %>.</td>
             <td><%- team.name %></td>
             <td><%- team.affiliation %></td>
             <td><strong><%= team.score %></strong></td>
@@ -86,6 +98,21 @@ startup_functions:
       <p class="text-center">No teams have scored any points yet.</p>
     </pre>
   <% } %>
+</script>
+
+<script type="text/template" id="scorepage-template">
+    <% _.each(scorepage, function(team, i) { %>
+      <% if(team.tid == tid) { %>
+      <tr class="alert alert-success">
+      <% } else { %>
+      <tr>
+      <% } %>
+        <td><%= (50*(page - 1)) + i + 1 %>.</td>
+        <td><%- team.name %></td>
+        <td><%- team.affiliation %></td>
+        <td><strong><%= team.score %></strong></td>
+      </tr>
+    <% }); %>
 </script>
 
 <div class="container">
