@@ -35,8 +35,6 @@ def authorize_role(role=None):
 @blueprint.route('/create_simple', methods=['POST'])
 @api_wrapper
 def create_simple_user_hook():
-    settings = api.config.get_settings()
-
     new_uid = api.user.create_simple_user_request(
         api.common.parse_multi_form(request.form))
 
@@ -44,8 +42,11 @@ def create_simple_user_hook():
     if api.user.get_user(uid=new_uid)["verified"]:
         session['uid'] = new_uid
 
-    return WebSuccess("User '{}' registered successfully!".format(
-        request.form["username"]))
+    return WebSuccess(
+        message="User '{}' registered successfully!".format(
+            request.form["username"]),
+        data={'teacher': api.user.is_teacher(new_uid)}
+    )
 
 
 @blueprint.route('/update_password', methods=['POST'])

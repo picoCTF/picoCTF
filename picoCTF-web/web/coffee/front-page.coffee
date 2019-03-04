@@ -614,13 +614,16 @@ AuthPanel = React.createClass
             message: "You have been sent a verification email. You will need to complete this step before logging in."
 
           if @state.settings.max_team_size > 1
-            if @state.settings.email_verification and not @state.rid and @state.usertype != "teacher"
+            if @state.settings.email_verification and not @state.rid
               apiNotify verificationAlert
               @setPage "Login"
               document.location.hash = "#team-builder"
             else
-              apiNotify resp
-              @setPage "Team Management"
+              if resp.data.teacher
+                apiNotify resp, "/profile"
+              else
+                apiNotify resp
+                @setPage "Team Management"
           else
             if @state.settings.email_verification
               if not @state.rid or @state.rid.length == 0
@@ -628,8 +631,6 @@ AuthPanel = React.createClass
               else
                 apiNotify resp, "/profile"
               @setPage "Login"
-              if @state.settings.max_team_size > 1
-                document.location.hash = "#team-builder"
             else
              apiNotify resp, "/profile"
 
