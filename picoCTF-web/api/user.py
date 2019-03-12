@@ -332,7 +332,7 @@ def create_simple_user_request(params):
             firstname: user's first name
             lastname: user's first name
             email: user's email
-            eligibility: "eligible" or "ineligible"
+            eligibility: True or False
             country: 2-digit country code
             affiliation: user's affiliation
             usertype: "student", "teacher" or other
@@ -341,10 +341,7 @@ def create_simple_user_request(params):
             rid: registration id
     """
 
-    if params["usertype"] == "student":
-        params["eligibility"] = "eligible"
-    else:
-        params["eligibility"] = "ineligible"
+    params["eligibility"] = params["usertype"] == "student"
 
     validate(user_schema, params)
 
