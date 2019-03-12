@@ -17,7 +17,7 @@ def run():
 
     print("Caching the public scoreboard entries...")
     cache(api.stats.get_all_team_scores, eligible=True, country=None, show_ineligible=False)
-    cache(api.stats.get_all_team_scores, show_ineligible=True)
+    cache(api.stats.get_all_team_scores, eligible=True, country=None, show_ineligible=True)
 
     print("Caching the public scoreboard graph...")
     cache(api.stats.get_top_teams_score_progressions, eligible=True, country=None, show_ineligible=False)

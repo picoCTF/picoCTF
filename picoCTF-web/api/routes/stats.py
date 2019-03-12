@@ -57,7 +57,7 @@ def get_scoreboard_hook(board, page):
     # Old board, limit 1-50
     if board is None:
         result = {'tid': 0, 'groups': []}
-        global_board = api.stats.get_all_team_scores(show_ineligible=True)
+        global_board = api.stats.get_all_team_scores(eligible=True, country=None, show_ineligible=True)
         result['global'] = {
             'name': 'global',
             'pages': math.ceil(len(global_board) / scoreboard_page_len),
@@ -73,7 +73,7 @@ def get_scoreboard_hook(board, page):
             result['global']['start_page'] = math.ceil((global_pos + 1) / 50)
 
             result['country'] = user["country"]
-            student_board = api.stats.get_all_team_scores(eligible=True, country=user["country"], show_ineligible=False)
+            student_board = api.stats.get_all_team_scores(eligible=True, country=None, show_ineligible=False)
             student_pos = get_user_pos(student_board, user["tid"])
             start_slice = math.floor(student_pos / 50) * 50
             result['student'] = {
@@ -118,10 +118,9 @@ def get_scoreboard_hook(board, page):
                             api.stats.get_group_scores(gid=group['gid'])[start:end]
                     })
             elif board == "global":
-                result = api.stats.get_all_team_scores(show_ineligible=True)[start:end]
+                result = api.stats.get_all_team_scores(eligible=True, country=None, show_ineligible=True)[start:end]
             elif board == "student":
-                result = api.stats.get_all_team_scores(eligible=True, country=user.get("country"),
-                                                       show_ineligible=False)[start:end]
+                result = api.stats.get_all_team_scores(eligible=True, country=None, show_ineligible=False)[start:end]
             else:
                 result = []
             return WebSuccess(data=result)
