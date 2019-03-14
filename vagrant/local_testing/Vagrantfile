@@ -8,7 +8,7 @@ Vagrant.configure("2") do |config|
     # Could be changed to a completely fresh base with:
     # db.vm.box = "debian/contrib-jessie64"
     db.vm.box = "picoCTF/web-base"
-    db.vm.network "private_network", ip: "10.0.5.20"
+    db.vm.network "private_network", ip: "10.0.5.20", nic_type: "virtio"
     # Disable synced folder to simulate remote environment
     db.vm.synced_folder ".", "/vagrant", disabled: true
     db.vm.provider "virtualbox" do |vb|
@@ -19,7 +19,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "shell", primary: true do |shell|
     shell.vm.box = "picoCTF/shell-base"
-    shell.vm.network "private_network", ip: "10.0.5.11"
+    shell.vm.network "private_network", ip: "10.0.5.11", nic_type: "virtio"
     shell.vm.synced_folder ".", "/vagrant", disabled: true
     shell.vm.provider "virtualbox" do |vb|
         vb.name = "picoCTF-shell-testing"
@@ -29,7 +29,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "web", primary: true do |web|
     web.vm.box = "picoCTF/web-base"
-    web.vm.network "private_network", ip: "10.0.5.10"
+    web.vm.network "private_network", ip: "10.0.5.10", nic_type: "virtio"
     web.vm.synced_folder ".", "/vagrant", disabled: true
     web.vm.provider "virtualbox" do |vb|
         vb.name = "picoCTF-web-testing"
