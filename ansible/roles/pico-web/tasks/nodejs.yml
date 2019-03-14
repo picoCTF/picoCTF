@@ -28,7 +28,10 @@
 
 - name: Install nodejs and dependencies
   apt:
-    name: ['nodejs', 'build-essential']
+    name: [
+      'build-essential',
+      'nodejs',
+      ]
     state: latest
 
 # Extracted from picoCTF-platform/scripts/web_setup.sh
@@ -37,7 +40,7 @@
     name: "{{ item }}"
     global: yes
   with_items:
-    - coffee-script
-    - react-tools
-    - jsxhint
     - coffee-react
+    - coffee-script
+    - jsxhint
+    - react-tools

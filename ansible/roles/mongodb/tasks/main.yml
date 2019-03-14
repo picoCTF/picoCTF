@@ -7,8 +7,8 @@
 
 - include: install.yml
   tags:
-    - network
     - dependency
+    - network
 
 - include: configure_storage.yml
 

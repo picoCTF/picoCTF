@@ -3,18 +3,18 @@
 
 - include: ppas.yml
   tags:
-   - network
    - dependency
+   - network
 
 - include: upgrade.yml
   tags:
-    - network
     - dependency
+    - network
 
 - include: utils.yml
   tags:
-    - network
     - dependency
+    - network
 
 - include: set_hostname.yml
 

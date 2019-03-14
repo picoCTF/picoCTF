@@ -21,4 +21,5 @@
         'iftop',
         'ncdu',
         'nethogs',
-        'vnstat']
+        'vnstat',
+        ]

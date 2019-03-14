@@ -20,37 +20,51 @@
   apt:
     state: present
     name: [
-      'software-properties-common',
-      'xinetd',
-      'dpkg',
       'dpkg-dev',
+      'dpkg',
       'fakeroot',
-      'python-virtualenv',
-      'python-pip',       # used for pam module dependencies
-      'python3',          # used by shell_manager
-      'python3-pip',      # used for shell_manager dependencies
-      'python3.7',        # from PPA, to cover all likely interpreter directives
-      'python3.7-dev',
-      'python3.7-venv',
+      'gcc-multilib',
+      'gcc-multilib',
+      'libffi-dev',
       'libffi-dev',
       'libssl-dev',
-      'socat',
+      'libssl-dev',
+      'nginx',
+      'nginx',
+      'nodejs']
       'php7.2-cli',       # php5 package deprecated
       'php7.2-sqlite3',   # used to serve shellinabox and challenge binaries
-      'gcc-multilib',
-      'nginx',
+      'python-pip',       # used for pam module dependencies
+      'python-virtualenv',
+      'python3-pip',      # used for shell_manager dependencies
+      'python3.7-dev',
+      'python3.7-venv',
+      'python3.7',        # from PPA, to cover all likely interpreter directives
+      'python3',          # used by shell_manager
       'shellinabox',
-      'nodejs']
+      'socat',
+      'software-properties-common',
+      'xinetd',
+      ]
 
 # Needed by templated challenge types
 - name: Install uwsgi and plugins for shell server
   apt:
-    name: ['uwsgi', 'uwsgi-plugin-php', 'uwsgi-plugin-python3', 'uwsgi-plugin-python', 'python-flask']
+    name: [
+        'python-flask',
+        'uwsgi-plugin-php',
+        'uwsgi-plugin-python',
+        'uwsgi-plugin-python3',
+        'uwsgi',
+        ]
     state: present
 
 - name: Install pam dependencies
   apt:
-    name: ['libpam-python', 'python-setuptools']
+    name: [
+        'libpam-python',
+        'python-setuptools'
+        ]
     state: present
 
 # System python packages updates needed for pam_auth module and Ansible
@@ -140,7 +154,8 @@
       'tmux',
       # z: misc
       'expect',
-      'pandoc'] # for `pip install pwntools`
+      'pandoc', # for `pip install pwntools`
+      ]
 
 - name: Ensure nano is the default editor
   alternatives:
