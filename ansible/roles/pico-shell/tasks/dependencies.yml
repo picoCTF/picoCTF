@@ -24,14 +24,10 @@
       'dpkg',
       'fakeroot',
       'gcc-multilib',
-      'gcc-multilib',
-      'libffi-dev',
       'libffi-dev',
       'libssl-dev',
-      'libssl-dev',
       'nginx',
-      'nginx',
-      'nodejs']
+      'nodejs',
       'php7.2-cli',       # php5 package deprecated
       'php7.2-sqlite3',   # used to serve shellinabox and challenge binaries
       'python-pip',       # used for pam module dependencies
@@ -63,7 +59,7 @@
   apt:
     name: [
         'libpam-python',
-        'python-setuptools'
+        'python-setuptools',
         ]
     state: present
 
@@ -164,10 +160,18 @@
 
 - name: Install common pip2 packages for CTF shell servers
   pip:    # ipython 6.0 dropped support for Python2
-    name: ['ipython<6.0', 'ptpython', 'pwntools']
+    name: [
+        'ipython<6.0',
+        'ptpython',
+        'pwntools',
+        ]
 
 - name: Install common pip3 packages for CTF shell servers
   pip:
-    name: ['ipython', 'ptpython', 'pwntools']
+    name: [
+        'ipython',
+        'ptpython',
+        'pwntools',
+        ]
     executable: pip3
   when: False # pwntools is not ready for python3; skipping to avoid confusion
