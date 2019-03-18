@@ -933,8 +933,7 @@ def deploy_problems(args, config):
             execute(["service", "xinetd", "restart"], timeout=60)
 
         logger.debug("Releasing lock file %s", lock_file)
-        if not args.dry:
-            os.remove(lock_file)
+        os.remove(lock_file)
 
 
 def remove_instances(path, instance_list):
