@@ -163,9 +163,10 @@ def create_new_team_request(params, uid=None):
     desired_tid = create_team({
         "team_name": params["team_name"],
         "password": api.common.hash_password(params["team_password"]),
-        # The team's affiliation becomes the creator's affiliation.
         "affiliation": current_team["affiliation"],
-        "eligible": True
+        "eligible": user["eligible"],
+        "creator": user["uid"],
+        "country": user["country"],
     })
 
     return join_team(params["team_name"], params["team_password"], user["uid"])
@@ -179,7 +180,9 @@ def create_team(params):
         team_name: Name of the team
         school: Name of the school
         password: Team's hashed password
-        eligible: the teams eligibility
+        eligible: the teams eligibility, inherited from creator
+        country: primary country of team
+        creator: uid of creating user
     Returns:
         The newly created team id.
     """
@@ -222,11 +225,12 @@ def get_team_members(tid=None, name=None, show_disabled=True):
             "_id": 0,
             "uid": 1,
             "username": 1,
-            "firstname": 1,
-            "lastname": 1,
             "disabled": 1,
             "email": 1,
-            "teacher": 1
+            "teacher": 1,
+            "country": 1,
+            "usertype": 1,
+            "eligible": 1,
         }))
     return [
         user for user in users
@@ -275,12 +279,11 @@ def get_team_information(tid=None, gid=None):
     team_info["score"] = api.stats.get_score(tid=tid)
     team_info["members"] = [{
         "username": member["username"],
-        "firstname": member["firstname"],
-        "lastname": member["lastname"],
         "email": member["email"],
         "uid": member["uid"],
         "affiliation": member.get("affiliation", "None"),
-        "teacher": roles["teacher"] if gid else False
+        "country": member["country"],
+        "usertype": member["usertype"],
     } for member in get_team_members(tid=tid, show_disabled=False)]
     team_info["competition_active"] = api.utilities.check_competition_active()
     team_info["progression"] = api.stats.get_score_progression(tid=tid)
@@ -303,7 +306,7 @@ def get_team_information(tid=None, gid=None):
     return team_info
 
 
-def get_all_teams(ineligible=False, eligible=True, show_ineligible=False):
+def get_all_teams(ineligible=False, eligible=True, country=None, show_ineligible=False):
     """
     Retrieves all teams.
 
@@ -320,6 +323,9 @@ def get_all_teams(ineligible=False, eligible=True, show_ineligible=False):
         elif eligible:
             conditions.append({"eligible": True})
         match = {"$or": conditions}
+
+    if country is not None:
+        match.update({"country": country})
 
     # Ignore empty teams (remnants of single player self-team ids)
     match.update({"size": {"$gt": 0}})
@@ -407,6 +413,15 @@ def join_team(team_name, password, uid=None):
             }},
             new=True)
 
+        # Team country is no longer consistent amongst members. Flag as mixed and ineligible
+        if user["country"] != desired_team["country"]:
+            db.teams.update({"tid": desired_team["tid"]}, {"$set": {"country": "??",
+                                                                    "eligible": False}})
+
+        # Ineligible user has spoiled team eligibility
+        if not user["eligible"] and desired_team["eligible"]:
+            db.teams.update({"tid": desired_team["tid"]}, {"$set": {"eligible": False}})
+
         if not desired_team_size_update or not current_team_size_update:
             raise InternalException(
                 "There was an issue switching your team! Please contact an administrator."
@@ -432,7 +447,7 @@ def join_team(team_name, password, uid=None):
         # Clear solved
         api.cache.invalidate_memoization(api.problem.get_solved_problems,
                                          {"kwargs.tid": desired_team["tid"]},
-                                         {"kwargs.uid": uid})
+                                         {"kwargs.uid": user["uid"]})
 
         # Make sure team score is reflected as well
         api.cache.invalidate_memoization(api.stats.get_score,

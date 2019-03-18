@@ -9,6 +9,7 @@ teacherLoggedIn =
   News: "/news"
 
 teacherLoggedInNoCompetition =
+  Scoreboard: "/scoreboard"
   Classroom: "/classroom"
   News: "/news"
 
@@ -21,7 +22,6 @@ userLoggedIn =
 userLoggedInNoCompetition =
   Scoreboard: "/scoreboard"
   News: "/news"
-
 
 userNotLoggedIn =
   News: "/news"

@@ -22,6 +22,24 @@
 # be loaded in directly via filesystem sync without being cloned from a
 # specific source and branch
 - include: clone_repo.yml
-  when: "'local_development' not in group_names"
+  when: "'git' in sync_mode"			# coule be git or git_private
   tags:
     - network
+
+# Source should be synchronized over from a local directory on the control machine
+- name: Synchronize picoCTF source code
+  synchronize:
+    src: "{{pico_src_dir}}"
+    dest: "{{pico_base_dir}}"
+    archive: no
+    recursive: yes
+  when: "'source' in sync_mode"
+
+- name: Ensure admin user owns picoCTF directory
+  file:
+    path: "{{ pico_base_dir}}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    state: directory
+    recurse: yes
+  when: ('git' in sync_mode) or ('source' in sync_mode)

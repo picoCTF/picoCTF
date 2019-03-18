@@ -8,18 +8,17 @@
 
 - name: Install base packages
   apt:
-    pkg: "{{ item }}"
     state: present
-  with_items:
-    - aptitude          # required for apt module
-    - curl
-    - git
-    - python-passlib    # required for htpasswd module
-    - tmux
-    - vim-nox
-    # monitoring tools
-    - htop
-    - iftop
-    - ncdu
-    - nethogs
-    - vnstat
+    pkg: [
+        'aptitude',         # required for apt module
+        'curl',
+        'git',
+        'python-passlib',   # required for htpasswd module
+        'tmux',
+        'vim-nox',
+        # monitoring tools
+        'htop',
+        'iftop',
+        'ncdu',
+        'nethogs',
+        'vnstat']

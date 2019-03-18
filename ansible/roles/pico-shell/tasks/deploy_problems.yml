@@ -46,11 +46,15 @@
 
 - name: Change /tmp permission
   become: true
-  command: "chmod 1773 /tmp"
+  file:
+    path: /tmp
+    mode: 1773
 
 - name: Change /etc/xinetd.d permission
   become: true
-  command: "chmod 750 /etc/xinetd.d"
+  file:
+    path: /etc/xinetd.d
+    mode: 750
 
 # generally a good idea (on remote, we will find dist.bundle)
 - name: Exclude group and others from ansible_user home directory

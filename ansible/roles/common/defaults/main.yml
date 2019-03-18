@@ -3,3 +3,6 @@
 # and can easily be overridden in group_vars, host_vars, or command line.
 
 private_repo: False
+
+# Method for synchronizing the picoCTF source to the remote machine
+sync_mode: "none"   # [none, git, git_private, source]

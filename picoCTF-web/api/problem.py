@@ -10,7 +10,7 @@ from api.annotations import log_action
 from api.common import (check, InternalException, safe_fail,
                         SevereInternalException, validate, WebException)
 from bson import json_util
-from voluptuous import Length, Range, Required, Schema
+from voluptuous import Length, Range, Required, Schema, ALLOW_EXTRA
 
 submission_schema = Schema({
     Required("tid"):
@@ -60,7 +60,7 @@ problem_schema = Schema({
     check(("You should not specify a pid for a problem.", [lambda _: False])),
     "_id":
     check(("Your problems should not already have _ids.", [lambda id: False]))
-})
+}, extra=ALLOW_EXTRA)
 
 instance_schema = Schema(
     {

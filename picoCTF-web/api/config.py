@@ -130,6 +130,7 @@ default_settings = {
     "email": {
         "enable_email": False,
         "email_verification": False,
+        "parent_verification_email": False,
         "smtp_url": "",
         "smtp_port": 587,
         "email_username": "",
@@ -173,6 +174,8 @@ def get_settings():
 
     if settings is None:
         db.settings.insert(default_settings)
+        # Initialize indexes, runonce
+        api.setup.index_mongo()
         return default_settings
 
     return settings

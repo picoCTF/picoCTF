@@ -26,11 +26,3 @@
     dest: "{{ pico_base_dir}}"
     accept_hostkey: yes
   when: not private_repo
-
-- name: Ensure admin user owns picoCTF directory
-  file:
-    path: "{{ pico_base_dir}}"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    state: directory
-    recurse: yes

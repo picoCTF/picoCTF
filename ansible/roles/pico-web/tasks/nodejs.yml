@@ -28,11 +28,8 @@
 
 - name: Install nodejs and dependencies
   apt:
-    name: "{{ item }}"
+    name: ['nodejs', 'build-essential']
     state: latest
-  with_items:
-    - nodejs
-    - build-essential
 
 # Extracted from picoCTF-platform/scripts/web_setup.sh
 - name: Install nodejs packages (globally)

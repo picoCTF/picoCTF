@@ -9,19 +9,8 @@
 # Extracted from picoCTF-platform/scripts/web_setup.sh
 - name: Install picoCTF platform system dependencies
   apt:
-    name: "{{ item }}"
+    name: ['python3-pip', 'python3.6', 'python3.6-dev', 'python3.6-venv', 'python-virtualenv', 'gunicorn', 'jekyll', 'nginx', 'libffi-dev', 'libssl-dev']
     state: present
-  with_items:
-    - python3-pip
-    - python3.6
-    - python3.6-dev
-    - python3.6-venv
-    - python-virtualenv
-    - gunicorn
-    - jekyll
-    - nginx
-    - libffi-dev
-    - libssl-dev
 
 - name: Install pymongo in (new) virtualenv
   pip:

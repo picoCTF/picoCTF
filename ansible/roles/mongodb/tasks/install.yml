@@ -18,10 +18,8 @@
 
 - name: Install mongo
   apt:
-    name: "{{ item }}"
+    name: ['mongodb-org']  # from PPA
     state: present
-  with_items:
-    - mongodb-org     # from PPA
 
 - name: Ensure mongodb is running
   service:

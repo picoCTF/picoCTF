@@ -106,11 +106,11 @@ TeamManagementForm = React.createClass
 
   listMembers: () ->
     for member in @state.team["members"]
-      <li>{member.username}</li>
-
+      <li>{member.username} (<span className="capitalize">{member.usertype} - {member.country}</span>)</li>
 
   render: ->
     if @state.team.max_team_size > 1 and not @state.user.teacher
+      window.$("#team-management-container").show()
       towerGlyph = <Glyphicon glyph="tower"/>
       lockGlyph = <Glyphicon glyph="lock"/>
 
@@ -134,7 +134,8 @@ TeamManagementForm = React.createClass
         </Panel>
       else
         <Panel header="Team Management">
-        <p>To avoid confusion on the scoreboard, you may not create a team that shares the same name as an existing user.</p>
+        <p>Your team name may be visible to other users. Do not include your real name or any other personal information.
+          Also, to avoid confusion on the scoreboard, you may not create a team that shares the same name as an existing user.</p>
           <form onSubmit={@onTeamJoin}>
             <Input type="text" valueLink={@linkState "team_name"} addonBefore={towerGlyph} label="Team Name" required/>
             <Input type="password" valueLink={@linkState "team_password"} addonBefore={lockGlyph} label="Team Password" required/>

@@ -9,49 +9,39 @@
 # Extracted from picoCTF-platform/scripts/shell_setup.sh
 - name: Install picoCTF-shell system dependencies
   apt:
-    name: "{{ item }}"
     state: present
-  with_items:
-    - software-properties-common
-    - xinetd
-    - dpkg
-    - dpkg-dev
-    - fakeroot
-    - python-virtualenv
-    - python-pip      # used for pam module dependencies
-    - python3         # used by shell_manager
-    - python3-pip     # used for shell_manager dependencies
-    - python3.6       # from PPA, to cover all likely interpreter directives
-    - python3.6-dev
-    - python3.6-venv
-    - libffi-dev
-    - libssl-dev
-    - socat
-    - php7.0-cli      # php5 package deprecated
-    - php7.0-sqlite3
-    - gcc-multilib
-    - nginx           # used to serve shellinabox and challenge binaries
-    - shellinabox
+    name: [
+      'software-properties-common',
+      'xinetd',
+      'dpkg',
+      'dpkg-dev',
+      'fakeroot',
+      'python-virtualenv',
+      'python-pip',       # used for pam module dependencies
+      'python3',          # used by shell_manager
+      'python3-pip',      # used for shell_manager dependencies
+      'python3.6',        # from PPA, to cover all likely interpreter directives
+      'python3.6-dev',
+      'python3.6-venv',
+      'libffi-dev',
+      'libssl-dev',
+      'socat',
+      'php7.0-cli',       # php5 package deprecated
+      'php7.0-sqlite3',   # used to serve shellinabox and challenge binaries
+      'gcc-multilib',
+      'nginx',
+      'shellinabox']
 
 # Needed by templated challenge types
 - name: Install uwsgi and plugins for shell server
   apt:
-    name: "{{ item }}"
+    name: ['uwsgi', 'uwsgi-plugin-php', 'uwsgi-plugin-python3', 'uwsgi-plugin-python', 'python-flask']
     state: present
-  with_items:
-    - uwsgi
-    - uwsgi-plugin-php
-    - uwsgi-plugin-python3
-    - uwsgi-plugin-python
-    - python-flask
 
 - name: Install pam dependencies
   apt:
-    name: "{{ item }}"
+    name: ['libpam-python', 'python-setuptools']
     state: present
-  with_items:
-    - libpam-python
-    - python-setuptools
 
 # System python packages updates needed for pam_auth module and Ansible
 - name: Update pyOpenSSL
@@ -93,56 +83,55 @@
 
 - name: Install common apt packages for CTF shell servers
   apt:
-    name: "{{ item }}"
     state: present
-  with_items:
-  # archive tools
-    - bzip2
-    - gzip
-    - tar
-    - unzip
-    - zip
-  # build tools
-    - build-essential
-    - gdb
-    - nasm
-    - perl
-    - python
-    - python3
-    - ruby
-  # common command line tools
-    - dos2unix
-    - gawk
-    - grep
-    - jq
-    - realpath
-    - sed
-    - silversearcher-ag
-  # editors
-    - bvi
-    - emacs-nox
-    - joe
-    - nano
-    - tweak
-    - vim-nox
-  # forensics tools
-    - foremost
-    - scalpel
-    - sleuthkit
-    - testdisk
-    - tshark
-  # networking tools
-    - curl
-    - netcat-openbsd
-    - socat
-    - traceroute
-    - wget
-  # terminal multiplexers
-    - screen
-    - tmux
-  # z: misc
-    - expect
-    - pandoc # for `pip install pwntools`
+    name: [
+      # archive tools
+      'bzip2',
+      'gzip',
+      'tar',
+      'unzip',
+      'zip',
+      # build tools
+      'build-essential',
+      'gdb',
+      'nasm',
+      'perl',
+      'python',
+      'python3',
+      'ruby',
+      # common command line tools
+      'dos2unix',
+      'gawk',
+      'grep',
+      'jq',
+      'realpath',
+      'sed',
+      'silversearcher-ag',
+      # editors
+      'bvi',
+      'emacs-nox',
+      'joe',
+      'nano',
+      'tweak',
+      'vim-nox',
+      # forensics tools
+      'foremost',
+      'scalpel',
+      'sleuthkit',
+      'testdisk',
+      'tshark',
+      # networking tools
+      'curl',
+      'netcat-openbsd',
+      'socat',
+      'traceroute',
+      'wget',
+      # terminal multiplexers
+      'screen',
+      'tmux',
+      # z: misc
+      'expect',
+      'pandoc'] # for `pip install pwntools`
 
 - name: Ensure nano is the default editor
   alternatives:
@@ -150,19 +139,11 @@
     path: /bin/nano
 
 - name: Install common pip2 packages for CTF shell servers
-  pip:
-    name: "{{ item }}"
-  with_items:
-    - ipython<6.0 # 6.0 dropped support for Python2
-    - ptpython
-    - pwntools
+  pip:    # ipython 6.0 dropped support for Python2
+    name: ['ipython<6.0', 'ptpython', 'pwntools']
 
 - name: Install common pip3 packages for CTF shell servers
   pip:
-    name: "{{ item }}"
+    name: ['ipython', 'ptpython', 'pwntools']
     executable: pip3
-  with_items:
-    - ipython
-    - ptpython
-    - pwntools
   when: False # pwntools is not ready for python3; skipping to avoid confusion
