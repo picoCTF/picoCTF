@@ -16,7 +16,7 @@ end
 Vagrant.configure("2") do |config|
   config.vm.define "shell", primary: true do |shell|
     shell.vm.box = "ubuntu/bionic64"
-    shell.vm.network "private_network", ip: (ENV['SIP'] || '192.168.2.3')
+    shell.vm.network "private_network", ip: (ENV['SIP'] || '192.168.2.3'), nic_type: "virtio"
 
     shell.vm.synced_folder ".", "/vagrant", disabled: true
     shell.vm.synced_folder ".", "/picoCTF",
@@ -55,7 +55,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "web", primary: true do |web|
     web.vm.box = "ubuntu/bionic64"
-    web.vm.network "private_network", ip: (ENV['WIP'] || '192.168.2.2')
+    web.vm.network "private_network", ip: (ENV['WIP'] || '192.168.2.2'), nic_type: "virtio"
 
     web.vm.synced_folder ".", "/vagrant", disabled: true
     web.vm.synced_folder ".", "/picoCTF",
