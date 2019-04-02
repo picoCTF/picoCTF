@@ -261,6 +261,9 @@ def create_user(username,
         'disabled': False,
         'verified': not settings["email"]["email_verification"] or verified,
         'extdata': {},
+        "completed_minigames": [],
+        "unlocked_walkthroughs": [],
+        "tokens": 0,
     }
 
     db.users.insert(user)

@@ -3,6 +3,7 @@
   "category": "Cryptography",
   "description": "There is a crypto service running at {{server}}:{{port}}. We were able to recover the source code, which you can download at {{url_for(\"ecb.py\")}}.",
   "hints": [],
+  "walkthrough": "Let me google that for you.",
   "score" : 70,
   "author": "Tim Becker",
   "organization": "ForAllSecure",

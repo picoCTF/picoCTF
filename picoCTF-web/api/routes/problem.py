@@ -171,3 +171,56 @@ def load_problems():
 def clear_all_submissions_hook():
     api.problem.clear_all_submissions()
     return WebSuccess("All submissions reset.")
+
+
+@blueprint.route("/walkthrough", methods=['GET'])
+@api_wrapper
+@require_login
+@block_before_competition(WebError("The competition has not begun yet!"))
+def request_problem_walkthrough_hook():
+
+    pid = request.args.get("pid")
+
+    if pid is None:
+        return WebError("Please supply a pid.")
+
+    uid = api.user.get_user()["uid"]
+
+    problem = api.problem.get_problem(pid=pid)
+    if problem.get("walkthrough") is None:
+        return WebError("This problem does not have a walkthrough!")
+    else:
+        if pid not in api.problem.get_unlocked_walkthroughs(uid):
+            return WebError("You haven't unlocked this walkthrough yet!")
+        else:
+            return WebSuccess(problem["walkthrough"])
+
+
+@blueprint.route("/unlock_walkthrough", methods=['POST'])
+@api_wrapper
+@check_csrf
+@require_login
+@block_before_competition(WebError("The competition has not begun yet!"))
+def request_walkthrough_unlock_hook():
+
+    pid = request.form.get('pid')
+
+    if pid is None:
+        return WebError("Please supply a pid.")
+
+    user = api.user.get_user()
+
+    uid = user["uid"]
+    if pid in api.problem.get_unlocked_walkthroughs(uid):
+        return WebError("You have already unlocked this walkthrough!")
+
+    problem = api.problem.get_problem(pid=pid)
+    if problem.get("walkthrough") is None:
+        return WebError("This problem does not have a walkthrough!")
+    else:
+        if user.get("tokens", 0) >= problem["score"]:
+            api.problem.unlock_walkthrough(uid, pid, problem["score"])
+            return WebSuccess("Walkthrough unlocked.")
+        else:
+            return WebError("You do not have enough tokens to unlock this walkthrough!")
+

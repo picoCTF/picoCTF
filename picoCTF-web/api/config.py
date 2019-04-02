@@ -163,6 +163,19 @@ default_settings = {
         "default_stepping": 5000,
         "steps": [7500, 12500, 17500],
         "limit_added_range": False,
+    },
+
+    "minigame": {
+        "secret": "foo",
+        "token_values": {
+            "a1": 10,
+            "a2": 20,
+            "a3": 30,
+            "b1": 15,
+            "b2": 30,
+            "b3": 45,
+            "c3": 20,
+        },
     }
 }
 """ Helper functions to get settings. Do not change these """

@@ -2,6 +2,7 @@ import json
 import mimetypes
 import os.path
 from datetime import datetime
+import hashlib
 
 import api
 from api.annotations import (api_wrapper, block_after_competition,
@@ -135,13 +136,17 @@ def logout_hook():
 @api_wrapper
 def status_hook():
     settings = api.config.get_settings()
+    is_logged_in = api.auth.is_logged_in()
+    user = None
+    if is_logged_in:
+        user = api.user.get_user()
     status = {
         "logged_in":
-        api.auth.is_logged_in(),
+        is_logged_in,
         "admin":
-        api.auth.is_logged_in() and api.user.is_admin(),
+        is_logged_in and api.user.is_admin(),
         "teacher":
-        api.auth.is_logged_in() and api.user.is_teacher(),
+        is_logged_in and api.user.is_teacher(),
         "enable_teachers":
         settings["enable_teachers"],
         "enable_feedback":
@@ -153,17 +158,20 @@ def status_hook():
         "competition_active":
         api.utilities.check_competition_active(),
         "username":
-        api.user.get_user()['username'] if api.auth.is_logged_in() else "",
+        user['username'] if is_logged_in else "",
         "tid":
-        api.user.get_user()["tid"] if api.auth.is_logged_in() else "",
+        user["tid"] if is_logged_in else "",
         "email_verification":
-        settings["email"]["email_verification"]
+        settings["email"]["email_verification"],
     }
 
-    if api.auth.is_logged_in():
+    if is_logged_in:
         team = api.user.get_team()
         status["team_name"] = team["team_name"]
         status["score"] = api.stats.get_score(tid=team["tid"])
+        status["unlocked_walkthroughs"] = user.get("unlocked_walkthroughs", [])
+        status["completed_minigames"] = user.get("completed_minigames", [])
+        status["tokens"] = user.get("tokens", 0)
 
     return WebSuccess(data=status)
 
@@ -200,3 +208,60 @@ def update_extdata_hook():
     """
     api.user.update_extdata(api.common.flat_multi(request.form))
     return WebSuccess("Your Extdata has been successfully updated.")
+
+
+@blueprint.route("/minigame", methods=['POST'])
+@api_wrapper
+@check_csrf
+@require_login
+@block_before_competition(WebError("The competition has not begun yet!"))
+def request_minigame_completion_hook():
+    minigame_id = request.form.get('mid')
+    validation = request.form.get('v')
+
+    if minigame_id is None or validation is None:
+        return WebError("Invalid input!")
+
+    settings = api.config.get_settings()
+    minigame_config = settings.get("minigame", {}).get("token_values", 0)
+
+    if minigame_id not in minigame_config:
+        return WebError("Invalid input!")
+
+    user = api.user.get_user()
+
+    hashstring = minigame_id + user["username"] + settings.get("minigame", {}).get("secret")
+
+    if hashlib.md5(hashstring.encode('utf-8')).hexdigest() != validation:
+        return WebError("Invalid input!")
+
+    if minigame_id not in user.get("completed_minigames"):
+        tokens_earned = minigame_config[minigame_id]
+        db = api.common.get_conn()
+
+        db.users.update_one({
+            'uid': user["uid"],
+            'completed_minigames': {
+                '$ne': minigame_id
+            }
+        }, {
+            '$push': {
+                'completed_minigames': minigame_id
+            },
+            '$inc': {
+                'tokens': tokens_earned
+            }
+        })
+        token_count = api.user.get_user()["tokens"]
+        return WebSuccess(
+            message="You win! You have earned " + str(tokens_earned) + " tokens.",
+            data={"tokens": token_count}
+        )
+    else:
+        return WebError(
+            message="You win! You have already completed this minigame, so you have not earned additional tokens.",
+            data={"tokens": user["tokens"]},
+        )
+
+
+

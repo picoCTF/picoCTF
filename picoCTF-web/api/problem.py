@@ -38,6 +38,8 @@ problem_schema = Schema({
     check(("The instances must be a list.", [list])),
     Required("hints"):
     check(("Hints must be a list.", [list])),
+    "walkthrough":
+    check(("The problem walkthrough must be a string.", [str])),
     "description":
     check(("The problem description must be a string.", [str])),
     "version":
@@ -113,6 +115,7 @@ SANITATION_KEYS = [
     "should_symlink",
     "sid",
     "user",
+    "walkthrough",
 ]
 
 DEBUG_KEY = None
@@ -167,6 +170,7 @@ def insert_problem(problem, sid=None):
         version: version of the problem
         tags: list of problem tags.
         hints: hints for completing the problem.
+        walkthrough: text walkthrough (including external links) to solve problem
         organization: Organization that author is associated with
     Returns:
         The newly created problem id.
@@ -913,7 +917,7 @@ def locked_filter(problem):
     """
 
     return filter_problem(problem,
-                          ["description", "instances", "hints", "tags"], {
+                          ["description", "instances", "hints", "tags", "walkthrough"], {
                               "solved": False,
                               "unlocked": False
                           })
@@ -1120,3 +1124,44 @@ def sanitize_problem_data(data):
     elif isinstance(data, dict):
         pop_keys(data)
     return data
+
+
+def get_unlocked_walkthroughs(uid):
+    """
+    Returns list of unlocked walkthroughs, either as result of problem
+    solved by team, or token spend to unlock.
+
+    Args:
+        uid: user id to look up
+    """
+    return get_solved_pids(uid=uid) + api.user.get_user().get("unlocked_walkthroughs", [])
+
+
+def unlock_walkthrough(uid, pid, cost):
+    """
+    Unlocks a problem at cost of tokens. Performed as atomic update to decrement
+    tokens while also unlocking, also ensures against race conditions by
+    validating token count and already-unlocked walkthroughs.
+
+    Args:
+        uid: user id
+        pid: problem id
+        cpst: token cost of unlock
+    """
+    db = api.common.get_conn()
+    db.users.update_one({
+        'uid': uid,
+        'tokens': {
+            '$gte': cost
+        },
+        'unlocked_walkthroughs': {
+            '$ne': pid
+        }
+    }, {
+        '$push': {
+            'unlocked_walkthroughs': pid
+        },
+        '$inc': {
+            'tokens': (cost * -1)
+        }
+    })
