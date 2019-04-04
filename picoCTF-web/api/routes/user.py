@@ -204,10 +204,19 @@ def get_extdata_hook():
 @require_login
 def update_extdata_hook():
     """
-    Sets user extdata via HTTP form. Takes in any key-value pairs.
+    Sets user extdata via HTTP form. Takes in any key-value pairs. An optional nonce
+    may be included in payload, which will then be evaluated against the previous
+    nonce, if it exists. If no nonce is included, default behavior is to over-write.
     """
-    api.user.update_extdata(api.common.flat_multi(request.form))
-    return WebSuccess("Your Extdata has been successfully updated.")
+    data = api.common.flat_multi(request.form)
+    prev_nonce = int(api.user.get_user()["extdata"].get("nonce", 0))
+    nonce = data.get("nonce")
+    if nonce is not None and int(nonce) < prev_nonce:
+        return WebError("Session expired. Please reload your client.")
+    else:
+        data.pop("token", None)
+        api.user.update_extdata(data)
+        return WebSuccess("Your extdata has been successfully updated.")
 
 
 @blueprint.route("/minigame", methods=['POST'])
@@ -262,6 +271,3 @@ def request_minigame_completion_hook():
             message="You win! You have already completed this minigame, so you have not earned additional tokens.",
             data={"tokens": user["tokens"]},
         )
-
-
-

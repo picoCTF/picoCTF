@@ -601,5 +601,4 @@ def update_extdata(params):
     """
     user = get_user(uid=None)
     db = api.common.get_conn()
-    params.pop('token', None)
     db.users.update_one({'uid': user['uid']}, {'$set': {'extdata': params}})
