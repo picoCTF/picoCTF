@@ -77,7 +77,7 @@ setup(
     install_requires=[
         'coloredlogs==10.0',
         'Flask==1.0.2',
-        'Jinja2==2.10',
+        'Jinja2==2.10.1',
         'openssh-wrapper==0.4',
         'psutil==5.4.6',
         'pytest==3.6.1',
