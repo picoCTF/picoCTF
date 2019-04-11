@@ -192,6 +192,11 @@ def insert_problem(problem, sid=None):
 
     set_instance_ids(problem, sid)
 
+    if problem.get("walkthrough"):  # Falsy for None and empty string
+        problem["has_walkthrough"] = True
+    else:
+        problem["has_walkthrough"] = False
+
     if safe_fail(get_problem, pid=problem["pid"]) is not None:
         # problem is already inserted, so update instead
         old_problem = copy(get_problem(pid=problem["pid"]))
@@ -1105,9 +1110,16 @@ def sanitize_problem_data(data):
         data: dict or list of problems
     """
 
+    uid = api.user.get_user()["uid"]
+    unlocked_walkthroughs = get_unlocked_walkthroughs(uid)
+
     def pop_keys(problem_dict):
         for key in SANITATION_KEYS:
-            problem_dict.pop(key, None)
+            if key == "walkthrough":
+                if problem_dict["has_walkthrough"] and problem_dict["pid"] not in unlocked_walkthroughs:
+                    problem_dict["walkthrough"] = ""
+            else:
+                problem_dict.pop(key, None)
 
     if isinstance(data, list):
         for problem in data:
@@ -1125,7 +1137,7 @@ def get_unlocked_walkthroughs(uid):
     Args:
         uid: user id to look up
     """
-    return get_solved_pids(uid=uid) + api.user.get_user().get("unlocked_walkthroughs", [])
+    return get_solved_pids(uid=uid) + api.user.get_user(uid=uid).get("unlocked_walkthroughs", [])
 
 
 def unlock_walkthrough(uid, pid, cost):
