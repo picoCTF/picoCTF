@@ -5,18 +5,19 @@ server {
     server_name _;
     root   /usr/share/nginx/html;
 
-    location ~ /ShellInABox.js { alias {{ shellinabox_js_path }}; }
-    
     location /shell {
-        # make sure this port is consistent with shellinabox.conf
-        proxy_pass {{shellinabox_server_path }};
+        proxy_pass http://127.0.0.1:{{ wetty_port }}/shell;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_read_timeout 43200000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
     }
 
     location / {
         types        { }
         default_type application/octet-stream;
     }
-} 
+}

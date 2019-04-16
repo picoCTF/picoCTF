@@ -65,7 +65,7 @@ default_config = ConfigDict({
     False,
 
     # list of port ranges that should not be assigned to any instances
-    # this bans the first ports 0-1024 and 4242 for shellinaboxd
+    # this bans the first ports 0-1024 and 4242 for wetty
     "banned_ports": [{
         "start": 0,
         "end": 1024

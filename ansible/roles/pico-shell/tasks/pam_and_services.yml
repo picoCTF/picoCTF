@@ -2,22 +2,22 @@
 # Playbook that installs and configures services on the shell_server
 
 # Extracted from picoCTF-platform/scripts/shell_setup.sh
-- name: Template shellinaboxd Service file
+- name: Template wetty Service file
   template:
-    src: "shellinaboxd.service.j2"
-    dest: "/lib/systemd/system/shellinaboxd.service"
+    src: "wetty.service.j2"
+    dest: "/lib/systemd/system/wetty.service"
     owner: root
     group: root
     mode: 0644
 
-- name: Enable shellinaboxd Service
+- name: Enable wetty Service
   service:
-    name: "shellinaboxd.service"
+    name: "wetty.service"
     enabled: yes
 
-- name: Start shellinaboxd Service
+- name: Start wetty Service
   service:
-    name: "shellinaboxd.service"
+    name: "wetty.service"
     state: started
 
 - name: Copy over pam configs

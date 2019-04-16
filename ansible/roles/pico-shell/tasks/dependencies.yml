@@ -29,7 +29,7 @@
       'nginx',
       'nodejs',
       'php7.2-cli',       # php5 package deprecated
-      'php7.2-sqlite3',   # used to serve shellinabox and challenge binaries
+      'php7.2-sqlite3',   # used to serve challenge binaries
       'python-pip',       # used for pam module dependencies
       'python-virtualenv',
       'python3-pip',      # used for shell_manager dependencies
@@ -37,7 +37,6 @@
       'python3.7-venv',
       'python3.7',        # from PPA, to cover all likely interpreter directives
       'python3',          # used by shell_manager
-      'shellinabox',
       'socat',
       'software-properties-common',
       'xinetd',
@@ -175,3 +174,18 @@
         ]
     executable: pip3
   when: False # pwntools is not ready for python3; skipping to avoid confusion
+
+- name: Ensure wetty directory exists
+  file:
+    path: /opt/hacksports/wetty/
+    state: directory
+    owner: root
+    group: root
+
+- name: Install wetty.js
+  npm:
+    executable: /usr/bin/npm --unsafe-perm=true
+    name: wetty.js
+    global: no
+    production: yes
+    path: /opt/hacksports/wetty

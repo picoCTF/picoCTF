@@ -6,14 +6,14 @@
 shell_manager_dir:  "{{pico_base_dir}}/picoCTF-shell"
 
 ###
-# Shellinabox configuration
+# wetty configuration
 ###
-shellinabox_js_path: "/opt/hacksports/shellinabox/ShellInABox.js"
+wetty_js_path: "/opt/hacksports/wetty/node_modules/wetty.js"
 
 # configure nginx
 shell_site_config_name: "shell"
-shellinaboxd_port: "4242"
-shellinabox_server_path: "http://127.0.0.1:{{ shellinaboxd_port }}/"
+wetty_port: "4242"
+wetty_server_path: "http://127.0.0.1:{{ wetty_port }}/"
 
 # problem settings
 deb_dir:    "/picoCTF-debs"
