@@ -2,6 +2,26 @@
 # Playbook that installs and configures services on the shell_server
 
 # Extracted from picoCTF-platform/scripts/shell_setup.sh
+- name: Create wetty user
+  user:
+    name: "wetty"
+    password: '!'
+
+- name: Create wetty user's SSH directory
+  file:
+    path: /home/wetty/.ssh
+    state: directory
+    owner: wetty
+    group: wetty
+
+- name: Copy wetty user's SSH config
+  copy:
+    src: wetty_ssh_config
+    dest: /home/wetty/.ssh/config
+    owner: wetty
+    group: wetty
+    mode: 0644
+
 - name: Template wetty Service file
   template:
     src: "wetty.service.j2"

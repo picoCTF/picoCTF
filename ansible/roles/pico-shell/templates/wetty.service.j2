@@ -5,9 +5,9 @@ Description=wetty
 
 [Service]
 Type=exec
-WorkingDirectory={{ wetty_js_path }}
-ExecStart=/bin/bash -c '/usr/bin/node index.js -p {{ wetty_port }} --base /shell --sshauth keyboard-interactive'
-User=nobody
+ExecStart=/bin/bash -c '/usr/bin/node {{ wetty_js_path }}/index.js -p {{ wetty_port }} --base /shell --sshauth keyboard-interactive'
+User=wetty
+ProtectHome=read-only
 
 [Install]
 WantedBy=multi-user.target

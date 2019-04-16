@@ -124,6 +124,7 @@ default_settings = {
         "vboxsf",
         "video",
         "voice",
+        "wetty",
     ],
 
     # EMAIL (SMTP)
