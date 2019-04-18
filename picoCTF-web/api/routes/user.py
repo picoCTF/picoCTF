@@ -271,3 +271,22 @@ def request_minigame_completion_hook():
             message="You win! You have already completed this minigame, so you have not earned additional tokens.",
             data={"tokens": user["tokens"]},
         )
+
+
+@blueprint.route("/clear_minigame", methods=['POST'])
+@api_wrapper
+@check_csrf
+@require_login
+@block_before_competition(WebError("The competition has not begun yet!"))
+def request_minigame_completion_hook():
+    # if DEBUG_KEY is not None:
+
+    db = api.common.get_conn()
+    db.users.update_one({
+        'uid': api.user.get_user()["uid"],
+    }, {
+        '$set': {
+            'completed_minigames': []
+        },
+    })
+    return WebSuccess("Minigame progress cleared.")

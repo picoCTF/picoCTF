@@ -224,3 +224,21 @@ def request_walkthrough_unlock_hook():
         else:
             return WebError("You do not have enough tokens to unlock this walkthrough!")
 
+
+@blueprint.route("/clear_walkthroughs", methods=['POST'])
+@api_wrapper
+@check_csrf
+@require_login
+@block_before_competition(WebError("The competition has not begun yet!"))
+def request_clear_walkthroughs_hook():
+    # if DEBUG_KEY is not None:
+
+    db = api.common.get_conn()
+    db.users.update_one({
+        'uid': api.user.get_user()["uid"]
+    }, {
+        '$set': {
+            'unlocked_walkthroughs': []
+        },
+    })
+    return WebSuccess("Walkthroughs cleared.")
