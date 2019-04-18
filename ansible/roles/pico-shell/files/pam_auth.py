@@ -103,7 +103,7 @@ def pam_sm_authenticate(pam_handle, flags, argv):
         group = grp.getgrnam(COMPETITORS_GROUP)
         # local account exists and server account exists
         if server_user_exists(user) and user in group.gr_mem:
-            response = prompt("Enter your platform password: ")
+            response = prompt("Enter your platform password (characters will be hidden): ")
             result = run_login(user, response.resp)
 
             if "Successfully logged in" in result:
