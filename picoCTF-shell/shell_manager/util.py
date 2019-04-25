@@ -39,7 +39,7 @@ default_config = ConfigDict({
     "deploy_secret":
     "qwertyuiop",
 
-    # the externally accessable address of this server
+    # the externally accessible address of this server
     "hostname":
     "127.0.0.1",
 
@@ -134,7 +134,7 @@ class FatalException(Exception):
 def get_attributes(obj):
     """
     Returns all attributes of an object, excluding those that start with
-    an underscore
+    an underscore.
 
     Args:
         obj: the object
@@ -151,7 +151,7 @@ def get_attributes(obj):
 
 def sanitize_name(name):
     """
-    Sanitize a given name such that it conforms to unix policy.
+    Sanitizes the given name such that it conforms to unix policy.
 
     Args:
         name: the name to sanitize.
@@ -226,7 +226,7 @@ def get_problem_root(problem_name, absolute=False):
 
 def get_problem(problem_path):
     """
-    Retrieve a problem spec from a given problem directory.
+    Returns a problem spec from a given problem directory.
 
     Args:
         problem_path: path to the root of the problem directory.
@@ -271,7 +271,7 @@ def get_bundle_root(bundle_name, absolute=False):
 
 def get_bundle(bundle_path):
     """
-    Retrieve a bundle spec from a given bundle directory.
+    Returns a bundle spec from a given bundle directory.
 
     Args:
         bundle_path: path to the root of the bundle directory.
@@ -296,11 +296,14 @@ def get_bundle(bundle_path):
 
 def verify_config(config_object):
     """
-    Verifies the given configuration dict against the config_schema and the port_range_schema
-    Raise FatalException if failed.
+    Verifies the given configuration dict against the config_schema and the
+    port_range_schema.
 
     Args:
         config_object: The configuration options in a dict
+
+    Raises:
+         FatalException: if failed.
     """
 
     try:
@@ -319,7 +322,7 @@ def verify_config(config_object):
                 "Error validating port range in config file at '%s'!", path)
             logger.critical(e)
             raise FatalException
-        except AssertionError as e:
+        except AssertionError:
             logger.critical("Invalid port range: (%d -> %d)",
                             port_range["start"], port_range["end"])
             raise FatalException
@@ -327,7 +330,7 @@ def verify_config(config_object):
 
 def get_config(path):
     """
-    Retrieve a configuration object from the given path
+    Returns a configuration object from the given path.
 
     Args:
         path: the full path to the json file
@@ -350,7 +353,7 @@ def get_config(path):
 
 def get_hacksports_config():
     """
-    Returns the global configuration options from the file in HACKSPORTS_ROOT
+    Returns the global configuration options from the file in HACKSPORTS_ROOT.
     """
 
     return get_config(join(HACKSPORTS_ROOT, "config.json"))
@@ -358,7 +361,7 @@ def get_hacksports_config():
 
 def write_configuration_file(path, config_dict):
     """
-    Write the options in config_dict to the specified path as JSON
+    Writes the options in config_dict to the specified path as JSON.
 
     Args:
         path: the path of the output JSON file
@@ -375,7 +378,7 @@ def write_configuration_file(path, config_dict):
 
 def write_global_configuration(config_dict):
     """
-    Write the options in config_dict to the global config file
+    Writes the options in config_dict to the global config file.
 
     Args:
         config_dict: the configuration dictionary
@@ -386,10 +389,11 @@ def write_global_configuration(config_dict):
 
 def place_default_config(destination=join(HACKSPORTS_ROOT, "config.json")):
     """
-    Places a default configuration file in the destination
+    Places a default configuration file in the destination.
 
     Args:
-        destination: Where to place the default configuration. Defaults to HACKSPORTS_ROOT/config.json
+        destination: Where to place the default configuration. Defaults to
+            HACKSPORTS_ROOT/config.json
     """
 
     write_configuration_file(destination, default_config)

@@ -73,7 +73,7 @@ def set_configuration_option(args, global_config):
     if args.json:
         try:
             value = json.loads(args.value)
-        except Exception as e:
+        except Exception:
             logger.fatal("Couldn't parse value as JSON")
             raise FatalException
 
@@ -94,7 +94,7 @@ def set_configuration_option(args, global_config):
     else:
         write_global_configuration(config)
 
-    logger.info("Set {} = {}".format(field, value))
+    logger.info("Set %s = %s", field, value)
 
 
 def new_configuration_file(args, global_config):

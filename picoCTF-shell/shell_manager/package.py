@@ -26,7 +26,7 @@ DEB_DEFAULTS = {
 
 def problem_to_control(problem, debian_path):
     """
-    Convert problem.json to a deb control file.
+    Converts problem.json to a deb control file.
 
     Args:
         problem: deserialized problem.json (dict)
@@ -44,7 +44,7 @@ def problem_to_control(problem, debian_path):
             "Architecture": problem.get("architecture", "all"),
             "Maintainer": problem["author"],
             "Description": problem.get("pkg_description", problem[
-                "description"].replace('\n', '')) # replace the new lines to prevent a crash
+                "description"].replace('\n', ''))  # replace the new lines to prevent a crash
         })
 
     if "pkg_dependencies" in problem:
@@ -139,7 +139,8 @@ def postinst_dependencies(problem, problem_path, debian_path, install_path):
 def find_problems(problem_path):
     """
     Find all problems that exist under the given root.
-    We consider any directory with a problem.json to be an intended problem directory.
+    We consider any directory with a problem.json to be an intended problem
+    directory.
 
     Args:
         problem_path: the problem directory
@@ -182,8 +183,7 @@ def package_problem(problem_path, staging_path=None, out_path=None, ignore_files
     else:
         paths["staging"] = join(staging_path, "__staging")
     paths["debian"] = join(paths["staging"], "DEBIAN")
-    paths["data"] = join(paths["staging"],
-                         get_problem_root(problem["name"]))
+    paths["data"] = join(paths["staging"], get_problem_root(problem["name"]))
     paths["install_data"] = join(paths["data"], "__files")
     for path in paths.values():
         if not isdir(path):
@@ -197,7 +197,7 @@ def package_problem(problem_path, staging_path=None, out_path=None, ignore_files
     chmod(paths["data"], 0o750)
     problem_to_control(problem, paths["debian"])
     postinst_dependencies(problem, problem_path, paths["debian"],
-                            paths["install_data"])
+                          paths["install_data"])
 
     # Package the staging directory as a .deb
     def format_deb_file_name(problem):
@@ -208,7 +208,7 @@ def package_problem(problem_path, staging_path=None, out_path=None, ignore_files
             problem: the problem object
 
         Returns:
-        An acceptable file name for the problem.
+            An acceptable file name for the problem.
         """
 
         raw_package_name = "{}-{}-{}.deb".format(
@@ -224,19 +224,19 @@ def package_problem(problem_path, staging_path=None, out_path=None, ignore_files
     result = shell.run(
         ["fakeroot", "dpkg-deb", "--build", paths["staging"], deb_path])
     if result.return_code != 0:
-        logger.error("Error building problem deb for '%s'.",
-                        problem["name"])
+        logger.error("Error building problem deb for '%s'.", problem["name"])
         logger.error(result.output)
         raise FatalException
     else:
         logger.info("Problem '%s' packaged successfully.", problem["name"])
 
     # Remove the staging directory
-    logger.debug("Cleaning up '%s' staging directory '%s'.",
-                    problem["name"], paths["staging"])
+    logger.debug("Cleaning up '%s' staging directory '%s'.", problem["name"],
+                 paths["staging"])
     rmtree(paths["staging"])
 
-    return (sanitize_name(problem.get("pkg_name", problem["name"])), os.path.abspath(deb_path))
+    return (sanitize_name(problem.get("pkg_name", problem["name"])),
+            os.path.abspath(deb_path))
 
 
 def problem_builder(args, config):

@@ -25,7 +25,7 @@ def update_repo(args, config):
         remote_update(args.repository, args.package_paths)
 
 
-def remote_update(repo_ui, deb_paths=None):
+def remote_update(repo_uri, deb_paths=None):
     """
     Pushes packages to a remote deb repository.
 
@@ -46,7 +46,7 @@ def local_update(repo_path, deb_paths=None):
 
     Args:
         repo_path: the path to the local repository.
-        dep_paths: list of problem deb paths to copy.
+        deb_paths: list of problem deb paths to copy.
     """
 
     if deb_paths is None:
