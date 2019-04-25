@@ -11,7 +11,8 @@ from os import chmod, listdir, sep, unlink
 from os.path import isdir, isfile, join
 from shutil import copy2, copytree
 
-from voluptuous import All, Length, MultipleInvalid, Range, Required, Schema, ALLOW_EXTRA
+from voluptuous import (All, ALLOW_EXTRA, Length, MultipleInvalid, Range,
+                        Required, Schema)
 
 logger = logging.getLogger(__name__)
 
