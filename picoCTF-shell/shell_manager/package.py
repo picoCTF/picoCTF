@@ -2,14 +2,11 @@
 Packaging operations for the shell manager.
 """
 
-import gzip
-import json
 import logging
 import os
-import re
 from copy import deepcopy
-from os import chmod, getcwd, listdir, makedirs
-from os.path import dirname, isdir, isfile, join
+from os import chmod, getcwd, makedirs
+from os.path import isdir, isfile, join
 from shutil import copy, rmtree
 
 import spur

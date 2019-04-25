@@ -7,7 +7,7 @@ import json
 import logging
 import os
 from os import chmod, getcwd, makedirs
-from os.path import basename, dirname, isdir, join
+from os.path import dirname, isdir, join
 from shutil import copyfile, rmtree
 
 import spur

@@ -3,12 +3,10 @@
 Shell Manager -- Tools for deploying and packaging problems.
 """
 
-import json
 import logging
 from argparse import ArgumentParser
 
 import coloredlogs
-import shell_manager
 from hacksport.deploy import deploy_problems, undeploy_problems
 from hacksport.status import clean, publish, status
 from shell_manager.bundle import bundle_problems
