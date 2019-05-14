@@ -532,6 +532,7 @@ def get_user_backgrounds():
     return backgrounds
 
 
+@api.cache.memoize()
 def get_user_countries():
     db = api.api.common.get_conn()
     all_users = db.users.find()

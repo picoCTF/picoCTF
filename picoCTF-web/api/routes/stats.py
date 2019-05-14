@@ -154,3 +154,8 @@ def get_group_top_teams_score_progressions_hook():
 @api_wrapper
 def get_registration_count_hook():
     return WebSuccess(data=api.stats.get_registration_count())
+
+@blueprint.route('/users/countries', methods=['GET'])
+@api_wrapper
+def get_user_countries():
+    return WebSuccess(data=api.stats.get_user_countries())

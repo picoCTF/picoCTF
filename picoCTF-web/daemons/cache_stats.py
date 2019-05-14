@@ -14,6 +14,7 @@ def cache(f, *args, **kwargs):
 def run():
     print("Caching registration stats.")
     cache(api.stats.get_registration_count)
+    cache(api.stats.get_user_countries)
 
     print("Caching the public scoreboard entries...")
     cache(api.stats.get_all_team_scores)
