@@ -44,7 +44,7 @@ server {
             proxy_redirect off;
         }
 
-        location ~ ^/(problems|profile|scoreboard|account|shell|faq|contact)$ {
+        location ~ ^/(problems|profile|scoreboard|stats|account|shell|faq|contact)$ {
             auth_request /api/user/authorize/user;
             expires -1;
             default_type text/html;

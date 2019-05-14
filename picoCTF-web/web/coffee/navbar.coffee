@@ -5,25 +5,30 @@ teacherLoggedIn =
   Problems: "/problems"
   Shell: "/shell"
   Scoreboard: "/scoreboard"
+  Stats: "/stats"
   Classroom: "/classroom"
   News: "/news"
 
 teacherLoggedInNoCompetition =
   Scoreboard: "/scoreboard"
   Classroom: "/classroom"
+  Stats: "/stats"
   News: "/news"
 
 userLoggedIn =
   Problems: "/problems"
   Shell: "/shell"
   Scoreboard: "/scoreboard"
+  Stats: "/stats"
   News: "/news"
 
 userLoggedInNoCompetition =
   Scoreboard: "/scoreboard"
+  Stats: "/stats"
   News: "/news"
 
 userNotLoggedIn =
+  Stats: "/stats"
   News: "/news"
 
 adminLoggedIn =
