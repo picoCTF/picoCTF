@@ -21,6 +21,8 @@ matrix:
     - python: 3.7
       env: TOXENV=py37
     - python: 3.7
+      services:
+        - mongodb
       env: TOXENV=web-unittest
     - python: 3.7
       env: TOXENV=flake8
