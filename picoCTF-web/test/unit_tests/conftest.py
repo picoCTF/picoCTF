@@ -14,7 +14,8 @@ TEST_MONGO_PORT = 27017
 TEST_MONGO_DB_NAME = 'ctf-test'
 
 
-def setup_db():
+@pytest.fixture
+def mongo_client():
     """ Creates a mongodb instance and shuts it down after testing has concluded. """
 
     client = MongoClient(TEST_MONGO_ADDR, TEST_MONGO_PORT)[TEST_MONGO_DB_NAME]
@@ -23,14 +24,9 @@ def setup_db():
         client.connection.drop_database(TEST_MONGO_DB_NAME)
 
     # Set debug client for mongo
-    if api.common.external_client is None:
-        api.common.external_client = client
+    # if api.common.external_client is None:
+    #     api.common.external_client = client
+    yield client
 
-    return client
-
-
-def teardown_db():
-    """ Drops the db and shuts down the mongodb instance. """
-    client = MongoClient(TEST_MONGO_ADDR, TEST_MONGO_PORT)[TEST_MONGO_DB_NAME]
     client.connection.drop_database(TEST_MONGO_DB_NAME)
     client.connection.disconnect()
