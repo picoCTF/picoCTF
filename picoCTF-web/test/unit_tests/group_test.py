@@ -8,8 +8,8 @@ import api.user
 import bcrypt
 import pytest
 from api.common import InternalException, WebException
-from common import clear_collections, ensure_empty_collections, new_team_user
-from conftest import setup_db, teardown_db
+from .common import clear_collections, ensure_empty_collections, new_team_user
+from .conftest import setup_db, teardown_db
 
 
 class TestGroups(object):

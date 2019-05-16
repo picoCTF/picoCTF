@@ -21,9 +21,12 @@ matrix:
     - python: 3.7
       env: TOXENV=py37
     - python: 3.7
+      env: TOXENV=web-unittest
+    - python: 3.7
       env: TOXENV=flake8
     - python: 3.7
       env: TOXENV=bandit
   allow_failures:
     - env: TOXENV=flake8
     - env: TOXENV=bandit
+    - env: TOXENV=web-unittest

@@ -7,9 +7,9 @@ import re
 import api
 import pytest
 from api.common import APIException
-from common import (clear_cache, clear_collections, ensure_empty_collections,
+from .common import (clear_cache, clear_collections, ensure_empty_collections,
                     new_team_user)
-from conftest import setup_db, teardown_db
+from .conftest import setup_db, teardown_db
 
 
 class TestProblems(object):

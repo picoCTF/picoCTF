@@ -6,9 +6,9 @@ import api
 import bcrypt
 import pytest
 from api.common import InternalException, safe_fail, WebException
-from common import (base_team, base_user, clear_collections,
+from .common import (base_team, base_user, clear_collections,
                     ensure_empty_collections, new_team_user)
-from conftest import setup_db, teardown_db
+from .conftest import setup_db, teardown_db
 
 dict_filter = lambda dict, items: {k: v for k, v in dict.items() if k in items}
 
