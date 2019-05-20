@@ -3,3 +3,4 @@
 /.vagrant
 /terraform.tfstate*
 /dist
+site.retry
