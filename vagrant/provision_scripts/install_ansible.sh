@@ -6,5 +6,5 @@
 # Provisioner: https://www.vagrantup.com/docs/provisioning/ansible_local.html
 
 sudo apt-get update
-sudo apt-get install -y python3-pip
-sudo pip3 install ansible~=2.7.0
+sudo apt-get install -y python-pip
+sudo pip install ansible~=2.7.0

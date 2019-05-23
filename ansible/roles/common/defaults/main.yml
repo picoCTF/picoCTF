@@ -1,7 +1,7 @@
 ---
 # Defaults for the common role. These are the lowest priority variables
 # and can easily be overridden in group_vars, host_vars, or command line.
-ansible_python_interpreter: /usr/bin/python3
+ansible_python_interpreter: /usr/bin/python
 private_repo: False
 
 # Method for synchronizing the picoCTF source to the remote machine

@@ -22,7 +22,7 @@
 # be loaded in directly via filesystem sync without being cloned from a
 # specific source and branch
 - include: clone_repo.yml
-  when: "'git' in sync_mode"			# coule be git or git_private
+  when: "'git' in sync_mode" # coule be git or git_private
   tags:
     - network
 
