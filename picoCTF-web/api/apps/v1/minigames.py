@@ -13,6 +13,46 @@ from .schemas import minigame_submission_req
 ns = Namespace('minigames', description='Minigame submission endpoint')
 
 
+@ns.route('')
+class MinigameList(Resource):
+    """Get the list of available minigames."""
+
+    @ns.response(200, 'Success')
+    @ns.response(401, 'Not logged in')
+    @block_before_competition
+    @require_login
+    def get(self):
+        """Get the list of available minigames."""
+        settings = api.config.get_settings()
+        minigame_config = settings.get("minigame", {}).get("token_values", {})
+        return jsonify(
+            [dict(zip(('mid', 'value'), minigame))
+             for minigame in minigame_config.items()])
+
+
+@ns.route('/<string:minigame_id>')
+class Minigame(Resource):
+    """Get a specific minigame."""
+
+    @ns.response(200, 'Success')
+    @ns.response(401, 'Not logged in')
+    @ns.response(404, 'Minigame not found')
+    @block_before_competition
+    @require_login
+    def get(self, minigame_id):
+        """Get a specific minigame."""
+        settings = api.config.get_settings()
+        minigame_config = settings.get("minigame", {}).get("token_values", {})
+        if minigame_id not in minigame_config:
+            raise PicoException(
+                "Minigame not found", 404
+            )
+        return jsonify({
+            'mid': minigame_id,
+            'value': minigame_config[minigame_id]
+        })
+
+
 @ns.route('/submit')
 class MinigameSubmissionResponse(Resource):
     """Submit a verification key for a minigame."""
@@ -34,7 +74,7 @@ class MinigameSubmissionResponse(Resource):
         curr_user = api.user.get_user()
 
         settings = api.config.get_settings()
-        minigame_config = settings.get("minigame", {}).get("token_values", 0)
+        minigame_config = settings.get("minigame", {}).get("token_values", {})
 
         if req['minigame_id'] not in minigame_config:
             raise PicoException('Minigame not found', 404)
