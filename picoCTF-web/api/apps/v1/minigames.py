@@ -6,7 +6,7 @@ from flask_restplus import Namespace, Resource
 
 import api
 from api import (block_before_competition, check_csrf, PicoException,
-                 require_login)
+                 require_admin, require_login)
 
 from .schemas import minigame_submission_req
 
@@ -20,7 +20,7 @@ class MinigameList(Resource):
     @ns.response(200, 'Success')
     @ns.response(401, 'Not logged in')
     @block_before_competition
-    @require_login
+    @require_admin
     def get(self):
         """Get the list of available minigames."""
         settings = api.config.get_settings()
