@@ -48,8 +48,8 @@ class GroupList(Resource):
             raise PicoException(
                 'You already have a classroom with that name', 409)
         if not all([
-                c in string.digits + string.ascii_lowercase for
-                c in req['name'].lower()]):
+                c in string.digits + string.ascii_lowercase + "\n()-,#'&"
+                for c in req['name'].lower()]):
             raise PicoException(
                 'Classroom names must be alphanumeric.', status_code=400
             )
