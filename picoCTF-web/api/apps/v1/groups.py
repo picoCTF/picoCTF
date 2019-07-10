@@ -1,5 +1,6 @@
 """Group manangement."""
 import csv
+import string
 
 from flask import jsonify
 from flask_restplus import Namespace, Resource
@@ -46,6 +47,12 @@ class GroupList(Resource):
                 name=req['name'], owner_tid=curr_tid) is not None:
             raise PicoException(
                 'You already have a classroom with that name', 409)
+        if not all([
+                c in string.digits + string.ascii_lowercase for
+                c in req['name'].lower()]):
+            raise PicoException(
+                'Classroom names must be alphanumeric.', status_code=400
+            )
 
         gid = api.group.create_group(curr_tid, req['name'])
         res = jsonify({

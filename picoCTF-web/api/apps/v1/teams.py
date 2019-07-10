@@ -1,4 +1,6 @@
 """Team related endpoints."""
+import string
+
 from flask import jsonify
 from flask_restplus import Namespace, Resource
 
@@ -30,6 +32,13 @@ class TeamList(Resource):
             raise PicoException(
                 'Teachers may not create teams', 403
             )
+        if not all([
+                c in string.digits + string.ascii_lowercase for
+                c in req['team_name'].lower()]):
+            raise PicoException(
+                'Team names must be alphanumeric.', status_code=400
+            )
+
         new_tid = api.team.create_and_join_new_team(
             req['team_name'],
             req['team_password'],
