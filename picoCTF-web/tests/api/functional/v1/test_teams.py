@@ -47,10 +47,10 @@ def test_create_team(mongo_proc, client): # noqa (fixture)
     # Add a mock team and attempt to create a team with the same name
     db = get_conn()
     db.teams.insert({
-        'team_name': 'test_teamname'
+        'team_name': 'test teamname'
     })
     res = client.post('/api/v1/teams', json={
-        'team_name': 'test_teamname',
+        'team_name': 'test teamname',
         'team_password': 'newteam'
     })
     assert res.status_code == 409
