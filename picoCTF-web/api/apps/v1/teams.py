@@ -33,7 +33,7 @@ class TeamList(Resource):
                 'Teachers may not create teams', 403
             )
         if not all([
-                c in string.digits + string.ascii_lowercase + "\n()+-,#'*&!?"
+                c in string.digits + string.ascii_lowercase + " ()+-,#'*&!?"
                 for c in req['team_name'].lower()]):
             raise PicoException(
                 'Team names must be alphanumeric.', status_code=400
