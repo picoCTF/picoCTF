@@ -51,7 +51,7 @@ class GroupList(Resource):
                 c in string.digits + string.ascii_lowercase + " ()-,#'&"
                 for c in req['name'].lower()]):
             raise PicoException(
-                "Classroom names cannot contain special characters other than"+
+                "Classroom names cannot contain special characters other than "+
                 "()-,#'&", status_code=400
             )
 

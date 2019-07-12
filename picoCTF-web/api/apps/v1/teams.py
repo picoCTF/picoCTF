@@ -36,7 +36,7 @@ class TeamList(Resource):
                 c in string.digits + string.ascii_lowercase + " ()+-,#'*&!?"
                 for c in req['team_name'].lower()]):
             raise PicoException(
-                "Team names cannot contain special characters other than"+
+                "Team names cannot contain special characters other than "+
                 "()+-,#'*&!?", status_code=400
             )
 
