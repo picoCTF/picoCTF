@@ -36,7 +36,8 @@ class TeamList(Resource):
                 c in string.digits + string.ascii_lowercase + " ()+-,#'*&!?"
                 for c in req['team_name'].lower()]):
             raise PicoException(
-                'Team names must be alphanumeric.', status_code=400
+                "Team names cannot contain special characters other than"+
+                "()+-,#'*&!?", status_code=400
             )
 
         new_tid = api.team.create_and_join_new_team(
