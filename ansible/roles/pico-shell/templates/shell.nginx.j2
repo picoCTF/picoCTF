@@ -14,6 +14,8 @@ server {
     listen       80;
     {% endif %}
 
+    more_clear_headers Server;
+
     location /shell {
         proxy_pass http://127.0.0.1:{{ wetty_port }}/shell;
         proxy_set_header Host $host;

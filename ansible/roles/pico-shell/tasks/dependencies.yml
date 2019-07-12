@@ -29,6 +29,7 @@
       'libssl-dev',
       'netfilter-persistent',
       'nginx',
+      'nginx-extras',
       'nodejs',
       'php7.2-cli',       # php5 package deprecated
       'php7.2-sqlite3',   # used to serve challenge binaries

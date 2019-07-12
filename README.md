@@ -11,7 +11,7 @@ competitions. Additional documentation can be found on the
 [wiki](https://github.com/picoCTF/picoCTF/wiki).
 
 Please visit our Discord server for other platform deployment questions not
-covered in our documentation: https://discord.gg/pbdQQ7h
+covered in our documentation: https://discord.gg/VpGTNUJ
 
 ## Quick Start
 

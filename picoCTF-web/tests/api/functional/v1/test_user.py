@@ -24,7 +24,6 @@ def test_login(mongo_proc, client): # noqa (fixture)
         'username': 'invalid'
     })
     assert res.status_code == 400
-    assert res.json['message'] == 'Input payload validation failed'
 
     # Attempt to login with an invalid username
     res = client.post('/api/v1/user/login', json={
