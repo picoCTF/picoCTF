@@ -26,7 +26,11 @@ server {
         error_page 404  = /404.html;
         error_page 401  = /401.html;
 
+        # Block server info in header
         more_clear_headers Server;
+
+        # Prevent clickjacking
+        add_header X-Frame-Options "SAMEORIGIN";
 
         {% if enable_basic_auth -%}
         satisfy any;
