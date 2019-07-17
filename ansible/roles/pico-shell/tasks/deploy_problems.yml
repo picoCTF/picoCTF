@@ -48,7 +48,7 @@
   become: true
   file:
     path: /tmp
-    mode: 1773
+    mode: '1773'
 
 - name: Change /etc/xinetd.d permission
   become: true
