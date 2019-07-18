@@ -48,13 +48,13 @@
   become: true
   file:
     path: /tmp
-    mode: '1773'
+    mode: 01773
 
 - name: Change /etc/xinetd.d permission
   become: true
   file:
     path: /etc/xinetd.d
-    mode: 750
+    mode: 0750
 
 # generally a good idea (on remote, we will find dist.bundle)
 - name: Exclude group and others from ansible_user home directory
