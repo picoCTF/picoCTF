@@ -7,6 +7,10 @@ from api.stats import (check_invalid_instance_submissions, get_all_team_scores,
                        get_group_scores, get_problem_solves,
                        get_registration_count,
                        get_top_teams_score_progressions)
+import socket
+
+# How long after primary stat host falls off to allow another to take primary
+COOLDOWN_TIME = 5 * 60
 
 
 def run():
@@ -15,6 +19,18 @@ def run():
         def cache(f, *args, **kwargs):
             result = f(reset_cache=True, *args, **kwargs)
             return result
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        host = s.getsockname()[0]
+        s.close()
+
+        _cache = api.cache.get_cache()
+        active_stat_host = _cache.get("active_stat_host")
+        if active_stat_host is not None and host != active_stat_host:
+            raise SystemExit
+        else:
+            _cache.set("active_stat_host", host, COOLDOWN_TIME)
 
         print("Caching registration stats...")
         cache(get_registration_count)
