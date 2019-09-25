@@ -259,6 +259,7 @@ service %s
     rlimit_cpu = %s
     per_source = 100
     server = %s
+    env = %s
 }
 """
 
@@ -273,7 +274,7 @@ service %s
         if problem_service_info["Type"] == "oneshot" else "yes", problem.user,
         problem.user, problem.user, "100"
         if problem_service_info["Type"] == "oneshot" else "UNLIMITED",
-        problem_service_info['ExecStart'])
+        problem_service_info['ExecStart'],  getattr(problem, 'env', ''))
 
     service_file_path = join(path, "{}".format(problem.user))
 
