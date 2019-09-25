@@ -3,7 +3,7 @@
 
 import api
 import api.group
-from api.stats import (check_invalid_instance_submissions, get_all_team_scores,
+from api.stats import (collect_shared_submissions, get_all_team_scores,
                        get_group_scores, get_problem_solves,
                        get_registration_count,
                        get_top_teams_score_progressions)
@@ -58,8 +58,8 @@ def run():
             print(problem["name"],
                   cache(get_problem_solves, problem["pid"]))
 
-        print("Caching invalid instance submissions...")
-        cache(check_invalid_instance_submissions)
+        print("Collecting shared flag submissions...")
+        collect_shared_submissions()
 
 
 if __name__ == '__main__':

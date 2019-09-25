@@ -317,7 +317,7 @@ class FlagSharingInfo(Resource):
             )
 
         return jsonify(
-            api.stats.check_invalid_instance_submissions(group['gid']))
+            api.stats.check_shared_group_submissions(group['gid']))
 
 
 @ns.response(200, 'Success')

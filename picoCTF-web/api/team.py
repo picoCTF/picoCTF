@@ -6,6 +6,7 @@ from voluptuous import Length, Required, Schema
 import api
 from api import cache, check, log_action, PicoException
 from api.cache import memoize
+from api.stats import check_shared_submissions
 
 PROBLEMSOLVED_FILTER = ['category', 'name', 'score', 'solve_time']
 
@@ -275,10 +276,7 @@ def get_team_information(tid):
         "usertype": member["usertype"],
     } for member in get_team_members(tid=tid, show_disabled=False)]
     team_info["progression"] = api.stats.get_score_progression(tid=tid)
-    team_info["flagged_submissions"] = [
-        sub for sub in api.stats.check_invalid_instance_submissions()
-        if sub['tid'] == tid
-    ]
+    team_info["flagged_submissions"] = check_shared_submissions(tid=tid)
     team_info["max_team_size"] = api.config.get_settings()["max_team_size"]
 
     if api.config.get_settings()["achievements"]["enable_achievements"]:

@@ -122,4 +122,6 @@ def get_conn():
         __connection.tokens.create_index("tokens.email_verification")
         __connection.tokens.create_index("tokens.password_reset")
 
+        __connection.shared_submissions.create_index("tid")
+
     return __connection

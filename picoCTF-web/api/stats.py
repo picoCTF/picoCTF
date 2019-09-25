@@ -362,15 +362,11 @@ def get_top_teams_score_progressions(
     return [output_item(team_item) for team_item in team_items]
 
 
-@memoize
-def check_invalid_instance_submissions(gid=None):
+def collect_shared_submissions():
     """Get submissions of keys for the wrong problem instance."""
     db = api.db.get_conn()
+    db.shared_submissions.delete_many({})
     shared_key_submissions = []
-
-    group = None
-    if gid is not None:
-        group = api.group.get_group(gid=gid)
 
     for problem in api.problem.get_all_problems(show_disabled=True):
         valid_keys = [instance['flag'] for instance in problem['instances']]
@@ -384,13 +380,35 @@ def check_invalid_instance_submissions(gid=None):
                 if not api.submissions.grade_problem(
                         submission['pid'], submission['key'],
                         tid=submission['tid']):
-                    if group is None or submission['tid'] in group['members']:
-                        submission['username'] = api.user.get_user(
-                            uid=submission['uid'])['username']
-                        submission["problem_name"] = problem["name"]
-                        shared_key_submissions.append(submission)
+                    submission['username'] = api.user.get_user(
+                        uid=submission['uid'])['username']
+                    submission["problem_name"] = problem["name"]
+                    shared_key_submissions.append(submission)
 
-    return shared_key_submissions
+    db.shared_submissions.insert(shared_key_submissions)
+
+
+def check_shared_submissions(tid=None):
+    """Check a team's submissions for flagged keys"""
+    if tid is None:
+        raise PicoException("No team id specified")
+    db = api.db.get_conn()
+    return list(db.shared_submissions.find({'tid': tid},
+                                           {'_id': 0, 'problem_name': 1,
+                                            'key': 1, 'timestamp': 1}))
+
+
+def check_shared_group_submissions(gid=None):
+    """Check a classroom's submissions for flagged keys"""
+    if gid is None:
+        raise PicoException("No classroom id specified")
+
+    db = api.db.get_conn()
+    group = api.group.get_group(gid=gid)
+
+    return list(db.shared_submissions.find({'tid': {'$in': group['members']}},
+                                           {'_id': 0, 'problem_name': 1,
+                                            'key': 1, 'timestamp': 1}))
 
 
 # Stored by the cache_stats daemon.
