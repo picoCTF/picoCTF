@@ -41,6 +41,7 @@ Vagrant.configure("2") do |config|
     shell.vm.provision "ansible_local" do |ansible|
       ansible.install = "yes"
       ansible.install_mode = "pip"
+      ansible.pip_install_cmd = "curl https://bootstrap.pypa.io/2.7/get-pip.py | sudo python"
       ansible.version = "2.9.11"
       ansible.compatibility_mode = "2.0"
       ansible.playbook = "site.yml"
@@ -87,6 +88,7 @@ Vagrant.configure("2") do |config|
     web.vm.provision "ansible_local" do |ansible|
       ansible.install = "yes"
       ansible.install_mode = "pip"
+      ansible.pip_install_cmd = "curl https://bootstrap.pypa.io/2.7/get-pip.py | sudo python"
       ansible.version = "2.9.11"
       ansible.compatibility_mode = "2.0"
       ansible.playbook = "site.yml"
