@@ -11,11 +11,11 @@ all:
     shell:
       hostname                    : "picoCTF-shell-dev"
       ansible_host                : "{{ lookup('env','SIP') or '192.168.2.3' }}"        # from Vagrantfile
-      ansible_ssh_private_key_file: "../.vagrant/machines/shell/virtualbox/private_key" # vagrant created
+      ansible_ssh_private_key_file: "/home/vagrant/.ssh/id_rsa" # vagrant created
     web:
       hostname                    : "picoCTF-web-dev"
       ansible_host                : "{{ lookup('env','WIP') or '192.168.2.2' }}"        # from Vagrantfile
-      ansible_ssh_private_key_file: "../.vagrant/machines/web/virtualbox/private_key"   # vagrant created
+      ansible_ssh_private_key_file: "/home/vagrant/.ssh/id_rsa"   # vagrant created
 
   vars:
       # SSH admin keys (Optional)
