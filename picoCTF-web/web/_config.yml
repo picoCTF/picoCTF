@@ -1,5 +1,5 @@
 # Site settings
-title: CTF
+title: RTD CTF
 
 destination: /srv/http/ctf
 exclude: ['jsx', 'node_modules', 'package.json', 'package-lock.json']
