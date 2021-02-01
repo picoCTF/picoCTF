@@ -55,7 +55,8 @@ def get_score(tid=None, uid=None, time_weighted=True):
     # Not cached
     if score is None:
         solved_problems = api.problem.get_solved_problems(**solved_args)
-        score = sum([problem["score"] for problem in solved_problems])
+        score = sum([problem["score"] + problem["bonus"] if problem["score"] >= 50
+                     else problem["score"] for problem in solved_problems])
         time_weight = 0
         if score > 0:
             sorted_solves = sorted(
@@ -307,7 +308,7 @@ def get_problem_solves(pid):
     """
     db = api.db.get_conn()
 
-    return db.submissions.count({"pid": pid, "correct": True})
+    return db.submissions.count({"pid": pid, "correct": true})
 
 
 # Stored by the cache_stats daemon
