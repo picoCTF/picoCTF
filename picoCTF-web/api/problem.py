@@ -338,6 +338,7 @@ def get_solved_problems(tid=None, uid=None, category=None, show_disabled=False):
         )
 
     pid_times = {}
+    pid_bonus = {}
     result = []
 
     # Team submissions will take precedence because they appear first
@@ -363,8 +364,12 @@ def get_solved_problems(tid=None, uid=None, category=None, show_disabled=False):
                 pid_times[pid] = submission["timestamp"]
         else:
             pid_times[pid] = min(submission["timestamp"], pid_times.get(pid))
+
+        pid_bonus[pid] = submission["bonus"]
     for p in result:
         p["solve_time"] = pid_times[p["pid"]]
+        p["bonus"] = pid_bonus[p["pid"]]
+
     return result
 
 

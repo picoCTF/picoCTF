@@ -96,6 +96,8 @@ def submit_key(tid, pid, key, method, uid, ip=None):
     correct, suspicious = grade_problem(pid, key, tid)
 
     if not previously_solved_by_user:
+        count_solves = api.stats.get_problem_solves(pid)
+        bonus = 10 - count_solves
         db.submissions.insert(
             {
                 "uid": uid,
@@ -108,6 +110,7 @@ def submit_key(tid, pid, key, method, uid, ip=None):
                 "category": api.problem.get_problem(pid, {"category": 1})["category"],
                 "correct": correct,
                 "suspicious": suspicious,
+                "bonus": bonus,
             }
         )
 
