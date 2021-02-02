@@ -692,9 +692,11 @@ const ProblemList = React.createClass({
   render() {
     if (this.props.problems.length === 0) {
       return (
-        <h4>
-          No matching problems are available.
-        </h4>
+        <div className="panel">
+          <h4>
+              No matching problems are available.
+          </h4>
+        </div>
       );
     }
 
