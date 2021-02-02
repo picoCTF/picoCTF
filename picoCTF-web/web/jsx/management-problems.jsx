@@ -532,10 +532,12 @@ const ProblemList = React.createClass({
   render() {
     if (this.props.problems.length === 0) {
       return (
-        <h4>
-          No problems have been loaded. Click <a href="#">here</a> to get
-          started.
-        </h4>
+        <div className="panel">
+          <h4>
+            No problems have been loaded. Click <a href="#">here</a> to get
+            started.
+          </h4>
+        </div>
       );
     }
 
