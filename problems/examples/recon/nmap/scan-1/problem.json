@@ -1,0 +1,10 @@
+{
+  "name": "Find The Port",
+  "category": "Recon",
+  "description": "Find the FTP server and connect to it",
+  "score": 50,
+  "hints": [],
+  "author": "gr0k",
+  "organization": "Cohere",
+  "event": "RTD CTF"
+}
