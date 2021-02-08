@@ -307,7 +307,7 @@ def get_problem_solves(pid):
     """
     db = api.db.get_conn()
 
-    return db.submissions.count({"pid": pid, "correct": true})
+    return db.submissions.count({"pid": pid, "correct": True})
 
 
 # Stored by the cache_stats daemon
