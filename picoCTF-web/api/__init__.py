@@ -17,6 +17,7 @@ from api.user import (
     require_admin,  # noqa
     require_login,
     require_teacher,
+    require_bot,
 )
 
 import api.achievement

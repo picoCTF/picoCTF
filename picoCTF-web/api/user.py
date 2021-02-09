@@ -270,6 +270,7 @@ def add_user(params, batch_registration=False):
         "demo": params["demo"],
         "teacher": user_is_teacher,
         "admin": user_is_admin,
+        "challenge": False,
         "disabled": False,
         "verified": (not settings["email"]["email_verification"] or user_was_invited),
         "extdata": {},
@@ -461,7 +462,6 @@ def update_extdata(params):
     db = api.db.get_conn()
     db.users.update_one({"uid": user["uid"]}, {"$set": {"extdata": params}})
 
-
 def reset_password(token_value, password, confirm_password):
     """
     Perform the password update operation.
@@ -590,6 +590,28 @@ def require_admin(f):
 
     return wrapper
 
+def require_bot(f):
+    """
+    Wrap routing functions that require a user to be a challenge.
+
+    This allows challenges to use the API to query user data
+
+    Setting a user as a Challenge Bot is currently done manually
+
+    TODO:
+    Provide admin user ability to add a user as a Challenge Bot
+    """
+
+    @require_login
+    @wraps(f)
+    def wrapper(*args, **kwds):
+        if not api.user.get_user().get("challenge", False):
+            raise PicoException(
+                "You do not have permission to access this resource", 403
+            )
+        return f(*args, **kwds)
+
+    return wrapper
 
 def check_csrf(f):
     """Wrap routing functions that require a CSRF token."""
@@ -681,3 +703,53 @@ def can_leave_team(uid):
     if len(api.submissions.get_submissions(uid=uid)) > 0:
         return False
     return True
+
+@log_action
+def add_htb_id(user_name, htb_id):
+    """
+    Note: This could be done with def update_extdata, however
+    update_extdata looks up the logged in user. This request
+    is being performed by a challenge at the request of a user,
+    so the user lookup there would fail.
+
+    Associate a users Hack the Box ID with their User data.
+
+    Args:
+        user_name: the user who's profile is updated
+        htb_id: the HTB id for the user
+    """
+    user = get_user(name=user_name)
+
+    if not user:
+        raise PicoException("Could not find user", 400)
+
+    if "htb_id" in user:
+        raise PicoException("HTB ID already set", 409)
+
+    users = get_all_users()
+    for u in users:
+        if "htb_id" in u:
+            if htb_id == u["htb_id"]:
+                raise PicoException("Another User has this HTB ID already", 409)
+
+    db = api.db.get_conn()
+    db.users.update_one({"uid": user["uid"]}, {"$set": {"htb_id": htb_id}})
+
+    return {"success": True}
+
+def get_htb_id(user_name):
+    """
+    Get a user's HTB ID
+
+    Args:
+        user_name: the user to find
+    """
+    user = get_user(name=user_name)
+
+    if not user:
+        raise PicoException("Could not find user", 400)
+
+    if "htb_id" not in user:
+        raise PicoException("Missing HTB ID", 409)
+
+    return {"success": True, "htb_id": user["htb_id"]}

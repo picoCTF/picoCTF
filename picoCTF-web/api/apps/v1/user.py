@@ -3,7 +3,7 @@ from flask import jsonify, redirect
 from flask_restplus import Namespace, Resource
 
 import api
-from api import check_csrf, PicoException, rate_limit, require_login
+from api import check_csrf, PicoException, rate_limit, require_login, require_bot
 
 from .schemas import (
     disable_account_req,
@@ -13,6 +13,7 @@ from .schemas import (
     reset_password_req,
     update_password_req,
     user_extdata_req,
+    user_htb_req,
 )
 
 ns = Namespace(
@@ -257,3 +258,37 @@ class UserDataExport(Resource):
         return jsonify(
             {"user": user_data, "submissions": submissions, "feedback": feedbacks}
         )
+
+
+@ns.route("/set_htb_id")
+class SetHTBProfile(Resource):
+    """Add Hack the Box Profile ID to User data."""
+
+    @check_csrf
+    @require_bot
+    @ns.response(200, "Success")
+    @ns.response(401, "Not logged in")
+    @ns.response(403, "CSRF token invalid")
+    @ns.response(404, "Username not found")
+    @ns.expect(user_htb_req)
+    def post(self):
+        req = user_htb_req.parse_args(strict=True)
+        res = api.user.add_htb_id(req["user_name"], req["htb_id"])
+        return jsonify(res)
+
+@ns.route("/get_htb_id/<string:user_name>")
+class SetHTBProfile(Resource):
+    """Add Hack the Box Profile ID to User data."""
+
+    @check_csrf
+    @require_bot
+    @ns.response(200, "Success")
+    @ns.response(401, "Not logged in")
+    @ns.response(403, "CSRF token invalid")
+    @ns.response(404, "Username not found")
+    def get(self, user_name):
+        if user_name == None:
+            raise PicoException("Missing user_name", 400)
+
+        res = api.user.get_htb_id(user_name)
+        return jsonify(res)

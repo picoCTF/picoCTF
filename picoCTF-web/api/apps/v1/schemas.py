@@ -680,6 +680,25 @@ reset_password_req.add_argument(
     error="Username is required",
 )
 
+# Set Hack The Box Profile request
+user_htb_req= reqparse.RequestParser()
+user_htb_req.add_argument(
+    "user_name",
+    required=True,
+    type=str,
+    location="json",
+    help="Username",
+    error="Username is required",
+)
+user_htb_req.add_argument(
+    "htb_id",
+    required=True,
+    type=int,
+    location="json",
+    help="Hack the Box Profile ID Number",
+    error="HTB Profile ID Number is required",
+)
+
 # Email verification request
 email_verification_req = reqparse.RequestParser()
 email_verification_req.add_argument(
