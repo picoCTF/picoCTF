@@ -67,7 +67,7 @@ setup(
         "cchardet==2.1.4",
         "docker[tls]==4.2.0",
         "eventlet==0.25.1",
-        "Flask==1.1.1",
+        "Flask==2.2.5",
         "Flask-Bcrypt==0.7.1",
         "Flask-Mail==0.9.1",
         "flask-restplus==0.13.0",
