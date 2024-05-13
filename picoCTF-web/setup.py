@@ -74,7 +74,7 @@ setup(
         "gunicorn==19.9.0",
         "marshmallow==3.0.1",
         "py==1.10.0",
-        "pymongo==3.9.0",
+        "pymongo==4.6.3",
         "spur==0.3.21",
         "voluptuous==0.11.7",
         "walrus==0.7.1",
