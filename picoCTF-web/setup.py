@@ -71,7 +71,7 @@ setup(
         "Flask-Bcrypt==0.7.1",
         "Flask-Mail==0.9.1",
         "flask-restplus==0.13.0",
-        "gunicorn==19.9.0",
+        "gunicorn==22.0.0",
         "marshmallow==3.0.1",
         "py==1.10.0",
         "pymongo==3.9.0",
