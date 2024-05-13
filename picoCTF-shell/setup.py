@@ -67,7 +67,7 @@ setup(
         "docker[tls]==4.2.0",
         "Flask==1.1.1",
         "idna<3",
-        "Jinja2==2.11.3",
+        "Jinja2==3.1.4",
         "openssh-wrapper==0.4",
         "psutil==5.6.6",
         "pytest==3.6.1",
