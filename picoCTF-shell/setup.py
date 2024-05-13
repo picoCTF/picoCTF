@@ -73,7 +73,7 @@ setup(
         "pytest==3.6.1",
         "spur==0.3.21",
         "voluptuous==0.11.7",
-        "Werkzeug==0.15.5",
+        "Werkzeug==3.0.3",
     ],
     extras_require={"dev": ["black", "flake8", "pydocstyle"]},
     # To provide executable scripts, use entry points in preference to the
