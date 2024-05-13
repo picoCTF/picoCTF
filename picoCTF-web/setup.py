@@ -66,7 +66,7 @@ setup(
         "bs4==0.0.1",
         "cchardet==2.1.4",
         "docker[tls]==4.2.0",
-        "eventlet==0.25.1",
+        "eventlet==0.35.2",
         "Flask==1.1.1",
         "Flask-Bcrypt==0.7.1",
         "Flask-Mail==0.9.1",
